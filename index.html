@@ -706,7 +706,7 @@
         const CHARGE_DURATION = 2000;
         
         // --- Gemini API & Chat Logic ---
-        const apiKey = ""; 
+        const apiKey = "AIzaSyBkxmon-EvaU6Ay7-jJ3VnVEmk1d8tSEsE"; 
 
         const chatToggle = document.getElementById('chat-toggle');
         const chatWindow = document.getElementById('chat-window');
@@ -853,11 +853,11 @@
         const cursorCharge = document.getElementById('cursor-charge');
         const chargeCircle = cursorCharge.querySelector('circle');
         const links = document.querySelectorAll('.link-hover');
-        let mouseX = window.innerWidth / 2, mouseY = window.innerHeight / 2;
-        let ringX = mouseX, ringY = mouseY, coreX = mouseX, coreY = mouseY;
+        let cursorX = window.innerWidth / 2, cursorY = window.innerHeight / 2;
+        let ringX = cursorX, ringY = cursorY, coreX = cursorX, coreY = cursorY;
         let isMouseDown = false;
 
-        document.addEventListener('mousemove', (e) => { mouseX = e.clientX; mouseY = e.clientY; });
+        document.addEventListener('mousemove', (e) => { cursorX = e.clientX; cursorY = e.clientY; });
         
         // Right Click Charge Logic
         document.addEventListener('mousedown', (e) => {
@@ -893,12 +893,12 @@
         document.addEventListener('contextmenu', (e) => e.preventDefault());
 
         gsap.ticker.add(() => {
-            coreX += (mouseX - coreX) * 0.2; coreY += (mouseY - coreY) * 0.2;
+            coreX += (cursorX - coreX) * 0.2; coreY += (cursorY - coreY) * 0.2;
             cursorCore.style.left = coreX + 'px'; cursorCore.style.top = coreY + 'px';
-            ringX += (mouseX - ringX) * 0.1; ringY += (mouseY - ringY) * 0.1;
+            ringX += (cursorX - ringX) * 0.1; ringY += (cursorY - ringY) * 0.1;
             cursorRing.style.left = ringX + 'px'; cursorRing.style.top = ringY + 'px';
             
-            cursorCharge.style.left = mouseX + 'px'; cursorCharge.style.top = mouseY + 'px';
+            cursorCharge.style.left = cursorX + 'px'; cursorCharge.style.top = cursorY + 'px';
 
             if (isCharging && !isTerrorMode) {
                 const elapsed = Date.now() - chargeStartTime;
@@ -1063,7 +1063,7 @@
                 spotlightX = width/2;
             } else {
                 // Smooth spotlight movement
-                spotlightX = lerp(spotlightX, mouseX, 0.05);
+                spotlightX = lerp(spotlightX, cursorX, 0.05);
             }
             
             // 1. Draw Background & Volumetric Atmosphere
@@ -1080,7 +1080,7 @@
             for(let p of particles) { if(p.layer === 'mid') { p.update(); p.display(); } }
 
             // 5. Interactive Elements
-            if (dist(mouseX, mouseY, pmouseX, pmouseY) > 5 && !isTerrorMode) foods.push(new Food(mouseX, mouseY, currentThemeColor));
+            if (dist(cursorX, cursorY, pmouseX, pmouseY) > 5 && !isTerrorMode) foods.push(new Food(cursorX, cursorY, currentThemeColor));
             for (let i = foods.length - 1; i >= 0; i--) {
                 foods[i].update(); foods[i].display(); if (foods[i].isDead()) foods.splice(i, 1);
             }
@@ -1096,7 +1096,7 @@
 
             // 6. Creatures
             for (let c of creatures) {
-                c.behaviors(foods, createVector(mouseX - globalSwayX, mouseY - globalSwayY)); c.update(); c.display();
+                c.behaviors(foods, createVector(cursorX - globalSwayX, cursorY - globalSwayY)); c.update(); c.display();
             }
             
             // 7. Foreground Particles (Blurry, Fast)
@@ -1107,7 +1107,7 @@
             goblinShark.display();
             
             // 9. Interaction Trigger
-            if (mouseIsPressed && !isTerrorMode && frameCount % 10 === 0) foods.push(new Food(mouseX + random(-20, 20), mouseY + random(-20, 20), currentThemeColor));
+            if (mouseIsPressed && !isTerrorMode && frameCount % 10 === 0) foods.push(new Food(cursorX + random(-20, 20), cursorY + random(-20, 20), currentThemeColor));
 
             pop();
         }
@@ -1116,7 +1116,7 @@
             // Abyss Gradient (Heavy Water Pressure)
             let ctx = drawingContext;
             let cx = spotlightX;
-            let cy = isTerrorMode ? height/2 : mouseY;
+            let cy = isTerrorMode ? height/2 : cursorY;
             
             fill(0, 0, 5, 255); 
             rect(-100, -100, width + 200, height + 200);
@@ -1158,7 +1158,7 @@
             
             noStroke();
             
-            let grad = ctx.createRadialGradient(spotlightX, mouseY, 0, spotlightX, mouseY, 600);
+            let grad = ctx.createRadialGradient(spotlightX, cursorY, 0, spotlightX, cursorY, 600);
             let r = red(lightColor), g = green(lightColor), b = blue(lightColor);
             
             grad.addColorStop(0, `rgba(${r}, ${g}, ${b}, 0.08)`);
@@ -1166,13 +1166,13 @@
             grad.addColorStop(1, `rgba(0,0,0,0)`);
             
             ctx.fillStyle = grad;
-            circle(spotlightX, mouseY, 1200);
+            circle(spotlightX, cursorY, 1200);
 
-            let coreGrad = ctx.createRadialGradient(spotlightX, mouseY, 0, spotlightX, mouseY, 80);
+            let coreGrad = ctx.createRadialGradient(spotlightX, cursorY, 0, spotlightX, cursorY, 80);
             coreGrad.addColorStop(0, `rgba(255, 255, 255, 0.2)`);
             coreGrad.addColorStop(1, `rgba(255, 255, 255, 0)`);
             ctx.fillStyle = coreGrad;
-            circle(spotlightX, mouseY, 160);
+            circle(spotlightX, cursorY, 160);
 
             pop();
         }
@@ -1207,7 +1207,7 @@
 
             update() {
                 // Parallax based on mouse
-                let parallax = (mouseX - width/2) * 0.0005;
+                let parallax = (cursorX - width/2) * 0.0005;
                 if (this.layer === 'mid') parallax *= 2;
                 if (this.layer === 'front') parallax *= 4;
                 
@@ -1239,9 +1239,9 @@
                     let b = blue(currentThemeColor || color(255));
                     
                     // Distance to light affects visibility (光に近いほど明るく見える)
-                    let d = dist(this.x, this.y, spotlightX, this.layer === 'front' ? mouseY : 0);
+                    let d = dist(this.x, this.y, spotlightX, this.layer === 'front' ? cursorY : 0);
                     // 上層からの光も考慮しつつ、マウス周辺も明るく
-                    let lightInfluence = map(dist(this.x, this.y, spotlightX, mouseY), 0, 400, 1.5, 0.5);
+                    let lightInfluence = map(dist(this.x, this.y, spotlightX, cursorY), 0, 400, 1.5, 0.5);
                     lightInfluence = constrain(lightInfluence, 0.5, 2.0);
                     
                     col = color(r, g, b, this.baseAlpha * lightInfluence);
@@ -1340,8 +1340,9 @@
                 this.isPeeking = false; 
             } 
             update() { 
-                let d = dist(mouseX, mouseY, this.x, this.y - this.currentH); 
-                let rootD = dist(mouseX, mouseY, this.x, this.y); 
+                // 修正: 自前のカーソル座標を使用
+                let d = dist(cursorX, cursorY, this.x, this.y - this.currentH); 
+                let rootD = dist(cursorX, cursorY, this.x, this.y); 
                 let isScared = (d < 200 || rootD < 200); 
 
                 // 追加: ラブカが近づいた場合も隠れる
