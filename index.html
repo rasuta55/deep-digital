@@ -439,6 +439,74 @@
                     0 0 80px rgba(67, 97, 238, 0.3);
             }
         }
+        
+        /* DIGITALテキストの点滅アニメーション (Flicker 15s - Rainbow) */
+        .digital-flicker {
+            /* レインボーグラデーション設定 */
+            background: linear-gradient(
+                90deg, 
+                #ff00cc 0%, 
+                #3333ff 14%, 
+                #00ccff 28%, 
+                #00ff00 42%, 
+                #ffff00 57%, 
+                #ff9900 71%, 
+                #ff0000 85%, 
+                #ff00cc 100%
+            );
+            background-size: 200% auto;
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent; /* 文字色を透明にして背景を表示 */
+            
+            /* アニメーション: 色の流動(aurora-flow) + 明滅(flicker-15s-rainbow) */
+            animation: 
+                aurora-flow 4s linear infinite,
+                flicker-15s-rainbow 15s infinite linear;
+        }
+
+        @keyframes flicker-15s-rainbow {
+            /* --- 通常点灯 (0-70%) --- */
+            0%, 70% {
+                opacity: 1;
+                filter: drop-shadow(0 0 8px rgba(255, 255, 255, 0.6));
+            }
+
+            /* --- 不安定・ノイズ (70%-75%) --- */
+            70.1% { opacity: 0.3; }
+            70.3% { opacity: 0.8; filter: none; }
+            70.6% { opacity: 0.1; }
+            71% { opacity: 0.6; }
+            72% { opacity: 0.1; }
+            73% { opacity: 0.9; filter: drop-shadow(0 0 5px rgba(255, 255, 255, 0.4)); }
+            74% { opacity: 0.2; }
+            
+            /* --- 完全消灯 (75%-85%: 1.5秒) --- */
+            75%, 85% {
+                opacity: 0;
+                filter: none;
+            }
+
+            /* --- スパーク (85%-88%) --- */
+            85.1% { opacity: 0.5; }
+            85.3% { opacity: 0; }
+            86% { opacity: 0.8; filter: drop-shadow(0 0 5px rgba(255, 255, 255, 0.8)); }
+            86.2% { opacity: 0; }
+            
+            /* --- 閃光 (90%) --- */
+            90% {
+                opacity: 1;
+                /* 強烈な発光 */
+                filter: drop-shadow(0 0 10px rgba(255, 255, 255, 0.8)) drop-shadow(0 0 20px rgba(255, 255, 255, 0.6)) drop-shadow(0 0 40px rgba(255, 255, 255, 0.4));
+            }
+
+            /* --- 安定化 (92%-100%) --- */
+            92% { opacity: 0.9; }
+            100% {
+                opacity: 1;
+                filter: drop-shadow(0 0 8px rgba(255, 255, 255, 0.6));
+            }
+        }
 
         .oracle-aurora { 
             background: linear-gradient(
@@ -575,7 +643,7 @@
             <div class="relative z-10 text-center">
                 <h1 class="font-display font-black text-[13vw] text-white leading-none tracking-tighter">
                     <div class="overflow-hidden"><span class="block reveal-hero translate-y-full digital-glow">DEEP</span></div>
-                    <div class="overflow-hidden"><span class="block reveal-hero translate-y-full oracle-aurora">DIGITAL</span></div>
+                    <div class="overflow-hidden"><span class="block reveal-hero translate-y-full digital-flicker">DIGITAL</span></div>
                 </h1>
                 <p class="mt-8 font-cute text-sm md:text-lg tracking-[0.2em] text-white/80 reveal-hero-sub opacity-0">Ask the jelly, color the sea.</p>
             </div>
