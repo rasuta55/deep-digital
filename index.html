@@ -1,0 +1,1603 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PRISM FLUX | Kawaii Deep Sea</title>
+    
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;700;800&family=Manrope:wght@200;400;600&family=Zen+Maru+Gothic:wght@400;700;900&family=Nosifer&family=Rubik+Glitch&family=Oswald:wght@700&display=swap" rel="stylesheet">
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Libraries -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.6.0/p5.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/gh/studio-freight/lenis@1.0.29/bundled/lenis.min.js"></script>
+    
+    <!-- Markdown Parser for Chat -->
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['"Manrope"', '"Zen Maru Gothic"', 'sans-serif'],
+                        display: ['"Syne"', 'sans-serif'],
+                        cute: ['"Zen Maru Gothic"', 'sans-serif'],
+                        horror: ['"Nosifer"', 'cursive'],
+                        glitch: ['"Rubik Glitch"', 'cursive'],
+                        impact: ['"Oswald"', 'sans-serif'],
+                    },
+                    colors: {
+                        void: '#050510',
+                        biolum: '#4CC9F0',
+                        biolum2: '#4361EE',
+                        biolum3: '#F72585',
+                        kawaii_p: '#FF99C8',
+                        kawaii_c: '#99F7FF',
+                        glass: 'rgba(255, 255, 255, 0.05)',
+                        blood: '#8a0303',
+                    },
+                }
+            }
+        }
+    </script>
+
+    <style>
+        /* --- Core & Reset --- */
+        html.lenis { height: auto; }
+        .lenis.lenis-smooth { scroll-behavior: auto; }
+        .lenis.lenis-smooth [data-lenis-prevent] { overscroll-behavior: contain; }
+        .lenis.lenis-stopped { overflow: hidden; }
+
+        body {
+            background: #020205; 
+            color: #EAEAEA;
+            cursor: none;
+            overflow-x: hidden;
+            margin: 0;
+            padding: 0;
+            transition: background-color 0.05s;
+        }
+        
+        /* 恐怖モード: 攻撃的なデジタルストロボ */
+        body.terror-mode {
+            background: #000000;
+            animation: razor-strobe 0.08s infinite steps(2); 
+            
+            /* CSSレベルでのスクロールロック強化 */
+            height: 100vh;
+            overflow: hidden;
+            position: fixed;
+            width: 100%;
+        }
+        
+        @keyframes razor-strobe {
+            0% { background-color: #000000; filter: invert(0); }
+            30% { background-color: #2a0000; filter: invert(0); } /* 暗赤 */
+            50% { background-color: #000000; filter: invert(0); }
+            55% { background-color: #ffff00; filter: invert(1); } /* 反転黄色 */
+            60% { background-color: #000000; filter: invert(0); }
+            90% { background-color: #ff0000; filter: invert(0); } /* 赤 */
+            100% { background-color: #000000; filter: invert(0); }
+        }
+
+        /* --- Terror Mode UI Control --- */
+        body.terror-mode nav,
+        body.terror-mode main,
+        body.terror-mode .chat-widget,
+        body.terror-mode .sound-visualizer,
+        body.terror-mode #cursor-ring {
+            opacity: 0;
+            pointer-events: none;
+            visibility: hidden; 
+            transition: opacity 0.05s ease-out;
+        }
+
+        /* --- Vignette & Atmosphere --- */
+        #vignette {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            pointer-events: none;
+            z-index: 50; 
+            background: radial-gradient(circle at center, transparent 30%, rgba(0,0,0,0.85) 100%);
+            transition: all 1s;
+        }
+        
+        body.terror-mode #vignette {
+            background: radial-gradient(circle at center, transparent 15%, rgba(0,0,0,0.8) 50%, #000000 90%);
+            box-shadow: inset 0 0 100px rgba(255, 0, 0, 0.2);
+            mix-blend-mode: multiply;
+        }
+        
+        /* 走査線ノイズ */
+        #scanlines {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            pointer-events: none;
+            z-index: 51;
+            background: repeating-linear-gradient(
+                0deg,
+                rgba(0, 0, 0, 0.1),
+                rgba(0, 0, 0, 0.1) 1px,
+                transparent 1px,
+                transparent 3px
+            );
+            background-size: 100% 100%;
+            opacity: 0;
+            transition: opacity 0.1s;
+        }
+        body.terror-mode #scanlines {
+            opacity: 0.6;
+            animation: noise-twitch 0.05s infinite;
+        }
+        
+        @keyframes noise-twitch {
+            0% { transform: translate(0, 0); }
+            50% { transform: translate(1px, -1px); }
+            100% { transform: translate(-1px, 1px); }
+        }
+
+        /* --- Custom Cursor --- */
+        #cursor-core {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 12px;
+            height: 12px;
+            background: #fff;
+            border-radius: 50%;
+            pointer-events: none;
+            z-index: 10000;
+            transform: translate(-50%, -50%);
+            mix-blend-mode: overlay;
+            box-shadow: 0 0 15px 5px rgba(255, 255, 255, 0.8);
+            transition: background 0.3s;
+        }
+        
+        #cursor-ring {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 50px;
+            height: 50px;
+            border: 2px solid rgba(255, 153, 200, 0.4);
+            border-radius: 50%;
+            pointer-events: none;
+            z-index: 9999;
+            transform: translate(-50%, -50%);
+            transition: width 0.4s, height 0.4s, border-color 0.4s, background 0.4s;
+        }
+
+        body.hovering #cursor-ring {
+            width: 80px;
+            height: 80px;
+            background: rgba(255, 153, 200, 0.1);
+            border-color: #FF99C8;
+            backdrop-filter: blur(2px);
+        }
+
+        /* Terror Mode Cursor */
+        body.terror-mode #cursor-core {
+            background: #ff0000;
+            box-shadow: 0 0 30px 10px rgba(255, 0, 0, 1);
+            width: 10px;
+            height: 10px;
+            border-radius: 0; 
+            transform: translate(-50%, -50%) rotate(45deg);
+            mix-blend-mode: normal;
+        }
+
+        /* Charge Indicator */
+        #cursor-charge {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100px;
+            height: 100px;
+            pointer-events: none;
+            z-index: 9998;
+            transform: translate(-50%, -50%) rotate(-90deg);
+            opacity: 0;
+        }
+        #cursor-charge circle {
+            fill: none;
+            stroke: #ff0000;
+            stroke-width: 4;
+            stroke-dasharray: 283; 
+            stroke-dashoffset: 283;
+            transition: stroke-dashoffset 0.1s linear;
+            filter: drop-shadow(0 0 10px #ff0000);
+        }
+        #cursor-charge.shaking {
+            animation: shake-charge 0.05s infinite;
+        }
+        @keyframes shake-charge {
+            0% { margin-left: -2px; margin-top: 2px; }
+            25% { margin-left: 2px; margin-top: -2px; }
+            50% { margin-left: -1px; margin-top: -1px; }
+            75% { margin-left: 1px; margin-top: 1px; }
+            100% { margin-left: 0; margin-top: 0; }
+        }
+
+        /* --- WARNING Overlay (Instant & Persistent) --- */
+        #warning-container {
+            position: fixed;
+            inset: 0;
+            z-index: 2147483647; /* 最前面 */
+            pointer-events: none;
+            display: none;
+            flex-direction: column; 
+            justify-content: center;
+            align-items: center;
+            background: transparent;
+            padding: 5vw;
+        }
+        
+        /* チャージ中、または恐怖モード中にアクティブ化 */
+        #warning-container.active {
+            display: flex !important;
+            visibility: visible !important;
+            opacity: 1 !important;
+        }
+
+        .warning-text {
+            /* Syneフォント */
+            font-family: 'Syne', sans-serif;
+            /* 画面に収まるサイズ */
+            font-size: 10vw; 
+            line-height: 1;
+            font-weight: 800;
+            
+            /* 血のような赤: 暗い赤の本体に、鮮血の縁取り */
+            color: #660000; 
+            -webkit-text-stroke: 2px #ff0000;
+            
+            letter-spacing: 0.05em;
+            text-transform: uppercase;
+            text-align: center;
+            width: 100%;
+            max-width: 90vw;
+            white-space: nowrap; 
+            
+            /* 振動アニメーション */
+            animation: warning-quake 0.1s infinite;
+            
+            /* 影: 血の滲み */
+            filter: drop-shadow(0 0 10px #ff0000) drop-shadow(0 0 30px #8a0303);
+        }
+        
+        /* ズレ演出 */
+        .warning-text::before,
+        .warning-text::after {
+            content: "WARNING";
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            -webkit-text-stroke: 0;
+            opacity: 0.8;
+            mix-blend-mode: normal;
+            z-index: -1;
+        }
+        
+        .warning-text::before {
+            color: #00ffff;
+            transform: translate(-4px, -4px);
+            animation: shift-cyan 0.05s infinite;
+        }
+        
+        .warning-text::after {
+            color: #ffff00;
+            transform: translate(4px, 4px);
+            animation: shift-yellow 0.05s infinite;
+        }
+
+        @keyframes warning-quake {
+            0% { transform: skew(0deg); }
+            25% { transform: translate(-2px, 2px) skew(-2deg); }
+            50% { transform: translate(2px, -2px) skew(2deg); }
+            75% { transform: translate(-2px, -2px) skew(-1deg); }
+            100% { transform: skew(0deg); }
+        }
+        
+        @keyframes shift-cyan {
+            0% { transform: translate(-4px, -4px); }
+            50% { transform: translate(-2px, -2px); }
+            100% { transform: translate(-5px, -3px); }
+        }
+        
+        @keyframes shift-yellow {
+            0% { transform: translate(4px, 4px); }
+            50% { transform: translate(2px, 2px); }
+            100% { transform: translate(2px, -4px); }
+        }
+
+        /* --- Background Canvas --- */
+        #canvas-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            z-index: -1;
+            transition: filter 0.1s;
+        }
+        
+        /* 恐怖モード時のフィルタ: シャープで硬質な質感 */
+        body.terror-mode #canvas-container {
+            filter: grayscale(0.5) contrast(1.8) brightness(1.3) sepia(0.2); 
+        }
+
+        /* --- Preserved Styles --- */
+        .chat-widget { position: fixed; bottom: 30px; right: 30px; z-index: 9000; display: flex; flex-direction: column; align-items: flex-end; }
+        .chat-toggle { width: 80px; height: 80px; border-radius: 50%; background: rgba(255, 255, 255, 0.05); backdrop-filter: blur(5px); cursor: pointer; display: flex; justify-content: center; align-items: center; transition: transform 0.3s ease; transform-style: preserve-3d; }
+        .chat-window { width: 320px; height: 450px; background: rgba(5, 5, 16, 0.85); backdrop-filter: blur(20px); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 20px; margin-bottom: 20px; display: flex; flex-direction: column; overflow: hidden; transform-origin: bottom right; transform: scale(0); opacity: 0; transition: all 0.4s cubic-bezier(0.19, 1, 0.22, 1); }
+        .chat-window.active { transform: scale(1); opacity: 1; }
+        .chat-header { padding: 15px; background: rgba(255, 255, 255, 0.05); border-bottom: 1px solid rgba(255, 255, 255, 0.1); display: flex; justify-content: space-between; align-items: center; }
+        .chat-messages { flex: 1; padding: 15px; overflow-y: auto; font-family: "Zen Maru Gothic", sans-serif; font-size: 14px; display: flex; flex-direction: column; gap: 12px; }
+        .message { max-width: 80%; padding: 10px 14px; border-radius: 12px; line-height: 1.5; word-wrap: break-word; }
+        .message.bot { align-self: flex-start; background: rgba(76, 201, 240, 0.2); border-top-left-radius: 2px; color: #EAEAEA; }
+        .message.user { align-self: flex-end; background: rgba(255, 153, 200, 0.2); border-bottom-right-radius: 2px; color: #fff; }
+        .chat-input-area { padding: 15px; border-top: 1px solid rgba(255, 255, 255, 0.1); display: flex; gap: 10px; }
+        .chat-input { flex: 1; background: rgba(255, 255, 255, 0.05); border: none; border-radius: 20px; padding: 8px 15px; color: white; font-family: "Zen Maru Gothic", sans-serif; outline: none; }
+        .chat-send { background: #4CC9F0; color: #050510; border: none; border-radius: 50%; width: 32px; height: 32px; display: flex; justify-content: center; align-items: center; cursor: pointer; transition: transform 0.2s; }
+        .jelly-3d { position: relative; width: 50px; height: 50px; transform-style: preserve-3d; transition: transform 0.1s ease-out; }
+        .jelly-head { position: absolute; top: 0; left: 5px; width: 40px; height: 30px; background: radial-gradient(circle at 30% 30%, rgba(255, 255, 255, 0.9), rgba(153, 247, 255, 0.8) 40%, rgba(76, 201, 240, 0.4)); border-radius: 50% 50% 40% 40%; box-shadow: 0 0 15px rgba(153, 247, 255, 0.6), inset 0 0 10px rgba(255,255,255,0.5); z-index: 2; }
+        .jelly-eyes { position: absolute; top: 12px; left: 10px; width: 30px; display: flex; justify-content: space-between; padding: 0 5px; z-index: 3; transform: translateZ(5px); }
+        .eye { width: 4px; height: 6px; background: #050510; border-radius: 50%; --eye-x: 0px; --eye-y: 0px; transform: translate(var(--eye-x), var(--eye-y)); animation: blink 4s infinite; }
+        .jelly-tentacles { position: absolute; top: 25px; left: 5px; width: 40px; display: flex; justify-content: space-around; z-index: 1; }
+        .tentacle { width: 4px; height: 20px; background: rgba(255, 153, 200, 0.6); border-radius: 2px; animation: wiggle 2s ease-in-out infinite; transform-origin: top center; }
+        .tentacle:nth-child(2) { animation-delay: 0.2s; height: 25px; }
+        .tentacle:nth-child(3) { animation-delay: 0.4s; }
+        .glass-card { background: rgba(255, 255, 255, 0.02); backdrop-filter: blur(12px); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 24px; transition: transform 0.5s ease, background 0.5s ease; }
+        
+        /* DIGITALテキストの点滅アニメーション (Heavy Flicker 20s) */
+        .digital-glow { 
+            color: #FFFFFF; 
+            -webkit-text-stroke: 0; 
+            border: none; 
+            outline: none; 
+            /* 初期状態は安定、アニメーションで変化させる */
+            text-shadow: 0 0 10px rgba(255, 255, 255, 0.9), 0 0 20px rgba(153, 247, 255, 0.7), 0 0 40px rgba(76, 201, 240, 0.5), 0 0 80px rgba(67, 97, 238, 0.3);
+            animation: heavy-flicker-20s 20s infinite linear;
+        }
+
+        /* 20秒間隔で強弱のある明滅・消灯・復活を行うアニメーション */
+        @keyframes heavy-flicker-20s {
+            /* --- 通常点灯 (0-16.8s) --- */
+            0%, 84% {
+                opacity: 1;
+                color: #FFFFFF;
+                text-shadow: 
+                    0 0 10px rgba(255, 255, 255, 0.9), 
+                    0 0 20px rgba(153, 247, 255, 0.7), 
+                    0 0 40px rgba(76, 201, 240, 0.5), 
+                    0 0 80px rgba(67, 97, 238, 0.3);
+            }
+
+            /* --- 電圧低下・激しいフリッカー (16.8s-17.4s) --- */
+            84.1% { opacity: 0.2; text-shadow: none; }
+            84.2% { opacity: 1; text-shadow: 0 0 10px rgba(255,255,255,0.8); }
+            84.3% { opacity: 0.1; text-shadow: none; }
+            84.6% { opacity: 1; text-shadow: 0 0 10px rgba(255,255,255,0.8); }
+            85% { opacity: 0; text-shadow: none; }
+            85.1% { opacity: 0.5; }
+            86% { opacity: 0.2; }
+            86.5% { opacity: 0.1; color: #333; text-shadow: none; } /* 暗く */
+
+            /* --- 完全消灯 (17.4s-18.4s: 約1秒間) --- */
+            87%, 92% {
+                opacity: 0; /* 完全に見えなくする */
+                text-shadow: none;
+                color: #000;
+            }
+
+            /* --- 再点灯スパーク (18.4s-18.8s: パチパチ) --- */
+            92.1% { opacity: 1; color: #fff; text-shadow: 0 0 5px #fff; } /* パチッ */
+            92.2% { opacity: 0; text-shadow: none; }
+            92.5% { opacity: 0.8; text-shadow: 0 0 5px #fff; } /* パチッ */
+            92.6% { opacity: 0; }
+            93.5% { opacity: 0; }
+
+            /* --- 復活の閃光 (19.0s-19.2s: オーバーロード) --- */
+            95% {
+                opacity: 1;
+                color: #fff;
+                /* 視界が白むほどの強烈なグロー */
+                text-shadow: 
+                    0 0 20px rgba(255, 255, 255, 1), 
+                    0 0 50px rgba(255, 255, 255, 1), 
+                    0 0 100px rgba(255, 255, 255, 1), 
+                    0 0 180px rgba(153, 247, 255, 1);
+            }
+
+            /* --- 安定化 (19.2s-20s) --- */
+            96% {
+                opacity: 0.8;
+                text-shadow: 0 0 10px rgba(255, 255, 255, 0.9);
+            }
+            100% {
+                opacity: 1;
+                text-shadow: 
+                    0 0 10px rgba(255, 255, 255, 0.9), 
+                    0 0 20px rgba(153, 247, 255, 0.7), 
+                    0 0 40px rgba(76, 201, 240, 0.5), 
+                    0 0 80px rgba(67, 97, 238, 0.3);
+            }
+        }
+
+        .oracle-aurora { 
+            background: linear-gradient(
+                90deg, 
+                #ff00cc 0%, 
+                #3333ff 14%, 
+                #00ccff 28%, 
+                #00ff00 42%, 
+                #ffff00 57%, 
+                #ff9900 71%, 
+                #ff0000 85%, 
+                #ff00cc 100%
+            );
+            background-size: 200% auto; 
+            -webkit-background-clip: text; 
+            background-clip: text; 
+            color: transparent; 
+            animation: aurora-flow 4s linear infinite; 
+            filter: drop-shadow(0 0 15px rgba(255, 255, 255, 0.4)); 
+        }
+
+        @keyframes aurora-flow {
+            0% { background-position: 0% center; }
+            100% { background-position: 200% center; }
+        }
+    </style>
+</head>
+<body class="selection:bg-kawaii_p selection:text-void">
+
+    <!-- Flash Overlay (New) -->
+    <div id="flash-overlay"></div>
+
+    <!-- Scanlines -->
+    <div id="scanlines"></div>
+
+    <!-- Cursor -->
+    <div id="cursor-core"></div>
+    <div id="cursor-ring"></div>
+    
+    <!-- Charge Indicator -->
+    <svg id="cursor-charge" viewBox="0 0 100 100">
+        <circle cx="50" cy="50" r="45"></circle>
+    </svg>
+
+    <!-- Background Art -->
+    <div id="canvas-container"></div>
+    <!-- Vignette Effect -->
+    <div id="vignette"></div>
+    
+    <!-- Warning Overlay -->
+    <div id="warning-container">
+        <div class="warning-text">WARNING</div>
+    </div>
+
+    <!-- Loader -->
+    <div class="loader">
+        <div class="font-display font-bold text-6xl tracking-tighter text-kawaii_c animate-pulse">
+            CONNECTING...
+        </div>
+        <div class="font-cute text-kawaii_p text-sm tracking-widest">
+            Summoning Digital Spirits ✨
+        </div>
+    </div>
+
+    <!-- UI Overlay -->
+    <nav class="fixed top-0 w-full p-8 flex justify-between items-start z-50 mix-blend-screen text-white pointer-events-none">
+        <div class="pointer-events-auto cursor-pointer group">
+            <div class="font-display font-bold text-2xl tracking-tighter group-hover:text-kawaii_c transition-colors">もりくろー深海工房</div>
+            <div class="text-[10px] font-mono opacity-80 tracking-[0.3em] text-kawaii_p">DEEP SEA LAB</div>
+        </div>
+        <div class="flex flex-col items-end gap-2 font-mono text-xs pointer-events-auto">
+            <a href="#works" class="hover:text-kawaii_c transition-colors link-hover">✦ production</a>
+            <a href="https://www.youtube.com/" target="_blank" class="hover:text-kawaii_p transition-colors link-hover">✦ DIVE LOG（Youtube）</a>
+            <a href="#about" class="hover:text-biolum transition-colors link-hover">✦ CREATURES</a>
+            <a href="#contact" class="hover:text-kawaii_c transition-colors link-hover">✦ CONTACT</a>
+        </div>
+    </nav>
+
+    <!-- Chat Widget -->
+    <div class="chat-widget">
+        <div class="chat-window" id="chat-window">
+            <div class="chat-header">
+                <div class="flex items-center gap-2">
+                    <span class="w-2 h-2 rounded-full bg-kawaii_c animate-pulse"></span>
+                    <span class="font-cute text-sm tracking-widest">NEON JELLY 🔮</span>
+                </div>
+                <button id="chat-close" class="text-xs hover:text-kawaii_p">✕</button>
+            </div>
+            <div class="chat-messages" id="chat-messages">
+                <div class="message bot">
+                    こんにちは！デジタルクラゲのおーちゃんだよ (◕‿◕) <br>
+                    今日の気分は何色？好きな色を教えてね！✨
+                </div>
+            </div>
+            <div class="chat-input-area">
+                <input type="text" id="chat-input" class="chat-input" placeholder="メッセージを入力..." autocomplete="off">
+                <button id="chat-send" class="chat-send">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M22 2L11 13M22 2L15 22L11 13M11 13L2 9L22 2"/>
+                    </svg>
+                </button>
+            </div>
+        </div>
+        
+        <!-- 3D Jellyfish Toggle Button -->
+        <div class="chat-toggle link-hover" id="chat-toggle">
+            <div class="jelly-3d" id="jelly-3d">
+                <div class="jelly-head">
+                    <div class="jelly-eyes">
+                        <div class="eye"></div>
+                        <div class="eye"></div>
+                    </div>
+                </div>
+                <div class="jelly-tentacles">
+                    <div class="tentacle"></div>
+                    <div class="tentacle"></div>
+                    <div class="tentacle"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Sound Visualizer -->
+    <div class="sound-visualizer fixed bottom-10 left-10 z-50 flex gap-1 h-8 items-end mix-blend-screen pointer-events-none opacity-50">
+        <div class="w-1.5 rounded-full bg-kawaii_p animate-[bounce_1s_infinite] h-4"></div>
+        <div class="w-1.5 rounded-full bg-kawaii_c animate-[bounce_1.2s_infinite] h-8"></div>
+        <div class="w-1.5 rounded-full bg-kawaii_p animate-[bounce_0.8s_infinite] h-6"></div>
+        <div class="w-1.5 rounded-full bg-kawaii_c animate-[bounce_1.5s_infinite] h-3"></div>
+    </div>
+
+    <main>
+        <!-- Content Sections -->
+        <section class="h-screen w-full flex items-center justify-center relative perspective-1000">
+            <div class="relative z-10 text-center">
+                <h1 class="font-display font-black text-[13vw] text-white leading-none tracking-tighter">
+                    <div class="overflow-hidden"><span class="block reveal-hero translate-y-full digital-glow">DIGITAL</span></div>
+                    <div class="overflow-hidden"><span class="block reveal-hero translate-y-full oracle-aurora">ORACLE</span></div>
+                </h1>
+                <p class="mt-8 font-cute text-sm md:text-lg tracking-[0.2em] text-white/80 reveal-hero-sub opacity-0">Ask the jelly, color the sea.</p>
+            </div>
+            <div class="absolute bottom-10 left-1/2 -translate-x-1/2 text-kawaii_p/60 font-mono text-xs animate-bounce">CHAT TO CHANGE THE VIBE (OR HOLD RIGHT CLICK...)</div>
+        </section>
+
+        <!-- Dummy Content -->
+        <section class="py-40 px-6 md:px-20 relative z-10">
+            <div class="max-w-7xl mx-auto">
+                <p class="font-cute text-3xl md:text-6xl font-bold leading-tight text-white/90 fluid-text-block">
+                    あなたの <span class="text-kawaii_p glow-effect">言葉</span>が、<br>深海の色を変える。<br>右下チャットボタンで、<br>
+                    <span class="outline-text link-hover cursor-pointer italic text-kawaii_c">デジタルクラゲ</span>に話しかけてみて。<br>
+                    <span class="text-sm opacity-50 block mt-4">（深海には、絶対に起こしてはいけないモノも眠っています...）</span>
+                </p>
+            </div>
+        </section>
+        
+        <div class="h-[400vh] relative" id="works-wrapper">
+            <div class="sticky top-0 h-screen overflow-hidden flex items-center bg-void/30 backdrop-blur-sm border-y border-white/5">
+                <div class="horizontal-scroll-container pl-20 flex gap-20 items-center" id="works-container">
+                    <div class="w-[40vw] flex-shrink-0">
+                        <h2 class="font-display text-[8vw] font-bold outline-text opacity-50 text-kawaii_c">深海の世界</h2>
+                        <p class="font-cute text-sm tracking-widest text-kawaii_p">POWERED BYもりくろー</p>
+                    </div>
+                    <div class="w-[60vw] md:w-[40vw] aspect-[3/4] md:aspect-video flex-shrink-0 glass-card relative group overflow-hidden link-hover cursor-none">
+                        <div class="absolute inset-0 flex items-center justify-center">
+                            <div class="text-[10rem] text-kawaii_p animate-[spin_10s_linear_infinite] opacity-20">✺</div>
+                        </div>
+                        <div class="absolute bottom-0 left-0 p-8 w-full z-10">
+                            <div class="text-xs font-mono text-kawaii_p mb-2">02 / BRANDING</div>
+                            <h3 class="font-display text-4xl font-bold">STAR DUST</h3>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- YouTube Section -->
+        <section id="articles" class="py-32 px-6 md:px-20 relative z-10 bg-void/80 backdrop-blur-md border-t border-white/5">
+            <div class="max-w-7xl mx-auto">
+                <div class="flex flex-col md:flex-row justify-between items-end mb-16 gap-6">
+                    <div>
+                        <h2 class="font-display text-4xl md:text-6xl font-bold text-white mb-2">
+                            <span class="text-kawaii_c">DIVE</span> LOGS
+                        </h2>
+                        <p class="font-cute text-sm tracking-widest text-kawaii_p">最新の深海探査記録</p>
+                    </div>
+                    <a href="https://www.youtube.com/" target="_blank" class="group flex items-center gap-2 text-sm font-mono text-white/60 hover:text-kawaii_c transition-colors link-hover">
+                        <span>VIEW ALL ARCHIVES</span>
+                        <svg class="w-4 h-4 transform group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"></path></svg>
+                    </a>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                    <!-- Video Card 1 -->
+                    <article class="glass-card p-4 group hover:bg-white/5 transition-all duration-500 hover:-translate-y-2">
+                        <div class="aspect-video w-full bg-black/50 relative overflow-hidden rounded-xl mb-6 group-hover:shadow-[0_0_30px_rgba(76,201,240,0.3)] transition-shadow">
+                            <!-- Placeholder for YouTube Embed or Thumbnail -->
+                            <iframe class="w-full h-full absolute inset-0 pointer-events-auto" src="https://www.youtube.com/embed/jfKfPfyJRdk?controls=0" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+                            <div class="absolute inset-0 bg-gradient-to-t from-black/80 to-transparent opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none"></div>
+                        </div>
+                        <div class="px-2">
+                            <div class="flex items-center gap-2 mb-3">
+                                <span class="px-2 py-1 rounded text-[10px] font-mono bg-kawaii_p/20 text-kawaii_p border border-kawaii_p/30">NEW</span>
+                                <span class="text-xs font-mono text-white/40">2024.03.15</span>
+                            </div>
+                            <h3 class="font-cute text-lg font-bold text-white mb-2 leading-snug group-hover:text-kawaii_c transition-colors">
+                                深海1000mの未知なる生物との遭遇
+                            </h3>
+                            <p class="text-sm text-white/60 line-clamp-2">
+                                漆黒の闇の中で光る謎の生命体を捉えた貴重な映像。深海の神秘に迫るドキュメンタリー。
+                            </p>
+                        </div>
+                    </article>
+
+                    <!-- Video Card 2 -->
+                    <article class="glass-card p-4 group hover:bg-white/5 transition-all duration-500 hover:-translate-y-2">
+                        <div class="aspect-video w-full bg-black/50 relative overflow-hidden rounded-xl mb-6 group-hover:shadow-[0_0_30px_rgba(255,153,200,0.3)] transition-shadow">
+                            <iframe class="w-full h-full absolute inset-0 pointer-events-auto" src="https://www.youtube.com/embed/5K7Frc25nIA?controls=0" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+                        </div>
+                        <div class="px-2">
+                            <div class="flex items-center gap-2 mb-3">
+                                <span class="px-2 py-1 rounded text-[10px] font-mono bg-biolum/20 text-biolum border border-biolum/30">VLOG</span>
+                                <span class="text-xs font-mono text-white/40">2024.03.01</span>
+                            </div>
+                            <h3 class="font-cute text-lg font-bold text-white mb-2 leading-snug group-hover:text-kawaii_p transition-colors">
+                                デジタル水族館の裏側ツアー
+                            </h3>
+                            <p class="text-sm text-white/60 line-clamp-2">
+                                PRISM FLUXの制作秘話と、クリエイティブコーディングの技術解説。
+                            </p>
+                        </div>
+                    </article>
+
+                    <!-- Video Card 3 -->
+                    <article class="glass-card p-4 group hover:bg-white/5 transition-all duration-500 hover:-translate-y-2">
+                        <div class="aspect-video w-full bg-black/50 relative overflow-hidden rounded-xl mb-6 group-hover:shadow-[0_0_30px_rgba(153,247,255,0.3)] transition-shadow">
+                            <iframe class="w-full h-full absolute inset-0 pointer-events-auto" src="https://www.youtube.com/embed/LXb3EKWsInQ?controls=0" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+                        </div>
+                        <div class="px-2">
+                            <div class="flex items-center gap-2 mb-3">
+                                <span class="px-2 py-1 rounded text-[10px] font-mono bg-white/10 text-white/80 border border-white/20">ASMR</span>
+                                <span class="text-xs font-mono text-white/40">2024.02.14</span>
+                            </div>
+                            <h3 class="font-cute text-lg font-bold text-white mb-2 leading-snug group-hover:text-kawaii_c transition-colors">
+                                聴く深海 - Deep Sea Ambience
+                            </h3>
+                            <p class="text-sm text-white/60 line-clamp-2">
+                                作業用BGM。水圧を感じる重低音と、泡の音によるリラクゼーション。
+                            </p>
+                        </div>
+                    </article>
+                </div>
+            </div>
+        </section>
+        
+        <!-- Footer -->
+        <footer id="contact" class="py-20 px-6 md:px-20 border-t border-white/10 flex flex-col md:flex-row justify-between items-end bg-void relative z-10">
+            <div><h2 class="font-display text-3xl font-bold mb-6 text-kawaii_c">もりくろー深海工房</h2></div>
+        </footer>
+    </main>
+
+    <script>
+        // --- 0. Shared State & Config ---
+        let isTerrorMode = false;
+        let isCharging = false;
+        let chargeStartTime = 0;
+        const CHARGE_DURATION = 2000;
+        
+        // --- Gemini API & Chat Logic ---
+        const apiKey = ""; 
+
+        const chatToggle = document.getElementById('chat-toggle');
+        const chatWindow = document.getElementById('chat-window');
+        const chatClose = document.getElementById('chat-close');
+        const chatInput = document.getElementById('chat-input');
+        const chatSend = document.getElementById('chat-send');
+        const chatMessages = document.getElementById('chat-messages');
+
+        chatToggle.addEventListener('click', () => {
+            chatWindow.classList.toggle('active');
+            if(chatWindow.classList.contains('active')) chatInput.focus();
+        });
+        chatClose.addEventListener('click', () => chatWindow.classList.remove('active'));
+
+        // --- 3D Jelly Interactive Logic ---
+        document.addEventListener('mousemove', (e) => {
+            const jelly = document.getElementById('jelly-3d');
+            const eyes = document.querySelectorAll('.eye');
+            if(!jelly) return;
+            const rect = chatToggle.getBoundingClientRect();
+            const centerX = rect.left + rect.width / 2;
+            const centerY = rect.top + rect.height / 2;
+            const deltaX = e.clientX - centerX;
+            const deltaY = e.clientY - centerY;
+            const rotateY = Math.min(Math.max(-deltaX / 15, -60), 60); 
+            const rotateX = Math.min(Math.max(-deltaY / 15, -60), 60); 
+            jelly.style.transform = `rotateX(${rotateX}deg) rotateY(${rotateY}deg)`;
+            const angle = Math.atan2(deltaY, deltaX);
+            const maxRadius = 6; 
+            const distance = Math.min(Math.hypot(deltaX, deltaY) / 10, maxRadius);
+            const eyeX = Math.cos(angle) * distance;
+            const eyeY = Math.sin(angle) * distance;
+            eyes.forEach(eye => {
+                eye.style.setProperty('--eye-x', `${eyeX}px`);
+                eye.style.setProperty('--eye-y', `${eyeY}px`);
+            });
+        });
+
+        // Send Message
+        const sendMessage = async () => {
+            const text = chatInput.value.trim();
+            if(!text) return;
+            appendMessage('user', text);
+            chatInput.value = '';
+            chatInput.disabled = true;
+            chatSend.disabled = true;
+            const loadingId = appendMessage('bot', '<span class="animate-pulse">thinking...</span>');
+            try {
+                const response = await callGemini(text);
+                const loadingEl = document.getElementById(loadingId);
+                if(loadingEl) loadingEl.remove();
+                const colorMatch = response.match(/\[COLOR:\s*(#[0-9A-Fa-f]{6})\]/);
+                let displayText = response.replace(/\[COLOR:\s*#[0-9A-Fa-f]{6}\]/g, '');
+                if (colorMatch) {
+                    const newColor = colorMatch[1];
+                    updateOceanColor(newColor);
+                    displayText += `<br><br><span class="text-xs text-kawaii_p">✨ Ocean color shifted to ${newColor}</span>`;
+                }
+                appendMessage('bot', marked.parse(displayText));
+            } catch (error) {
+                console.error(error);
+                const loadingEl = document.getElementById(loadingId);
+                if(loadingEl) loadingEl.remove();
+                appendMessage('bot', 'Oops! The digital waves are interfering... (No API Key set for preview)');
+            } finally {
+                chatInput.disabled = false;
+                chatSend.disabled = false;
+                chatInput.focus();
+            }
+        };
+
+        chatSend.addEventListener('click', sendMessage);
+        chatInput.addEventListener('keypress', (e) => { if(e.key === 'Enter') sendMessage(); });
+
+        let msgCount = 0;
+        function appendMessage(role, html) {
+            const div = document.createElement('div');
+            div.className = `message ${role}`;
+            div.id = `msg-${msgCount++}`;
+            div.innerHTML = html;
+            chatMessages.appendChild(div);
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+            return div.id;
+        }
+
+        async function callGemini(userPrompt) {
+            const apiKey = ""; 
+            const systemPrompt = `
+            You are "Neon Jelly", a cute, digital jellyfish living in "PRISM FLUX" Deep Sea Lab.
+
+            Capabilities:
+            1. **Chat:** Be cute (◕‿◕), helpful, and slightly mysterious. Use Japanese mostly.
+            2. **Mood Sync:** If user expresses emotion or color, append [COLOR: #RRGGBB] to change background.
+
+            Response Guidelines:
+            - Do not use technical terms (jargon).
+            - Praise the user's taste/sense based on their input (especially color choices).
+            - Keep answers simple and concise.
+            `;
+            const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${apiKey}`;
+            const payload = { contents: [{ role: "user", parts: [{ text: userPrompt }] }], systemInstruction: { parts: [{ text: systemPrompt }] } };
+            const res = await fetch(url, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
+            const data = await res.json();
+            return data.candidates?.[0]?.content?.parts?.[0]?.text || "Sorry, I'm bubbling... (error)";
+        }
+
+        // --- P5.js Updates ---
+        function updateOceanColor(hex) {
+            if(window.p5instance && !isTerrorMode) { window.p5instance.changeTheme(hex); }
+        }
+
+        // --- Init Smooth Scroll (Lenis) ---
+        const lenis = new Lenis({ duration: 1.5, easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)), smooth: true });
+        function raf(time) { lenis.raf(time); requestAnimationFrame(raf); }
+        requestAnimationFrame(raf);
+        gsap.registerPlugin(ScrollTrigger);
+
+        // --- Horizontal Scroll ---
+        const worksSection = document.getElementById('works-wrapper');
+        const worksContainer = document.getElementById('works-container');
+        if (window.innerWidth > 768) {
+            gsap.to(worksContainer, {
+                x: () => -(worksContainer.scrollWidth - window.innerWidth),
+                ease: "none",
+                scrollTrigger: { trigger: worksSection, start: "top top", end: "bottom bottom", scrub: 1, invalidateOnRefresh: true }
+            });
+        }
+
+        // --- Fluid Text ---
+        let proxy = { skew: 0 }, skewSetter = gsap.quickSetter(".fluid-text-block", "skewY", "deg"), clamp = gsap.utils.clamp(-5, 5);
+        ScrollTrigger.create({
+            onUpdate: (self) => {
+                let skew = clamp(self.getVelocity() / -100);
+                if (Math.abs(skew) > 0.1) {
+                    gsap.to(proxy, { skew: skew, duration: 0.8, ease: "power3", overwrite: true, onUpdate: () => skewSetter(proxy.skew) });
+                }
+            }
+        });
+        gsap.ticker.add(() => { if(proxy.skew !== 0) { gsap.to(proxy, { skew: 0, duration: 0.5, ease: "power3", overwrite: true, onUpdate: () => skewSetter(proxy.skew) }); } });
+
+        // --- Custom Cursor & Charge Logic ---
+        const cursorCore = document.getElementById('cursor-core');
+        const cursorRing = document.getElementById('cursor-ring');
+        const cursorCharge = document.getElementById('cursor-charge');
+        const chargeCircle = cursorCharge.querySelector('circle');
+        const links = document.querySelectorAll('.link-hover');
+        let mouseX = window.innerWidth / 2, mouseY = window.innerHeight / 2;
+        let ringX = mouseX, ringY = mouseY, coreX = mouseX, coreY = mouseY;
+        let isMouseDown = false;
+
+        document.addEventListener('mousemove', (e) => { mouseX = e.clientX; mouseY = e.clientY; });
+        
+        // Right Click Charge Logic
+        document.addEventListener('mousedown', (e) => {
+            if (e.button === 2) { // Right click
+                if (isTerrorMode) {
+                    deactivateTerrorMode();
+                } else {
+                    isCharging = true;
+                    chargeStartTime = Date.now();
+                    cursorCharge.style.opacity = 1;
+                    cursorCharge.classList.add('shaking');
+                    
+                    document.getElementById('warning-container').classList.add('active');
+                }
+            } else {
+                isMouseDown = true;
+            }
+        });
+
+        document.addEventListener('mouseup', () => {
+            isMouseDown = false;
+            
+            if (isCharging && !isTerrorMode) {
+                 document.getElementById('warning-container').classList.remove('active');
+            }
+
+            isCharging = false;
+            cursorCharge.style.opacity = 0;
+            chargeCircle.style.strokeDashoffset = 283;
+            cursorCharge.classList.remove('shaking');
+        });
+        
+        document.addEventListener('contextmenu', (e) => e.preventDefault());
+
+        gsap.ticker.add(() => {
+            coreX += (mouseX - coreX) * 0.2; coreY += (mouseY - coreY) * 0.2;
+            cursorCore.style.left = coreX + 'px'; cursorCore.style.top = coreY + 'px';
+            ringX += (mouseX - ringX) * 0.1; ringY += (mouseY - ringY) * 0.1;
+            cursorRing.style.left = ringX + 'px'; cursorRing.style.top = ringY + 'px';
+            
+            cursorCharge.style.left = mouseX + 'px'; cursorCharge.style.top = mouseY + 'px';
+
+            if (isCharging && !isTerrorMode) {
+                const elapsed = Date.now() - chargeStartTime;
+                const progress = Math.min(elapsed / CHARGE_DURATION, 1);
+                const offset = 283 - (283 * progress);
+                chargeCircle.style.strokeDashoffset = offset;
+                
+                const shakeIntensity = 3 + (progress * 15); 
+                const shakeX = Math.random() * shakeIntensity - (shakeIntensity / 2);
+                const shakeY = Math.random() * shakeIntensity - (shakeIntensity / 2);
+                cursorCharge.style.transform = `translate(-50%, -50%) rotate(-90deg) translate(${shakeX}px, ${shakeY}px)`;
+                
+                if(window.p5instance && window.p5instance.triggerShake) {
+                    window.p5instance.triggerShake(2 + progress * 5); 
+                }
+
+                if (progress >= 1) {
+                    activateTerrorMode();
+                    isCharging = false;
+                    cursorCharge.style.opacity = 0;
+                    cursorCharge.classList.remove('shaking');
+                }
+            }
+
+            if(isMouseDown) { 
+                cursorRing.style.transform = `translate(-50%, -50%) scale(0.5)`; 
+                cursorRing.style.borderColor = isTerrorMode ? '#ff0000' : '#99F7FF'; 
+            } else { 
+                cursorRing.style.transform = `translate(-50%, -50%) scale(1)`; 
+                cursorRing.style.borderColor = isTerrorMode ? '#ff0000' : (document.body.classList.contains('hovering') ? '#FF99C8' : 'rgba(255, 153, 200, 0.4)'); 
+            }
+        });
+        
+        links.forEach(link => { link.addEventListener('mouseenter', () => document.body.classList.add('hovering')); link.addEventListener('mouseleave', () => document.body.classList.remove('hovering')); });
+
+        // --- Terror Mode Functions ---
+        function activateTerrorMode() {
+            isTerrorMode = true;
+            document.body.classList.add('terror-mode');
+            
+            if(lenis) lenis.stop(); 
+
+            const warningEl = document.getElementById('warning-container');
+            warningEl.classList.add('active');
+            
+            if (window.p5instance && window.p5instance.activateGoblin) {
+                window.p5instance.activateGoblin();
+            }
+        }
+
+        function deactivateTerrorMode() {
+            isTerrorMode = false;
+            document.body.classList.remove('terror-mode');
+            
+            if(lenis) lenis.start();
+
+            document.getElementById('warning-container').classList.remove('active');
+            
+            if (window.p5instance && window.p5instance.deactivateGoblin) {
+                window.p5instance.deactivateGoblin();
+            }
+        }
+
+        window.addEventListener('load', () => {
+            const tl = gsap.timeline();
+            tl.to('.loader', { opacity: 0, duration: 1, delay: 0.5, pointerEvents: 'none' })
+              .to('.reveal-hero', { y: '0%', stagger: 0.1, duration: 1.5, ease: 'power4.out' }, "-=0.5")
+              .to('.reveal-hero-sub', { opacity: 1, duration: 1 }, "-=1");
+        });
+
+        // --- p5.js Deep Sea (Enhanced for Award-Winning Quality) ---
+        let creatures = [];
+        let gardenEels = []; 
+        let foods = []; 
+        let particles = []; // Multi-layered Marine Snow
+        let bloodParticles = []; 
+        let goblinShark; 
+        let c_pink, c_cyan, c_blue, c_blood;
+        let currentThemeColor;
+        let spotlightX;
+        let shakeAmount = 0;
+        let timeOffset = 0; // For global sway
+
+        function setup() {
+            let canvas = createCanvas(windowWidth, windowHeight);
+            canvas.parent('canvas-container');
+            pixelDensity(1); 
+            frameRate(60);
+            noStroke();
+            c_pink = color('#FF99C8'); c_cyan = color('#99F7FF'); c_blue = color('#4361EE');
+            c_blood = color('#8a0303');
+            currentThemeColor = c_cyan;
+            spotlightX = width / 2;
+
+            for(let i=0; i<8; i++) creatures.push(new Jellyfish(random(width), random(height)));
+            for(let i=0; i<15; i++) creatures.push(new Clione(random(width), random(height)));
+            creatures.push(new FrilledShark(random(width), random(height)));
+
+            let leftCount = 5; let centerCount = 4; let rightCount = 5;
+            for(let i=0; i<leftCount; i++) gardenEels.push(new GardenEel(random(width * 0.05, width * 0.25), height));
+            for(let i=0; i<centerCount; i++) gardenEels.push(new GardenEel(random(width * 0.4, width * 0.6), height));
+            for(let i=0; i<rightCount; i++) gardenEels.push(new GardenEel(random(width * 0.75, width * 0.95), height));
+
+            // Layered Particles for Depth
+            for(let i=0; i<100; i++) particles.push(new AbyssParticle('back'));   // Slow, small, dark
+            for(let i=0; i<80; i++)  particles.push(new AbyssParticle('mid'));    // Normal
+            for(let i=0; i<30; i++)  particles.push(new AbyssParticle('front'));  // Fast, big, blurry
+            
+            goblinShark = new GoblinShark();
+
+            window.p5instance = {
+                changeTheme: (hex) => {
+                    let target = color(hex);
+                    currentThemeColor = target;
+                },
+                activateGoblin: () => {
+                    goblinShark.activate();
+                    shakeAmount = 40; 
+                },
+                deactivateGoblin: () => {
+                    goblinShark.deactivate();
+                    shakeAmount = 0;
+                    currentThemeColor = c_cyan;
+                    bloodParticles = [];
+                },
+                triggerShake: (amount) => {
+                    shakeAmount = amount;
+                }
+            };
+        }
+
+        function draw() {
+            clear(); 
+            
+            // Global Atmosphere Sway (Floating Sensation)
+            timeOffset += 0.005;
+            let globalSwayX = map(noise(timeOffset), 0, 1, -15, 15);
+            let globalSwayY = map(noise(timeOffset + 100), 0, 1, -10, 10);
+
+            push();
+            translate(globalSwayX, globalSwayY);
+
+            // --- Camera Shake Logic ---
+            if (isTerrorMode) {
+                let constantShake = 2; 
+                translate(random(-constantShake, constantShake), random(-constantShake, constantShake));
+            }
+            if (shakeAmount > 0.5) {
+                let shakeX = random(-shakeAmount, shakeAmount);
+                let shakeY = random(-shakeAmount, shakeAmount);
+                translate(shakeX, shakeY);
+                if (!isCharging) {
+                    shakeAmount *= 0.92; // Damping
+                }
+            } else {
+                shakeAmount = 0;
+            }
+            
+            // Spotlight / Theme Update
+            if (isTerrorMode) {
+                currentThemeColor = c_blood;
+                spotlightX = width/2;
+            } else {
+                // Smooth spotlight movement
+                spotlightX = lerp(spotlightX, mouseX, 0.05);
+            }
+            
+            // 1. Draw Background & Volumetric Atmosphere
+            drawAtmosphere();
+            
+            // 2. Background Particles (湧昇流: 下から上へ)
+            for(let p of particles) { if(p.layer === 'back') { p.update(); p.display(); } }
+
+            // 3. Garden Eels (Background Elements)
+            for (let eel of gardenEels) { eel.update(); eel.display(); }
+
+            // 4. Midground Particles & Light Shafts
+            if (!isTerrorMode) drawVolumetricLight();
+            for(let p of particles) { if(p.layer === 'mid') { p.update(); p.display(); } }
+
+            // 5. Interactive Elements
+            if (dist(mouseX, mouseY, pmouseX, pmouseY) > 5 && !isTerrorMode) foods.push(new Food(mouseX, mouseY, currentThemeColor));
+            for (let i = foods.length - 1; i >= 0; i--) {
+                foods[i].update(); foods[i].display(); if (foods[i].isDead()) foods.splice(i, 1);
+            }
+            
+            if (isTerrorMode && frameCount % 3 === 0) {
+                if (goblinShark.active) {
+                    bloodParticles.push(new BloodParticle(goblinShark.x + 200, goblinShark.y + random(-50, 50)));
+                }
+            }
+            for (let i = bloodParticles.length - 1; i >= 0; i--) {
+                bloodParticles[i].update(); bloodParticles[i].display(); if (bloodParticles[i].isDead()) bloodParticles.splice(i, 1);
+            }
+
+            // 6. Creatures
+            for (let c of creatures) {
+                c.behaviors(foods, createVector(mouseX - globalSwayX, mouseY - globalSwayY)); c.update(); c.display();
+            }
+            
+            // 7. Foreground Particles (Blurry, Fast)
+            for(let p of particles) { if(p.layer === 'front') { p.update(); p.display(); } }
+
+            // 8. Goblin Shark Overlay
+            goblinShark.update();
+            goblinShark.display();
+            
+            // 9. Interaction Trigger
+            if (mouseIsPressed && !isTerrorMode && frameCount % 10 === 0) foods.push(new Food(mouseX + random(-20, 20), mouseY + random(-20, 20), currentThemeColor));
+
+            pop();
+        }
+        
+        function drawAtmosphere() {
+            // Abyss Gradient (Heavy Water Pressure)
+            let ctx = drawingContext;
+            let cx = spotlightX;
+            let cy = isTerrorMode ? height/2 : mouseY;
+            
+            fill(0, 0, 5, 255); 
+            rect(-100, -100, width + 200, height + 200);
+
+            if (!isTerrorMode) {
+                 let radius = width * 1.0; 
+                 push();
+                 let bgGradient = ctx.createRadialGradient(cx, cy, 0, cx, cy, radius);
+                 let lightC = currentThemeColor ? currentThemeColor : c_cyan;
+                 let r = red(lightC), g = green(lightC), b = blue(lightC);
+                 
+                 bgGradient.addColorStop(0, `rgba(${r}, ${g}, ${b}, 0.12)`); 
+                 bgGradient.addColorStop(0.2, `rgba(5, 20, 40, 0.6)`);
+                 bgGradient.addColorStop(0.5, `rgba(2, 5, 10, 0.95)`);
+                 bgGradient.addColorStop(1, '#000000');
+                 
+                 ctx.fillStyle = bgGradient;
+                 blendMode(SCREEN); 
+                 rect(-100, -100, width + 200, height + 200);
+                 blendMode(BLEND); 
+                 pop();
+            } else {
+                 let radius = width * 1.5;
+                 let bgGradient = ctx.createRadialGradient(cx, cy, 0, cx, cy, radius);
+                 bgGradient.addColorStop(0, '#2a0000');
+                 bgGradient.addColorStop(0.4, '#1a0000');
+                 bgGradient.addColorStop(1, '#000000');
+                 ctx.fillStyle = bgGradient;
+                 rect(-100, -100, width + 200, height + 200);
+            }
+        }
+
+        function drawVolumetricLight() {
+            push();
+            blendMode(ADD);
+            let ctx = drawingContext;
+            let lightColor = currentThemeColor ? currentThemeColor : c_cyan;
+            let time = frameCount * 0.005;
+            
+            noStroke();
+            
+            let grad = ctx.createRadialGradient(spotlightX, mouseY, 0, spotlightX, mouseY, 600);
+            let r = red(lightColor), g = green(lightColor), b = blue(lightColor);
+            
+            grad.addColorStop(0, `rgba(${r}, ${g}, ${b}, 0.08)`);
+            grad.addColorStop(0.5, `rgba(${r}, ${g}, ${b}, 0.02)`);
+            grad.addColorStop(1, `rgba(0,0,0,0)`);
+            
+            ctx.fillStyle = grad;
+            circle(spotlightX, mouseY, 1200);
+
+            let coreGrad = ctx.createRadialGradient(spotlightX, mouseY, 0, spotlightX, mouseY, 80);
+            coreGrad.addColorStop(0, `rgba(255, 255, 255, 0.2)`);
+            coreGrad.addColorStop(1, `rgba(255, 255, 255, 0)`);
+            ctx.fillStyle = coreGrad;
+            circle(spotlightX, mouseY, 160);
+
+            pop();
+        }
+        
+        class AbyssParticle {
+            constructor(layer) {
+                this.layer = layer;
+                this.reset();
+                this.y = random(height); // Initial scattering
+            }
+            
+            reset() {
+                this.x = random(width);
+                this.y = height + 20; // Start from bottom (湧昇流)
+                this.noiseOffset = random(1000);
+                
+                if (this.layer === 'back') {
+                    this.size = random(1, 2);
+                    this.speed = random(0.2, 0.5);
+                    this.baseAlpha = random(20, 50);
+                } else if (this.layer === 'mid') {
+                    this.size = random(2, 4);
+                    this.speed = random(0.5, 1.2);
+                    this.baseAlpha = random(50, 100);
+                } else { // front
+                    this.size = random(4, 8);
+                    this.speed = random(1.5, 2.5);
+                    this.baseAlpha = random(20, 60); 
+                }
+                this.currentAlpha = this.baseAlpha;
+            }
+
+            update() {
+                // Parallax based on mouse
+                let parallax = (mouseX - width/2) * 0.0005;
+                if (this.layer === 'mid') parallax *= 2;
+                if (this.layer === 'front') parallax *= 4;
+                
+                this.x += map(noise(this.noiseOffset + frameCount * 0.01), 0, 1, -0.5, 0.5) - parallax;
+                
+                // Movement: Upward (湧昇流)
+                this.y -= this.speed;
+
+                // Terror Mode behavior (Turbulent)
+                if (isTerrorMode) {
+                    this.y -= this.speed * 4; 
+                    this.x += random(-3, 3);
+                }
+
+                // Wrap around
+                if (this.y < -20) this.reset();
+                if (this.y > height + 20 && isTerrorMode) { this.reset(); } // Safety
+                if (this.x > width + 50) this.x = -50;
+                if (this.x < -50) this.x = width + 50;
+            }
+
+            display() {
+                let col;
+                if (isTerrorMode) {
+                    col = color(150, 0, 0, this.baseAlpha);
+                } else {
+                    let r = red(currentThemeColor || color(255));
+                    let g = green(currentThemeColor || color(255));
+                    let b = blue(currentThemeColor || color(255));
+                    
+                    // Distance to light affects visibility (光に近いほど明るく見える)
+                    let d = dist(this.x, this.y, spotlightX, this.layer === 'front' ? mouseY : 0);
+                    // 上層からの光も考慮しつつ、マウス周辺も明るく
+                    let lightInfluence = map(dist(this.x, this.y, spotlightX, mouseY), 0, 400, 1.5, 0.5);
+                    lightInfluence = constrain(lightInfluence, 0.5, 2.0);
+                    
+                    col = color(r, g, b, this.baseAlpha * lightInfluence);
+                }
+                
+                fill(col);
+                
+                // Fake Blur for Front Layer (Performance friendly bokeh)
+                if (this.layer === 'front' && !isTerrorMode) {
+                     drawingContext.shadowBlur = 10;
+                     drawingContext.shadowColor = col.toString();
+                } else {
+                     drawingContext.shadowBlur = 0;
+                }
+                
+                circle(this.x, this.y, this.size);
+                drawingContext.shadowBlur = 0; // Reset
+            }
+        }
+
+        class BloodParticle {
+            constructor(x, y) {
+                this.pos = createVector(x, y);
+                this.vel = createVector(random(2, 8), random(-2, 2)); // Move right (trail)
+                this.life = 255;
+                this.size = random(5, 15);
+            }
+            update() { this.pos.add(this.vel); this.life -= 8; this.size *= 0.92; }
+            display() { noStroke(); fill(180, 0, 50, this.life); ellipse(this.pos.x, this.pos.y, this.size); }
+            isDead() { return this.life < 0; }
+        }
+
+        class Food { constructor(x, y, col) { this.pos = createVector(x, y); this.vel = p5.Vector.random2D().mult(0.5); this.life = 255; this.size = random(2, 5); this.col = col || color(255); } update() { this.pos.add(this.vel); this.life -= 4; } display() { fill(red(this.col), green(this.col), blue(this.col), this.life); ellipse(this.pos.x, this.pos.y, this.size); } isDead() { return this.life < 0; } }
+        
+        class Creature {
+            constructor(x, y) { 
+                this.pos = createVector(x, y); 
+                this.vel = p5.Vector.random2D(); 
+                this.acc = createVector(0, 0); 
+                this.maxSpeed = 2; 
+                this.maxForce = 0.05; 
+                this.size = random(20, 40); 
+                this.originalMaxSpeed = 2;
+                this.panicFactor = random(0.8, 1.5);
+                this.panicYNoise = random(1000); 
+            }
+            behaviors(foods, mousePos) {
+                if (isTerrorMode) {
+                    this.maxSpeed = 25 * this.panicFactor; 
+                    let yNoise = map(noise(this.panicYNoise), 0, 1, -1, 1);
+                    this.panicYNoise += 0.1;
+                    let fleeForce = createVector(-1, yNoise * 0.8); 
+                    fleeForce.setMag(this.maxForce * 15);
+                    this.applyForce(fleeForce);
+                } else {
+                    this.maxSpeed = this.originalMaxSpeed; 
+                    let target = null; let record = Infinity; 
+                    for (let f of foods) { let d = dist(this.pos.x, this.pos.y, f.pos.x, f.pos.y); if (d < record && d < 200) { record = d; target = f.pos; } } 
+                    if (!target && dist(this.pos.x, this.pos.y, mousePos.x, mousePos.y) < 300) target = mousePos; 
+                    if (target) this.applyForce(this.seek(target)); 
+                    else this.applyForce(p5.Vector.random2D().mult(0.1));
+                }
+            }
+            seek(target) { let desired = p5.Vector.sub(target, this.pos); desired.setMag(this.maxSpeed); let steer = p5.Vector.sub(desired, this.vel); steer.limit(this.maxForce); return steer; }
+            applyForce(force) { this.acc.add(force); }
+            update() { 
+                this.vel.add(this.acc); this.vel.limit(this.maxSpeed); this.pos.add(this.vel); this.acc.mult(0); 
+                if (isTerrorMode) {
+                    if (this.pos.x < -200) {
+                        this.pos.x = width + 200;
+                        this.pos.y = random(height);
+                        this.vel.mult(0.5); 
+                    }
+                } else {
+                    if (this.pos.x < -50) this.pos.x = width + 50; if (this.pos.x > width + 50) this.pos.x = -50; if (this.pos.y < -50) this.pos.y = height + 50; if (this.pos.y > height + 50) this.pos.y = -50; 
+                }
+            }
+        }
+        class Jellyfish extends Creature { constructor(x, y) { super(x, y); this.maxSpeed = 1.5; this.originalMaxSpeed = 1.5; this.col = lerpColor(c_pink, c_cyan, random(1)); this.tentacleOffset = random(100); } display() { push(); translate(this.pos.x, this.pos.y); rotate(this.vel.heading() + PI/2); let pulse = sin(frameCount * 0.05 + this.tentacleOffset) * 5; if(isTerrorMode) this.col = color(50, 0, 0, 50); else if(currentThemeColor) this.col = lerpColor(this.col, currentThemeColor, 0.01); noStroke(); fill(red(this.col), green(this.col), blue(this.col), 30); arc(0, 0, this.size + 10 + pulse, this.size + pulse, PI, 0); fill(red(this.col), green(this.col), blue(this.col), 100); arc(0, 0, this.size, this.size * 0.8, PI, 0); fill(255); ellipse(-this.size*0.2, -this.size*0.1, 4, 4); ellipse(this.size*0.2, -this.size*0.1, 4, 4); stroke(red(this.col), green(this.col), blue(this.col), 80); strokeWeight(2); noFill(); for(let i=-2; i<=2; i++) { let xOff = i * 6; beginShape(); for(let y=0; y<40; y+=5) { let wave = sin(y * 0.1 - frameCount * 0.1 + this.tentacleOffset) * 5; vertex(xOff + wave, y); } endShape(); } pop(); } }
+        class Clione extends Creature { constructor(x, y) { super(x, y); this.maxSpeed = 2.5; this.originalMaxSpeed = 2.5; this.size = random(10, 15); this.col = c_cyan; this.flapSpeed = random(0.1, 0.3); } display() { push(); translate(this.pos.x, this.pos.y); rotate(this.vel.heading() + PI/2); noStroke(); fill(200, 255, 255, 150); ellipse(0, 0, this.size, this.size * 2.5); let heartColor = currentThemeColor ? currentThemeColor : color(255, 100, 100, 180); if (isTerrorMode) heartColor = color(0); fill(heartColor); ellipse(0, -this.size*0.3, this.size*0.4, this.size*0.4); let flap = sin(frameCount * this.flapSpeed * 2) * 10; fill(200, 255, 255, 100); beginShape(); vertex(this.size*0.3, -this.size*0.5); vertex(this.size*1.5, -this.size*0.5 + flap); vertex(this.size*0.5, 0); endShape(CLOSE); beginShape(); vertex(-this.size*0.3, -this.size*0.5); vertex(-this.size*1.5, -this.size*0.5 + flap); vertex(-this.size*0.5, 0); endShape(CLOSE); pop(); } }
+        class FrilledShark extends Creature { constructor(x, y) { super(x, y); this.maxSpeed = 4.5; this.originalMaxSpeed = 4.5; this.maxForce = 0.25; this.bodyLength = 25; this.history = []; for(let i=0; i<this.bodyLength * 3; i++){ this.history.push(this.pos.copy()); } this.angle = random(TWO_PI); } update() { super.update(); this.history.unshift(this.pos.copy()); if (this.history.length > this.bodyLength * 4) { this.history.pop(); } } behaviors(foods, mousePos) { if (isTerrorMode) { this.maxSpeed = 25; let fleeForce = createVector(-1, random(-0.2, 0.2)); fleeForce.setMag(this.maxForce * 10); this.applyForce(fleeForce); } else { this.maxSpeed = this.originalMaxSpeed; this.angle += 0.04; let radius = 180 + sin(frameCount * 0.05) * 50; let target = createVector(mousePos.x + cos(this.angle) * radius, mousePos.y + sin(this.angle) * radius); let steer = this.seek(target); this.applyForce(steer); } } display() { let bodyColor = color(40, 40, 60, 200); let glowColor = currentThemeColor ? currentThemeColor : color(100, 255, 200); if (isTerrorMode) { glowColor = color(255,0,0); } noStroke(); push(); translate(this.pos.x, this.pos.y); rotate(this.vel.heading()); fill(bodyColor); ellipse(10, 10, 15, 8); ellipse(10, -10, 15, 8); pop(); for (let i = 0; i < this.bodyLength; i++) { let index = i * 3; if (index >= this.history.length) break; let pos = this.history[index]; let size = map(i, 0, this.bodyLength, 25, 2); if (i > 1 && i < 5) { fill(red(glowColor), green(glowColor), blue(glowColor), 100); ellipse(pos.x, pos.y, size + 10, size + 5); } fill(bodyColor); ellipse(pos.x, pos.y, size, size); } push(); translate(this.pos.x, this.pos.y); rotate(this.vel.heading()); fill(bodyColor); ellipse(5, 0, 30, 20); fill(0, 255, 150); if(isTerrorMode) fill(255,0,0); ellipse(10, 5, 4, 4); ellipse(10, -5, 4, 4); noFill(); stroke(255, 50); strokeWeight(1); arc(15, 0, 10, 10, PI - 0.5, PI + 0.5); pop(); } }
+        
+        class GardenEel { 
+            constructor(x, y) { 
+                this.x = x; 
+                this.y = y; 
+                this.maxH = random(120, 200); 
+                this.currentH = this.maxH; 
+                this.thickness = random(10, 14); 
+                this.noiseOffset = random(1000); 
+                this.bodyColor = color(153, 247, 255, 60); 
+                this.strokeColor = color(153, 247, 255, 150); 
+                this.spotColor = color(255, 255, 255, 100); 
+                this.eyeColor = color(255, 220, 50); 
+                this.lastScaredTime = 0; 
+                this.isPeeking = false; 
+            } 
+            update() { 
+                let d = dist(mouseX, mouseY, this.x, this.y - this.currentH); 
+                let rootD = dist(mouseX, mouseY, this.x, this.y); 
+                let isScared = (d < 200 || rootD < 200); 
+
+                // 追加: ラブカが近づいた場合も隠れる
+                for (let c of creatures) {
+                    if (c instanceof FrilledShark) {
+                        let sharkD = dist(c.pos.x, c.pos.y, this.x, this.y - this.currentH);
+                        let sharkRootD = dist(c.pos.x, c.pos.y, this.x, this.y);
+                        if (sharkD < 250 || sharkRootD < 250) { 
+                            isScared = true;
+                            break;
+                        }
+                    }
+                }
+
+                let targetH = this.maxH; 
+                let speed = 0.02; 
+                if (isTerrorMode) { 
+                    targetH = 0; 
+                    speed = 0.5; 
+                } else if (isScared) { 
+                    targetH = 0; 
+                    speed = 0.4; 
+                    this.lastScaredTime = millis(); 
+                    this.isPeeking = false; 
+                } else { 
+                    let safeTime = millis() - this.lastScaredTime; 
+                    if (safeTime < 1000) { targetH = 0; speed = 0.4; } 
+                    else if (safeTime < 3500) { targetH = 40; speed = 0.05; this.isPeeking = true; } 
+                    else { targetH = this.maxH; speed = 0.01; this.isPeeking = false; } 
+                } 
+                let sway = map(noise(frameCount * 0.01 + this.noiseOffset), 0, 1, 0.9, 1.1); 
+                if (targetH > 0 && !this.isPeeking) { targetH *= sway; } 
+                this.currentH = lerp(this.currentH, targetH, speed); 
+            } 
+            display() { 
+                if (this.currentH < 2) return; 
+                push(); 
+                translate(this.x, this.y); 
+                let points = []; 
+                let segments = 20; 
+                let swayAmt = map(noise(frameCount * 0.02 + this.noiseOffset), 0, 1, -40, 40); 
+                let swayFactor = this.currentH / this.maxH; 
+                swayAmt *= swayFactor; 
+                let peekAngle = 0; 
+                if (this.isPeeking) { peekAngle = sin(frameCount * 0.06 + this.noiseOffset) * 20; } 
+                for (let i = 0; i <= segments; i++) { 
+                    let t = i / segments; 
+                    let yPos = -this.currentH * t; 
+                    let xPos; 
+                    if (this.isPeeking) { xPos = peekAngle * (t * t); } 
+                    else { xPos = swayAmt * sin(t * PI * 0.5 + frameCount * 0.01) * t; } 
+                    points.push(createVector(xPos, yPos)); 
+                } 
+                fill(this.bodyColor); 
+                stroke(this.strokeColor); 
+                strokeWeight(1); 
+                beginShape(); 
+                for (let i = 0; i < points.length; i++) { 
+                    let p = points[i]; 
+                    let r = this.thickness / 2 * (1 - i/points.length * 0.1); 
+                    vertex(p.x - r, p.y); 
+                } 
+                let headP = points[points.length - 1]; 
+                let headR = this.thickness / 2 * 0.9; 
+                for (let a = PI; a <= TWO_PI; a += 0.2) { 
+                    vertex(headP.x + cos(a) * headR, headP.y + sin(a) * headR * 0.8); 
+                } 
+                for (let i = points.length - 1; i >= 0; i--) { 
+                    let p = points[i]; 
+                    let r = this.thickness / 2 * (1 - i/points.length * 0.1); 
+                    vertex(p.x + r, p.y); 
+                } 
+                endShape(CLOSE); 
+                noStroke(); 
+                fill(this.spotColor); 
+                for (let i = 3; i < points.length - 2; i += 2) { 
+                    let p = points[i]; 
+                    let offsetX = map(noise(i * 0.5 + this.noiseOffset), 0, 1, -2, 2); 
+                    ellipse(p.x + offsetX, p.y, this.thickness * 0.4, this.thickness * 0.25); 
+                } 
+                
+                // 変更点: 通常時は黄色(this.eyeColor)、恐怖モード時はテーマカラー(赤)に連動
+                let useEyeColor = isTerrorMode ? currentThemeColor : this.eyeColor;
+
+                fill(useEyeColor); 
+                drawingContext.shadowBlur = 8; 
+                drawingContext.shadowColor = useEyeColor.toString(); 
+                ellipse(headP.x - 3, headP.y, 3, 3); 
+                ellipse(headP.x + 3, headP.y, 3, 3); 
+                drawingContext.shadowBlur = 0; 
+                pop(); 
+            } 
+        }
+        
+        // --- Goblin Shark (Terror: RIGHT to LEFT Invasion) ---
+        class GoblinShark {
+            constructor() {
+                this.reset();
+            }
+            
+            reset() {
+                this.active = false;
+                this.x = width + 800; // Start far RIGHT
+                this.y = height / 2;
+                this.speed = 2.5; // Move LEFT speed
+                this.jawOffset = 0;
+                this.noiseOff = 0;
+            }
+            
+            activate() {
+                this.active = true;
+                this.x = width + 800; // Force start RIGHT
+                this.y = random(height * 0.4, height * 0.6);
+            }
+            
+            deactivate() {
+                this.reset();
+            }
+            
+            update() {
+                if (!this.active) return;
+                this.x -= this.speed; // Move LEFT
+                this.noiseOff += 0.05;
+                
+                // Jaw snap logic (Periodic)
+                let snapCycle = (frameCount % 200) / 200; // Faster cycle
+                if (snapCycle > 0.4 && snapCycle < 0.6) {
+                    this.jawOffset = lerp(this.jawOffset, 60, 0.15); // Protrude fast
+                    shakeAmount = 20; // Impact shake
+                    
+                    // Blood Flash Effect on bite
+                    if (this.jawOffset > 30) {
+                        push();
+                        fill(255, 0, 0, 50); // Red flash overlay
+                        rect(0, 0, width, height);
+                        pop();
+                    }
+                } else {
+                    this.jawOffset = lerp(this.jawOffset, 0, 0.05);
+                }
+
+                if (this.x < -1000) { // Screen wrap left check
+                     deactivateTerrorMode();
+                }
+            }
+            
+            display() {
+                if (!this.active) return;
+                
+                push();
+                translate(this.x, this.y);
+                
+                // Ominous floating
+                translate(0, sin(frameCount * 0.03) * 30);
+                
+                // Facing LEFT: Default vertices are Left-facing, so scale(5) works.
+                // Note: Previous code had Left-to-Right logic with Right-facing vertices.
+                // We will use Left-facing logic here.
+                scale(5); 
+                
+                noStroke();
+                
+                // --- 1. Skin (Corpse Blue-Grey, Sharp) ---
+                let skinColor = color(180, 190, 200, 255); 
+                
+                // Sharp Highlight & Shadow for Visibility
+                drawingContext.shadowBlur = 30;
+                drawingContext.shadowColor = 'rgba(200, 240, 255, 0.6)'; 
+                
+                // Body
+                fill(skinColor);
+                beginShape();
+                // Snout (Pointing LEFT)
+                vertex(-180, -20); 
+                // Upper Body (Rough Skin)
+                for (let i = -180; i < 200; i += 20) {
+                    let yOff = map(noise(i * 0.01 + this.noiseOff), 0, 1, -4, 4);
+                    curveVertex(i, -40 + yOff);
+                }
+                vertex(250, 0); // Tail
+                // Lower Body
+                for (let i = 200; i > -100; i -= 20) {
+                    let yOff = map(noise(i * 0.01 + this.noiseOff + 100), 0, 1, -4, 4);
+                    curveVertex(i, 40 + yOff);
+                }
+                
+                // Jaw Base (Moving Left/Forward)
+                let jawX = -80 - (this.jawOffset * 0.8); 
+                let jawY = 20 + (this.jawOffset * 0.3);
+                
+                vertex(jawX + 40, jawY - 10); // Corner
+                vertex(jawX, jawY); // Lower Tip
+                vertex(-100, 10); // Upper connection
+                vertex(-180, -20); // Snout close
+                endShape(CLOSE);
+                
+                drawingContext.shadowBlur = 0; 
+
+                // --- 2. Details (Scars/Gills) ---
+                noFill();
+                stroke(100, 110, 120, 150); // Darker grey for details
+                strokeWeight(2);
+                // Spine
+                beginShape();
+                for(let i = -150; i < 200; i+=20) {
+                    vertex(i, sin(i*0.05 + frameCount*0.1)*5);
+                }
+                endShape();
+
+                // --- 3. Jaw & Teeth (Jagged) ---
+                noStroke();
+                fill(240, 240, 230); // Bone White (Sharp)
+                
+                if (this.jawOffset > 5) {
+                    // Upper Teeth
+                    for(let i=0; i<8; i++) {
+                        let tx = -110 + i * 12;
+                        triangle(tx, 10, tx+4, 10, tx+2, 35); // Long
+                    }
+                    // Lower Teeth
+                    for(let i=0; i<8; i++) {
+                        let tx = jawX + i * 10;
+                        let ty = jawY;
+                        triangle(tx, ty, tx+4, ty, tx+2, ty-15);
+                    }
+                }
+
+                // --- 4. Eye (Kawaii Gap!) ---
+                // 変更点:リアルで死んだ目から、アニメ調のつぶらな瞳へ
+                
+                // 白目 (White Sclera) - 大きく
+                fill(255); 
+                ellipse(-120, -18, 16, 16); // サイズアップ
+                
+                // 黒目 (Big Pupil) - つぶらな感じ
+                fill(20, 0, 50); // 漆黒ではなく少し紫がかった黒
+                ellipse(-120, -18, 12, 12); 
+                
+                // ハイライト (Sparkle) - 命を宿す
+                fill(255); 
+                ellipse(-117, -21, 5, 5); // Main highlight
+                ellipse(-123, -15, 2, 2); // Sub highlight
+
+                // --- 5. Gills (変更なし) ---
+                stroke(80, 90, 100);
+                strokeWeight(3);
+                for(let i=0; i<5; i++) {
+                    let gx = -20 + i * 15;
+                    line(gx, -10, gx - 5, 25);
+                }
+
+                pop();
+            }
+        }
+
+        function windowResized() { resizeCanvas(windowWidth, windowHeight); }
+    </script>
+</body>
+</html>
