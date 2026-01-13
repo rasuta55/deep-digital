@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>DEEP DIGITAL | Kawaii Deep Sea v3.2</title>
+    <title>DEEP DIGITAL | Kawaii Deep Sea v3.8</title>
     
     <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -23,6 +23,11 @@
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
 
     <script>
+        // Error Handling for Libraries
+        window.addEventListener('error', function(e) {
+            console.error("Global Error:", e.message);
+        });
+        
         tailwind.config = {
             theme: {
                 extend: {
@@ -274,10 +279,11 @@
             pointer-events: none;
             display: none;
             flex-direction: column; 
-            justify-content: center;
+            justify-content: flex-end; 
             align-items: center;
             background: rgba(0, 0, 0, 0.4);
             padding: 2vw;
+            padding-bottom: 5vh; 
         }
         
         #warning-container.active {
@@ -457,6 +463,11 @@
             display: inline-block;
             transition: font-weight 0.1s linear, letter-spacing 0.2s ease;
         }
+        
+        /* New Distortion Classes */
+        .distortion-target {
+            will-change: filter;
+        }
     </style>
 </head>
 <body class="selection:bg-kawaii_p selection:text-void">
@@ -592,8 +603,8 @@
         <section class="h-screen w-full flex items-center justify-center relative perspective-1000">
             <div class="relative z-10 text-center">
                 <h1 class="font-display font-black text-[13vw] text-white leading-none tracking-tighter">
-                    <div class="overflow-hidden"><span class="block reveal-hero translate-y-full submarine-title">DEEP</span></div>
-                    <div class="overflow-hidden"><span class="block reveal-hero translate-y-full digital-flicker variable-font-hero">DIGITAL</span></div>
+                    <div class="overflow-hidden distortion-target"><span class="block reveal-hero translate-y-full submarine-title">DEEP</span></div>
+                    <div class="overflow-hidden distortion-target"><span class="block reveal-hero translate-y-full digital-flicker variable-font-hero">DIGITAL</span></div>
                 </h1>
                 <p class="mt-8 font-serif text-sm md:text-lg tracking-[0.2em] text-white/80 reveal-hero-sub opacity-0">Ask the jelly, color the sea.</p>
             </div>
@@ -734,14 +745,115 @@
         let alarmOsc, alarmGain, alarmFilter;
         let heartbeatOsc, heartbeatGain;
         let terrorNodes = []; 
+        let ambienceNodes = []; // Store deep sea ambience nodes
 
         function initAudio() {
-            if (!audioCtx) {
-                audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            try {
+                if (!audioCtx) {
+                    audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+                }
+                if (audioCtx.state === 'suspended') {
+                    audioCtx.resume();
+                }
+                // Start Deep Sea Ambience if not terror mode
+                if (!isTerrorMode) {
+                    startDeepSeaAmbience();
+                }
+            } catch (e) {
+                console.warn("Audio Context init failed (User gesture needed?):", e);
             }
-            if (audioCtx.state === 'suspended') {
-                audioCtx.resume();
+        }
+
+        // --- Deep Sea Ambience (Normal Mode) ---
+        function startDeepSeaAmbience() {
+            if (!audioCtx) return;
+            if (ambienceNodes.length > 0) return; // Already playing
+
+            try {
+                const t = audioCtx.currentTime;
+
+                // 1. Pink Noise Generator (for water rumble)
+                const bufferSize = 2 * audioCtx.sampleRate;
+                const buffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate);
+                const data = buffer.getChannelData(0);
+                
+                // Simple Pink Noise algorithm
+                let b0, b1, b2, b3, b4, b5, b6;
+                b0 = b1 = b2 = b3 = b4 = b5 = b6 = 0.0;
+                for (let i = 0; i < bufferSize; i++) {
+                    let white = Math.random() * 2 - 1;
+                    b0 = 0.99886 * b0 + white * 0.0555179;
+                    b1 = 0.99332 * b1 + white * 0.0750759;
+                    b2 = 0.96900 * b2 + white * 0.1538520;
+                    b3 = 0.86650 * b3 + white * 0.3104856;
+                    b4 = 0.55000 * b4 + white * 0.5329522;
+                    b5 = -0.7616 * b5 - white * 0.0168980;
+                    data[i] = b0 + b1 + b2 + b3 + b4 + b5 + b6 + white * 0.5362;
+                    data[i] *= 0.11; 
+                    b6 = white * 0.115926;
+                }
+
+                const noiseSrc = audioCtx.createBufferSource();
+                noiseSrc.buffer = buffer;
+                noiseSrc.loop = true;
+
+                // Filter for underwater effect (Lowpass) - Heavy muffle
+                const filter = audioCtx.createBiquadFilter();
+                filter.type = 'lowpass';
+                filter.frequency.value = 150; // Deep rumble
+                filter.Q.value = 1;
+
+                // LFO to modulate filter (Ocean currents/Swell)
+                const lfo = audioCtx.createOscillator();
+                lfo.type = 'sine';
+                lfo.frequency.value = 0.15; // Slow wave
+                const lfoGain = audioCtx.createGain();
+                lfoGain.gain.value = 80; // Modulate frequency by +/- 80Hz
+
+                // Main Volume for Ambience
+                const gain = audioCtx.createGain();
+                gain.gain.value = 0; // Start silent
+                gain.gain.linearRampToValueAtTime(0.5, t + 4); // Fade in over 4s
+
+                // Connections
+                lfo.connect(lfoGain);
+                lfoGain.connect(filter.frequency);
+                
+                noiseSrc.connect(filter);
+                filter.connect(gain);
+                gain.connect(audioCtx.destination);
+
+                noiseSrc.start();
+                lfo.start();
+
+                ambienceNodes.push(noiseSrc, filter, lfo, lfoGain, gain);
+            } catch (e) {
+                console.error("Deep Sea Ambience Error:", e);
             }
+        }
+
+        function stopDeepSeaAmbience() {
+            if (ambienceNodes.length === 0) return;
+            
+            const t = audioCtx.currentTime;
+            // The last node in array is Gain
+            const gainNode = ambienceNodes[4]; 
+            
+            if (gainNode) {
+                gainNode.gain.cancelScheduledValues(t);
+                gainNode.gain.setValueAtTime(gainNode.gain.value, t);
+                gainNode.gain.linearRampToValueAtTime(0, t + 1); // Fade out quickly
+            }
+
+            setTimeout(() => {
+                ambienceNodes.forEach(node => {
+                    try {
+                        if (node.stop) node.stop();
+                        node.disconnect();
+                    } catch(e) {}
+                });
+                ambienceNodes = [];
+            }, 1100);
         }
 
         // --- Heartbeat & Alarm System ---
@@ -850,6 +962,7 @@
         function startTerrorSound() {
             if (!audioCtx) initAudio();
             stopTerrorSound(); 
+            stopDeepSeaAmbience(); // Stop normal ambience
 
             const t = audioCtx.currentTime;
 
@@ -897,7 +1010,7 @@
         }
         
         // --- Gemini API & Chat Logic ---
-        const apiKey = "AIzaSyBkxmon-EvaU6Ay7-jJ3VnVEmk1d8tSEsE"; 
+        const apiKey = "AIzaSyBkxmon-EvaU6Ay7-jJ3VnVEmk1d8tSEsE"; // User provided key
 
         const chatToggle = document.getElementById('chat-toggle');
         const chatWindow = document.getElementById('chat-window');
@@ -945,6 +1058,7 @@
             chatInput.disabled = true;
             chatSend.disabled = true;
             const loadingId = appendMessage('bot', '<span class="animate-pulse">thinking...</span>');
+            
             try {
                 const response = await callGemini(text);
                 const loadingEl = document.getElementById(loadingId);
@@ -957,12 +1071,21 @@
                     updateOceanColor(newColor);
                     displayText += `<br><br><span class="text-xs text-kawaii_p">✨ Ocean color shifted to ${newColor}</span>`;
                 }
-                appendMessage('bot', marked.parse(displayText));
+                
+                // Safer Markdown parsing
+                let htmlContent;
+                try {
+                    htmlContent = (typeof marked !== 'undefined' && marked.parse) ? marked.parse(displayText) : displayText;
+                } catch (e) {
+                    htmlContent = displayText;
+                }
+                appendMessage('bot', htmlContent);
+
             } catch (error) {
-                console.error(error);
+                console.error("Gemini API Error:", error);
                 const loadingEl = document.getElementById(loadingId);
                 if(loadingEl) loadingEl.remove();
-                appendMessage('bot', 'Oops! The digital waves are interfering... (API Error)');
+                appendMessage('bot', `⚠️ Error: ${error.message}<br><span class="text-[10px] opacity-70">APIキーの設定やネットワークを確認してください。</span>`);
             } finally {
                 chatInput.disabled = false;
                 chatSend.disabled = false;
@@ -985,9 +1108,9 @@
         }
 
         async function callGemini(userPrompt) {
+            // ... (Prompt definitions) ...
             const systemPrompt = `
             You are "Neon Jelly", a cute, digital jellyfish living in "PRISM FLUX" Deep Sea Lab.
-
             Capabilities:
             1. **Chat:** Be cute (◕‿◕), helpful, and slightly mysterious. Use Japanese mostly.
             2. **Mood Sync:** If user expresses emotion or color, append [COLOR: #RRGGBB] to change background.
@@ -998,11 +1121,49 @@
             - Keep answers simple and concise.
             - ALWAYS output [COLOR: #hex] if a color is mentioned or implied.
             `;
+            
+            // Using preview model as per instructions
             const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${apiKey}`;
             const payload = { contents: [{ role: "user", parts: [{ text: userPrompt }] }], systemInstruction: { parts: [{ text: systemPrompt }] } };
-            const res = await fetch(url, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
-            const data = await res.json();
-            return data.candidates?.[0]?.content?.parts?.[0]?.text || "Sorry, I'm bubbling... (error)";
+            
+            // Retry logic with exponential backoff
+            async function fetchWithRetry(retries = 3, delay = 1000) {
+                try {
+                    const res = await fetch(url, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
+                    if (!res.ok) {
+                        const errData = await res.json().catch(() => ({}));
+                        // Detailed error handling
+                        let errorMessage = `Status ${res.status}: ${res.statusText}`;
+                        
+                        if (res.status === 403) {
+                            errorMessage += " (APIキーの制限/リファラーエラーの可能性があります)";
+                        } else if (errData.error && errData.error.message) {
+                            errorMessage += ` - ${errData.error.message}`;
+                        }
+                        
+                        if (retries > 0 && (res.status === 429 || res.status >= 500)) {
+                            await new Promise(r => setTimeout(r, delay));
+                            return fetchWithRetry(retries - 1, delay * 2);
+                        }
+                        throw new Error(errorMessage);
+                    }
+                    return await res.json();
+                } catch (e) {
+                    if (retries > 0) {
+                        await new Promise(r => setTimeout(r, delay));
+                        return fetchWithRetry(retries - 1, delay * 2);
+                    }
+                    throw e;
+                }
+            }
+
+            try {
+                const data = await fetchWithRetry();
+                return data.candidates?.[0]?.content?.parts?.[0]?.text || "Sorry, I'm bubbling... (empty response)";
+            } catch (e) {
+                console.error("Fetch failed:", e);
+                throw e;
+            }
         }
 
         // --- P5.js Updates ---
@@ -1262,7 +1423,7 @@
                 if (progress >= 1) {
                     activateTerrorMode();
                     isCharging = false;
-                    window.chargeProgress = 0;
+                    window.chargeProgress = 0; 
                     cursorCharge.style.opacity = 0;
                     cursorCharge.classList.remove('shaking');
                     rgbLayer.style.display = 'none';
@@ -1279,6 +1440,33 @@
             } else { 
                 cursorRing.style.transform = `translate(-50%, -50%) scale(1)`; 
                 cursorRing.style.borderColor = isTerrorMode ? '#ff0000' : (document.body.classList.contains('hovering') ? '#FF99C8' : 'rgba(255, 153, 200, 0.4)'); 
+            }
+            
+            // --- Title Water Distortion Logic (SUBTLE FIX) ---
+            const distortionTargets = document.querySelectorAll('.distortion-target');
+            if (distortionTargets.length > 0 && !isTerrorMode) {
+                // Get one of them for position check
+                const rect = distortionTargets[0].getBoundingClientRect();
+                const titleX = rect.left + rect.width / 2;
+                const titleY = rect.top + rect.height / 2;
+                
+                const distToTitle = Math.hypot(cursorX - titleX, cursorY - titleY);
+                const threshold = 180; // Decreased range (was 300)
+                
+                let scaleVal = 0;
+                if (distToTitle < threshold) {
+                    // Closer = stronger distortion
+                    scaleVal = (1 - distToTitle / threshold) * 20; // Reduced intensity (was 50)
+                }
+                
+                // Apply to SVG filter
+                const displacementMap = document.getElementById('displacement-map');
+                if (displacementMap) {
+                    // Lerp for smooth transition
+                    const currentScale = parseFloat(displacementMap.getAttribute('scale')) || 0;
+                    const newScale = currentScale + (scaleVal - currentScale) * 0.1;
+                    displacementMap.setAttribute('scale', newScale);
+                }
             }
         });
         
@@ -1311,7 +1499,8 @@
             if (window.p5instance && window.p5instance.deactivateGoblin) {
                 window.p5instance.deactivateGoblin();
             }
-            stopTerrorSound(); // Stop BGM
+            stopTerrorSound(); // Stop Terror BGM
+            startDeepSeaAmbience(); // Resume Ambience
         }
 
         window.addEventListener('load', () => {
@@ -1349,6 +1538,7 @@
 
             for(let i=0; i<8; i++) creatures.push(new Jellyfish(random(width), random(height)));
             for(let i=0; i<15; i++) creatures.push(new Clione(random(width), random(height)));
+            for(let i=0; i<5; i++) creatures.push(new SamehadaSquid(random(width), random(height))); // Add Samehada Squid
             creatures.push(new FrilledShark(random(width), random(height)));
 
             let leftCount = 5; let centerCount = 4; let rightCount = 5;
@@ -1359,7 +1549,7 @@
             // Layered Particles
             for(let i=0; i<100; i++) particles.push(new AbyssParticle('back'));   
             for(let i=0; i<80; i++) particles.push(new AbyssParticle('mid'));    
-            for(let i=0; i<30; i++) particles.push(new AbyssParticle('front'));  
+            for(let i=0; i<30; i++) particles.push(new AbyssParticle('front'));   
             
             goblinShark = new GoblinShark();
 
@@ -1673,6 +1863,57 @@
         class Jellyfish extends Creature { constructor(x, y) { super(x, y); this.maxSpeed = 1.5; this.originalMaxSpeed = 1.5; this.col = lerpColor(c_pink, c_cyan, random(1)); this.tentacleOffset = random(100); } display() { push(); translate(this.pos.x, this.pos.y); rotate(this.vel.heading() + PI/2); let pulse = sin(frameCount * 0.05 + this.tentacleOffset) * 5; if(isTerrorMode) this.col = color(50, 0, 0, 50); else if(currentThemeColor) this.col = lerpColor(this.col, currentThemeColor, 0.01); noStroke(); fill(red(this.col), green(this.col), blue(this.col), 30); arc(0, 0, this.size + 10 + pulse, this.size + pulse, PI, 0); fill(red(this.col), green(this.col), blue(this.col), 100); arc(0, 0, this.size, this.size * 0.8, PI, 0); fill(255); ellipse(-this.size*0.2, -this.size*0.1, 4, 4); ellipse(this.size*0.2, -this.size*0.1, 4, 4); stroke(red(this.col), green(this.col), blue(this.col), 80); strokeWeight(2); noFill(); for(let i=-2; i<=2; i++) { let xOff = i * 6; beginShape(); for(let y=0; y<40; y+=5) { let wave = sin(y * 0.1 - frameCount * 0.1 + this.tentacleOffset) * 5; vertex(xOff + wave, y); } endShape(); } pop(); } }
         class Clione extends Creature { constructor(x, y) { super(x, y); this.maxSpeed = 2.5; this.originalMaxSpeed = 2.5; this.size = random(10, 15); this.col = c_cyan; this.flapSpeed = random(0.1, 0.3); } display() { push(); translate(this.pos.x, this.pos.y); rotate(this.vel.heading() + PI/2); noStroke(); fill(200, 255, 255, 150); ellipse(0, 0, this.size, this.size * 2.5); let heartColor = currentThemeColor ? currentThemeColor : color(255, 100, 100, 180); if (isTerrorMode) heartColor = color(0); fill(heartColor); ellipse(0, -this.size*0.3, this.size*0.4, this.size*0.4); let flap = sin(frameCount * this.flapSpeed * 2) * 10; fill(200, 255, 255, 100); beginShape(); vertex(this.size*0.3, -this.size*0.5); vertex(this.size*1.5, -this.size*0.5 + flap); vertex(this.size*0.5, 0); endShape(CLOSE); beginShape(); vertex(-this.size*0.3, -this.size*0.5); vertex(-this.size*1.5, -this.size*0.5 + flap); vertex(-this.size*0.5, 0); endShape(CLOSE); pop(); } }
         class FrilledShark extends Creature { constructor(x, y) { super(x, y); this.maxSpeed = 4.5; this.originalMaxSpeed = 4.5; this.maxForce = 0.25; this.bodyLength = 25; this.history = []; for(let i=0; i<this.bodyLength * 3; i++){ this.history.push(this.pos.copy()); } this.angle = random(TWO_PI); } update() { super.update(); this.history.unshift(this.pos.copy()); if (this.history.length > this.bodyLength * 4) { this.history.pop(); } } behaviors(foods, mousePos) { if (isTerrorMode) { this.maxSpeed = 25; let fleeForce = createVector(-1, random(-0.2, 0.2)); fleeForce.setMag(this.maxForce * 10); this.applyForce(fleeForce); } else { this.maxSpeed = this.originalMaxSpeed; this.angle += 0.04; let radius = 180 + sin(frameCount * 0.05) * 50; let target = createVector(mousePos.x + cos(this.angle) * radius, mousePos.y + sin(this.angle) * radius); let steer = this.seek(target); this.applyForce(steer); } } display() { let bodyColor = color(40, 40, 60, 200); let glowColor = currentThemeColor ? currentThemeColor : color(100, 255, 200); if (isTerrorMode) { glowColor = color(255,0,0); } noStroke(); push(); translate(this.pos.x, this.pos.y); rotate(this.vel.heading()); fill(bodyColor); ellipse(10, 10, 15, 8); ellipse(10, -10, 15, 8); pop(); for (let i = 0; i < this.bodyLength; i++) { let index = i * 3; if (index >= this.history.length) break; let pos = this.history[index]; let size = map(i, 0, this.bodyLength, 25, 2); if (i > 1 && i < 5) { fill(red(glowColor), green(glowColor), blue(glowColor), 100); ellipse(pos.x, pos.y, size + 10, size + 5); } fill(bodyColor); ellipse(pos.x, pos.y, size, size); } push(); translate(this.pos.x, this.pos.y); rotate(this.vel.heading()); fill(bodyColor); ellipse(5, 0, 30, 20); fill(0, 255, 150); if(isTerrorMode) fill(255,0,0); ellipse(10, 5, 4, 4); ellipse(10, -5, 4, 4); noFill(); stroke(255, 50); strokeWeight(1); arc(15, 0, 10, 10, PI - 0.5, PI + 0.5); pop(); } }
+        class SamehadaSquid extends Creature {
+            constructor(x, y) {
+                super(x, y);
+                this.maxSpeed = 1.0; 
+                this.originalMaxSpeed = 1.0;
+                this.size = random(25, 35);
+                this.tentacleAngle = 0;
+            }
+
+            display() {
+                push();
+                translate(this.pos.x, this.pos.y);
+                
+                rotate(this.vel.heading() + PI / 2);
+
+                let glowColor = currentThemeColor ? currentThemeColor : color(255, 100, 255);
+                if (isTerrorMode) glowColor = color(100, 0, 0);
+
+                noStroke();
+                fill(red(glowColor), green(glowColor), blue(glowColor), 40);
+                
+                ellipse(0, 0, this.size * 1.2, this.size * 1.5);
+                
+                fill(255, 150);
+                for(let i=0; i<5; i++) {
+                    let dx = map(noise(i, frameCount*0.01), 0, 1, -this.size*0.4, this.size*0.4);
+                    let dy = map(noise(i+10, frameCount*0.01), 0, 1, -this.size*0.5, this.size*0.5);
+                    ellipse(dx, dy, 3, 3);
+                }
+
+                fill(255);
+                ellipse(-this.size * 0.25, -this.size * 0.1, this.size * 0.35, this.size * 0.35);
+                ellipse(this.size * 0.25, -this.size * 0.1, this.size * 0.35, this.size * 0.35);
+                fill(0);
+                ellipse(-this.size * 0.25, -this.size * 0.1, this.size * 0.15, this.size * 0.15);
+                ellipse(this.size * 0.25, -this.size * 0.1, this.size * 0.15, this.size * 0.15);
+
+                noFill();
+                stroke(red(glowColor), green(glowColor), blue(glowColor), 80);
+                strokeWeight(2);
+                this.tentacleAngle += 0.1;
+                for (let i = -2; i <= 2; i++) {
+                    let xBase = i * 3;
+                    let yBase = this.size * 0.6;
+                    let wave = sin(this.tentacleAngle + i) * 3;
+                    line(xBase, yBase, xBase + wave, yBase + 10);
+                }
+
+                pop();
+            }
+        }
         
         class GardenEel { 
             constructor(x, y) { 
