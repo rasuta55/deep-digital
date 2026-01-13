@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>DEEP DIGITAL | Kawaii Deep Sea v3.0 (Enhanced)</title>
+    <title>DEEP DIGITAL | Kawaii Deep Sea v3.2</title>
     
     <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -896,8 +896,8 @@
             terrorNodes = [];
         }
         
-        // --- Gemini API & Chat Logic (Placeholder) ---
-        const apiKey = ""; 
+        // --- Gemini API & Chat Logic ---
+        const apiKey = "AIzaSyBkxmon-EvaU6Ay7-jJ3VnVEmk1d8tSEsE"; 
 
         const chatToggle = document.getElementById('chat-toggle');
         const chatWindow = document.getElementById('chat-window');
@@ -935,6 +935,75 @@
                 eye.style.setProperty('--eye-y', `${eyeY}px`);
             });
         });
+
+        // Send Message
+        const sendMessage = async () => {
+            const text = chatInput.value.trim();
+            if(!text) return;
+            appendMessage('user', text);
+            chatInput.value = '';
+            chatInput.disabled = true;
+            chatSend.disabled = true;
+            const loadingId = appendMessage('bot', '<span class="animate-pulse">thinking...</span>');
+            try {
+                const response = await callGemini(text);
+                const loadingEl = document.getElementById(loadingId);
+                if(loadingEl) loadingEl.remove();
+                
+                const colorMatch = response.match(/\[COLOR:\s*(#[0-9A-Fa-f]{6})\]/);
+                let displayText = response.replace(/\[COLOR:\s*#[0-9A-Fa-f]{6}\]/g, '');
+                if (colorMatch) {
+                    const newColor = colorMatch[1];
+                    updateOceanColor(newColor);
+                    displayText += `<br><br><span class="text-xs text-kawaii_p">✨ Ocean color shifted to ${newColor}</span>`;
+                }
+                appendMessage('bot', marked.parse(displayText));
+            } catch (error) {
+                console.error(error);
+                const loadingEl = document.getElementById(loadingId);
+                if(loadingEl) loadingEl.remove();
+                appendMessage('bot', 'Oops! The digital waves are interfering... (API Error)');
+            } finally {
+                chatInput.disabled = false;
+                chatSend.disabled = false;
+                chatInput.focus();
+            }
+        };
+
+        chatSend.addEventListener('click', sendMessage);
+        chatInput.addEventListener('keypress', (e) => { if(e.key === 'Enter') sendMessage(); });
+
+        let msgCount = 0;
+        function appendMessage(role, html) {
+            const div = document.createElement('div');
+            div.className = `message ${role}`;
+            div.id = `msg-${msgCount++}`;
+            div.innerHTML = html;
+            chatMessages.appendChild(div);
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+            return div.id;
+        }
+
+        async function callGemini(userPrompt) {
+            const systemPrompt = `
+            You are "Neon Jelly", a cute, digital jellyfish living in "PRISM FLUX" Deep Sea Lab.
+
+            Capabilities:
+            1. **Chat:** Be cute (◕‿◕), helpful, and slightly mysterious. Use Japanese mostly.
+            2. **Mood Sync:** If user expresses emotion or color, append [COLOR: #RRGGBB] to change background.
+            
+            Response Guidelines:
+            - Do not use technical terms (jargon).
+            - Praise the user's taste/sense based on their input (especially color choices).
+            - Keep answers simple and concise.
+            - ALWAYS output [COLOR: #hex] if a color is mentioned or implied.
+            `;
+            const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${apiKey}`;
+            const payload = { contents: [{ role: "user", parts: [{ text: userPrompt }] }], systemInstruction: { parts: [{ text: systemPrompt }] } };
+            const res = await fetch(url, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
+            const data = await res.json();
+            return data.candidates?.[0]?.content?.parts?.[0]?.text || "Sorry, I'm bubbling... (error)";
+        }
 
         // --- P5.js Updates ---
         function updateOceanColor(hex) {
