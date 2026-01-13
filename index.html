@@ -3,12 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>DEEP DIGITAL | Kawaii Deep Sea</title>
+    <title>DEEP DIGITAL | Kawaii Deep Sea v3.0 (Enhanced)</title>
     
     <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;700;800&family=Manrope:wght@200;400;600&family=Zen+Maru+Gothic:wght@400;700;900&family=Nosifer&family=Rubik+Glitch&family=Oswald:wght@700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400..900&family=Syne:wght@400..800&family=Manrope:wght@200..800&family=Zen+Maru+Gothic:wght@400;700;900&family=Nosifer&family=Rubik+Glitch&family=Oswald:wght@500;700&family=Share+Tech+Mono&display=swap" rel="stylesheet">
     
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
@@ -29,10 +29,12 @@
                     fontFamily: {
                         sans: ['"Manrope"', '"Zen Maru Gothic"', 'sans-serif'],
                         display: ['"Syne"', 'sans-serif'],
+                        serif: ['"Cinzel"', 'serif'],
                         cute: ['"Zen Maru Gothic"', 'sans-serif'],
                         horror: ['"Nosifer"', 'cursive'],
                         glitch: ['"Rubik Glitch"', 'cursive'],
                         impact: ['"Oswald"', 'sans-serif'],
+                        tech: ['"Share Tech Mono"', 'monospace'],
                     },
                     colors: {
                         void: '#050510',
@@ -44,6 +46,9 @@
                         glass: 'rgba(255, 255, 255, 0.05)',
                         blood: '#8a0303',
                     },
+                    letterSpacing: {
+                        widest: '.25em',
+                    }
                 }
             }
         }
@@ -59,7 +64,7 @@
         body {
             background: #020205; 
             color: #EAEAEA;
-            cursor: none;
+            cursor: none; /* Custom Cursor only */
             overflow-x: hidden;
             margin: 0;
             padding: 0;
@@ -70,8 +75,6 @@
         body.terror-mode {
             background: #000000;
             animation: razor-strobe 0.08s infinite steps(2); 
-            
-            /* CSSレベルでのスクロールロック強化 */
             height: 100vh;
             overflow: hidden;
             position: fixed;
@@ -80,11 +83,11 @@
         
         @keyframes razor-strobe {
             0% { background-color: #000000; filter: invert(0); }
-            30% { background-color: #2a0000; filter: invert(0); } /* 暗赤 */
+            30% { background-color: #1a0000; filter: invert(0); }
             50% { background-color: #000000; filter: invert(0); }
-            55% { background-color: #ffff00; filter: invert(1); } /* 反転黄色 */
+            55% { background-color: #ffff00; filter: invert(1); }
             60% { background-color: #000000; filter: invert(0); }
-            90% { background-color: #ff0000; filter: invert(0); } /* 赤 */
+            90% { background-color: #330000; filter: invert(0); }
             100% { background-color: #000000; filter: invert(0); }
         }
 
@@ -93,7 +96,8 @@
         body.terror-mode main,
         body.terror-mode .chat-widget,
         body.terror-mode .sound-visualizer,
-        body.terror-mode #cursor-ring {
+        body.terror-mode #depth-hud,
+        body.terror-mode #cursor-hint {
             opacity: 0;
             pointer-events: none;
             visibility: hidden; 
@@ -109,12 +113,12 @@
             height: 100vh;
             pointer-events: none;
             z-index: 50; 
-            background: radial-gradient(circle at center, transparent 30%, rgba(0,0,0,0.85) 100%);
+            background: radial-gradient(circle at center, transparent 30%, rgba(0,0,0,0.4) 100%);
             transition: all 1s;
         }
         
         body.terror-mode #vignette {
-            background: radial-gradient(circle at center, transparent 15%, rgba(0,0,0,0.8) 50%, #000000 90%);
+            background: radial-gradient(circle at center, transparent 15%, rgba(0,0,0,0.9) 60%, #000000 95%);
             box-shadow: inset 0 0 100px rgba(255, 0, 0, 0.2);
             mix-blend-mode: multiply;
         }
@@ -142,6 +146,17 @@
         body.terror-mode #scanlines {
             opacity: 0.6;
             animation: noise-twitch 0.05s infinite;
+        }
+
+        /* Chromatic Aberration for Charge Effect */
+        #rgb-split-layer {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            pointer-events: none;
+            z-index: 40;
+            mix-blend-mode: screen;
+            display: none;
+            opacity: 0;
         }
         
         @keyframes noise-twitch {
@@ -189,15 +204,32 @@
             backdrop-filter: blur(2px);
         }
 
-        /* Terror Mode Cursor */
-        body.terror-mode #cursor-core {
-            background: #ff0000;
-            box-shadow: 0 0 30px 10px rgba(255, 0, 0, 1);
-            width: 10px;
-            height: 10px;
-            border-radius: 0; 
-            transform: translate(-50%, -50%) rotate(45deg);
-            mix-blend-mode: normal;
+        /* Circular Hint Text */
+        #cursor-hint {
+            position: fixed;
+            top: 0; left: 0;
+            width: 140px; height: 140px;
+            pointer-events: none;
+            z-index: 9998;
+            transform: translate(-50%, -50%);
+            opacity: 0; /* Default hidden, appears on hover or logic */
+            transition: opacity 0.5s;
+            animation: spin-slow 10s linear infinite;
+        }
+        #cursor-hint path {
+            fill: transparent;
+        }
+        #cursor-hint text {
+            fill: rgba(153, 247, 255, 0.6);
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 10px;
+            letter-spacing: 0.15em;
+            text-transform: uppercase;
+        }
+
+        @keyframes spin-slow {
+            from { transform: translate(-50%, -50%) rotate(0deg); }
+            to { transform: translate(-50%, -50%) rotate(360deg); }
         }
 
         /* Charge Indicator */
@@ -205,48 +237,49 @@
             position: fixed;
             top: 0;
             left: 0;
-            width: 100px;
-            height: 100px;
+            width: 120px;
+            height: 120px;
             pointer-events: none;
             z-index: 9998;
             transform: translate(-50%, -50%) rotate(-90deg);
             opacity: 0;
+            transition: opacity 0.1s;
         }
         #cursor-charge circle {
             fill: none;
             stroke: #ff0000;
-            stroke-width: 4;
+            stroke-width: 8;
+            stroke-linecap: round;
             stroke-dasharray: 283; 
             stroke-dashoffset: 283;
-            transition: stroke-dashoffset 0.1s linear;
-            filter: drop-shadow(0 0 10px #ff0000);
+            filter: drop-shadow(0 0 8px #ff0000) drop-shadow(0 0 15px #8a0303);
+            transition: stroke-dashoffset 0.1s linear, stroke 0.1s;
         }
         #cursor-charge.shaking {
-            animation: shake-charge 0.05s infinite;
+            animation: charge-vibrate 0.05s infinite;
         }
-        @keyframes shake-charge {
-            0% { margin-left: -2px; margin-top: 2px; }
-            25% { margin-left: 2px; margin-top: -2px; }
-            50% { margin-left: -1px; margin-top: -1px; }
-            75% { margin-left: 1px; margin-top: 1px; }
-            100% { margin-left: 0; margin-top: 0; }
+        @keyframes charge-vibrate {
+            0% { transform: translate(-50%, -50%) rotate(-90deg) translate(2px, 2px); }
+            25% { transform: translate(-50%, -50%) rotate(-90deg) translate(-2px, -2px); }
+            50% { transform: translate(-50%, -50%) rotate(-90deg) translate(-2px, 2px); }
+            75% { transform: translate(-50%, -50%) rotate(-90deg) translate(2px, -2px); }
+            100% { transform: translate(-50%, -50%) rotate(-90deg) translate(0, 0); }
         }
 
         /* --- WARNING Overlay (Instant & Persistent) --- */
         #warning-container {
             position: fixed;
             inset: 0;
-            z-index: 2147483647; /* 最前面 */
+            z-index: 2147483647; 
             pointer-events: none;
             display: none;
             flex-direction: column; 
             justify-content: center;
             align-items: center;
-            background: transparent;
-            padding: 5vw;
+            background: rgba(0, 0, 0, 0.4);
+            padding: 2vw;
         }
         
-        /* チャージ中、または恐怖モード中にアクティブ化 */
         #warning-container.active {
             display: flex !important;
             visibility: visible !important;
@@ -254,32 +287,28 @@
         }
 
         .warning-text {
-            /* Syneフォント */
             font-family: 'Syne', sans-serif;
-            /* 画面に収まるサイズ */
-            font-size: 10vw; 
-            line-height: 1;
-            font-weight: 800;
-            
-            /* 血のような赤: 暗い赤の本体に、鮮血の縁取り */
-            color: #660000; 
-            -webkit-text-stroke: 2px #ff0000;
-            
-            letter-spacing: 0.05em;
+            font-size: min(13vw, 15vh);
+            line-height: 0.9;
+            font-weight: 900;
+            color: #ff0000; 
+            -webkit-text-stroke: min(1vw, 6px) #000000;
+            paint-order: stroke fill;
+            letter-spacing: 0.02em;
             text-transform: uppercase;
             text-align: center;
-            width: 100%;
-            max-width: 90vw;
+            width: auto;
+            max-width: 95vw;
             white-space: nowrap; 
-            
-            /* 振動アニメーション */
-            animation: warning-quake 0.1s infinite;
-            
-            /* 影: 血の滲み */
-            filter: drop-shadow(0 0 10px #ff0000) drop-shadow(0 0 30px #8a0303);
+            overflow: visible;
+            background: #000000;
+            padding: 10px 20px;
+            border-top: 10px solid #ffff00;
+            border-bottom: 10px solid #ffff00;
+            box-shadow: 0 0 50px rgba(255, 0, 0, 0.8);
+            animation: danger-max 0.12s infinite steps(2);
         }
         
-        /* ズレ演出 */
         .warning-text::before,
         .warning-text::after {
             content: "WARNING";
@@ -288,42 +317,47 @@
             left: 0;
             width: 100%;
             height: 100%;
-            -webkit-text-stroke: 0;
             opacity: 0.8;
-            mix-blend-mode: normal;
+            mix-blend-mode: exclusion;
             z-index: -1;
         }
         
         .warning-text::before {
-            color: #00ffff;
-            transform: translate(-4px, -4px);
-            animation: shift-cyan 0.05s infinite;
+            color: #ffff00;
+            -webkit-text-stroke: 0;
+            animation: glitch-yellow 0.08s infinite reverse;
         }
         
         .warning-text::after {
-            color: #ffff00;
-            transform: translate(4px, 4px);
-            animation: shift-yellow 0.05s infinite;
+            color: #00ffff;
+            -webkit-text-stroke: 4px #000000;
+            animation: glitch-black 0.08s infinite;
         }
 
-        @keyframes warning-quake {
-            0% { transform: skew(0deg); }
-            25% { transform: translate(-2px, 2px) skew(-2deg); }
-            50% { transform: translate(2px, -2px) skew(2deg); }
-            75% { transform: translate(-2px, -2px) skew(-1deg); }
-            100% { transform: skew(0deg); }
+        @keyframes danger-max {
+            0% { color: #ff0000; border-color: #ffff00; transform: scale(1) translate(0, 0); }
+            25% { color: #ffff00; background: #2a0000; border-color: #ff0000; transform: scale(1.05) translate(-2px, 2px) skewX(5deg); }
+            50% { color: #000000; background: #ff0000; border-color: #000000; -webkit-text-stroke: 0; transform: scale(1.02) translate(2px, -2px) skewX(-5deg); }
+            75% { color: #ff0000; transform: scale(1.1) translate(0, 5px); }
+            100% { color: #ff0000; background: #000000; transform: scale(1) translate(0, 0); }
         }
         
-        @keyframes shift-cyan {
-            0% { transform: translate(-4px, -4px); }
-            50% { transform: translate(-2px, -2px); }
-            100% { transform: translate(-5px, -3px); }
+        @keyframes glitch-yellow {
+            0% { transform: translate(0, 0); clip-path: inset(0 0 0 0); opacity: 0; }
+            20% { transform: translate(-15px, 5px); clip-path: inset(10% 0 60% 0); opacity: 1; }
+            40% { transform: translate(15px, -10px); clip-path: inset(50% 0 10% 0); opacity: 0.5; }
+            60% { transform: translate(-5px, 15px); clip-path: inset(0 0 80% 0); opacity: 1; }
+            80% { transform: translate(10px, 0px); clip-path: inset(20% 0 20% 0); opacity: 0.8; }
+            100% { transform: translate(0, 0); opacity: 0; }
         }
         
-        @keyframes shift-yellow {
-            0% { transform: translate(4px, 4px); }
-            50% { transform: translate(2px, 2px); }
-            100% { transform: translate(2px, -4px); }
+        @keyframes glitch-black {
+            0% { transform: translate(0, 0); clip-path: inset(0 0 0 0); }
+            20% { transform: translate(10px, -5px); clip-path: inset(80% 0 0 0); }
+            40% { transform: translate(-10px, 5px); clip-path: inset(0 0 80% 0); }
+            60% { transform: translate(5px, 10px); clip-path: inset(40% 0 40% 0); }
+            80% { transform: translate(-5px, -10px); clip-path: inset(10% 0 60% 0); }
+            100% { transform: translate(0, 0); clip-path: inset(0 0 0 0); }
         }
 
         /* --- Background Canvas --- */
@@ -337,12 +371,11 @@
             transition: filter 0.1s;
         }
         
-        /* 恐怖モード時のフィルタ: シャープで硬質な質感 */
         body.terror-mode #canvas-container {
             filter: grayscale(0.5) contrast(1.8) brightness(1.3) sepia(0.2); 
         }
 
-        /* --- Preserved Styles --- */
+        /* --- Chat & UI --- */
         .chat-widget { position: fixed; bottom: 30px; right: 30px; z-index: 9000; display: flex; flex-direction: column; align-items: flex-end; }
         .chat-toggle { width: 80px; height: 80px; border-radius: 50%; background: rgba(255, 255, 255, 0.05); backdrop-filter: blur(5px); cursor: pointer; display: flex; justify-content: center; align-items: center; transition: transform 0.3s ease; transform-style: preserve-3d; }
         .chat-window { width: 320px; height: 450px; background: rgba(5, 5, 16, 0.85); backdrop-filter: blur(20px); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 20px; margin-bottom: 20px; display: flex; flex-direction: column; overflow: hidden; transform-origin: bottom right; transform: scale(0); opacity: 0; transition: all 0.4s cubic-bezier(0.19, 1, 0.22, 1); }
@@ -365,186 +398,91 @@
         .tentacle:nth-child(3) { animation-delay: 0.4s; }
         .glass-card { background: rgba(255, 255, 255, 0.02); backdrop-filter: blur(12px); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 24px; transition: transform 0.5s ease, background 0.5s ease; }
         
-        /* DIGITALテキストの点滅アニメーション (Heavy Flicker 20s) */
-        .digital-glow { 
-            color: #FFFFFF; 
-            -webkit-text-stroke: 0; 
-            border: none; 
-            outline: none; 
-            /* 初期状態は安定、アニメーションで変化させる */
-            text-shadow: 0 0 10px rgba(255, 255, 255, 0.9), 0 0 20px rgba(153, 247, 255, 0.7), 0 0 40px rgba(76, 201, 240, 0.5), 0 0 80px rgba(67, 97, 238, 0.3);
-            animation: heavy-flicker-20s 20s infinite linear;
+        .submarine-title {
+            display: inline-block;
+            font-size: 1.4em; 
+            font-weight: 900;
+            line-height: 0.9;
+            background-image: 
+                linear-gradient(180deg, rgba(255,255,255,0.9) 0%, rgba(255,255,255,0) 15%, rgba(0,0,0,0.1) 45%, rgba(0,0,0,0.5) 50%, rgba(255,255,255,0) 55%, rgba(255,255,255,0.7) 100%),
+                radial-gradient(rgba(0, 0, 0, 0.5) 1.5px, transparent 2px),
+                repeating-linear-gradient(90deg, transparent 0px, transparent 24px, rgba(0, 0, 0, 0.6) 25px, rgba(255, 255, 255, 0.2) 26px),
+                linear-gradient(to bottom, #94a3b8 0%, #475569 30%, #1e293b 50%, #334155 70%, #64748b 100%);
+            background-size: 100% 250%, 6px 6px, 26px 100%, 100% 100%;
+            background-position: 50% 0%, 0 0, 0 0, 0 0;
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            -webkit-text-stroke: 1.5px rgba(226, 232, 240, 0.5);
+            animation: metal-shine 8s ease-in-out infinite alternate, deep-pressure 12s cubic-bezier(0.4, 0, 0.2, 1) infinite alternate;
         }
 
-        /* 20秒間隔で強弱のある明滅・消灯・復活を行うアニメーション */
-        @keyframes heavy-flicker-20s {
-            /* --- 通常点灯 (0-16.8s) --- */
-            0%, 84% {
-                opacity: 1;
-                color: #FFFFFF;
-                text-shadow: 
-                    0 0 10px rgba(255, 255, 255, 0.9), 
-                    0 0 20px rgba(153, 247, 255, 0.7), 
-                    0 0 40px rgba(76, 201, 240, 0.5), 
-                    0 0 80px rgba(67, 97, 238, 0.3);
-            }
+        @keyframes metal-shine {
+            0% { background-position: 50% 0%, 0 0, 0 0, 0 0; }
+            100% { background-position: 50% 100%, 0 0, 0 0, 0 0; }
+        }
 
-            /* --- 電圧低下・激しいフリッカー (16.8s-17.4s) --- */
-            84.1% { opacity: 0.2; text-shadow: none; }
-            84.2% { opacity: 1; text-shadow: 0 0 10px rgba(255,255,255,0.8); }
-            84.3% { opacity: 0.1; text-shadow: none; }
-            84.6% { opacity: 1; text-shadow: 0 0 10px rgba(255,255,255,0.8); }
-            85% { opacity: 0; text-shadow: none; }
-            85.1% { opacity: 0.5; }
-            86% { opacity: 0.2; }
-            86.5% { opacity: 0.1; color: #333; text-shadow: none; } /* 暗く */
-
-            /* --- 完全消灯 (17.4s-18.4s: 約1秒間) --- */
-            87%, 92% {
-                opacity: 0; /* 完全に見えなくする */
-                text-shadow: none;
-                color: #000;
-            }
-
-            /* --- 再点灯スパーク (18.4s-18.8s: パチパチ) --- */
-            92.1% { opacity: 1; color: #fff; text-shadow: 0 0 5px #fff; } /* パチッ */
-            92.2% { opacity: 0; text-shadow: none; }
-            92.5% { opacity: 0.8; text-shadow: 0 0 5px #fff; } /* パチッ */
-            92.6% { opacity: 0; }
-            93.5% { opacity: 0; }
-
-            /* --- 復活の閃光 (19.0s-19.2s: オーバーロード) --- */
-            95% {
-                opacity: 1;
-                color: #fff;
-                /* 視界が白むほどの強烈なグロー */
-                text-shadow: 
-                    0 0 20px rgba(255, 255, 255, 1), 
-                    0 0 50px rgba(255, 255, 255, 1), 
-                    0 0 100px rgba(255, 255, 255, 1), 
-                    0 0 180px rgba(153, 247, 255, 1);
-            }
-
-            /* --- 安定化 (19.2s-20s) --- */
-            96% {
-                opacity: 0.8;
-                text-shadow: 0 0 10px rgba(255, 255, 255, 0.9);
-            }
-            100% {
-                opacity: 1;
-                text-shadow: 
-                    0 0 10px rgba(255, 255, 255, 0.9), 
-                    0 0 20px rgba(153, 247, 255, 0.7), 
-                    0 0 40px rgba(76, 201, 240, 0.5), 
-                    0 0 80px rgba(67, 97, 238, 0.3);
-            }
+        @keyframes deep-pressure {
+            0% { filter: brightness(1.3) contrast(1.1) drop-shadow(0 0 15px rgba(200, 240, 255, 0.6)); transform: scale(1); }
+            40% { filter: brightness(0.8) contrast(1.2) drop-shadow(0 0 5px rgba(100, 200, 255, 0.3)); }
+            100% { filter: brightness(0.3) contrast(1.5) drop-shadow(0 0 0px rgba(0,0,0,1)); transform: scale(0.98); }
         }
         
-        /* DIGITALテキストの点滅アニメーション (Flicker 15s - Rainbow) */
         .digital-flicker {
-            /* レインボーグラデーション設定 */
-            background: linear-gradient(
-                90deg, 
-                #ff00cc 0%, 
-                #3333ff 14%, 
-                #00ccff 28%, 
-                #00ff00 42%, 
-                #ffff00 57%, 
-                #ff9900 71%, 
-                #ff0000 85%, 
-                #ff00cc 100%
-            );
+            background: linear-gradient(90deg, #ff00cc 0%, #3333ff 14%, #00ccff 28%, #00ff00 42%, #ffff00 57%, #ff9900 71%, #ff0000 85%, #ff00cc 100%);
             background-size: 200% auto;
             -webkit-background-clip: text;
             background-clip: text;
-            color: transparent; /* 文字色を透明にして背景を表示 */
-            
-            /* アニメーション: 色の流動(aurora-flow) + 明滅(flicker-15s-rainbow) */
-            animation: 
-                aurora-flow 4s linear infinite,
-                flicker-15s-rainbow 15s infinite linear;
+            color: transparent;
+            animation: aurora-flow 4s linear infinite, flicker-15s-rainbow 15s infinite linear;
+            filter: drop-shadow(0 0 8px rgba(255, 255, 255, 0.6));
         }
 
         @keyframes flicker-15s-rainbow {
-            /* --- 通常点灯 (0-70%) --- */
-            0%, 70% {
-                opacity: 1;
-                filter: drop-shadow(0 0 8px rgba(255, 255, 255, 0.6));
-            }
-
-            /* --- 不安定・ノイズ (70%-75%) --- */
-            70.1% { opacity: 0.3; }
-            70.3% { opacity: 0.8; filter: none; }
-            70.6% { opacity: 0.1; }
-            71% { opacity: 0.6; }
-            72% { opacity: 0.1; }
-            73% { opacity: 0.9; filter: drop-shadow(0 0 5px rgba(255, 255, 255, 0.4)); }
-            74% { opacity: 0.2; }
-            
-            /* --- 完全消灯 (75%-85%: 1.5秒) --- */
-            75%, 85% {
-                opacity: 0;
-                filter: none;
-            }
-
-            /* --- スパーク (85%-88%) --- */
-            85.1% { opacity: 0.5; }
-            85.3% { opacity: 0; }
-            86% { opacity: 0.8; filter: drop-shadow(0 0 5px rgba(255, 255, 255, 0.8)); }
-            86.2% { opacity: 0; }
-            
-            /* --- 閃光 (90%) --- */
-            90% {
-                opacity: 1;
-                /* 強烈な発光 */
-                filter: drop-shadow(0 0 10px rgba(255, 255, 255, 0.8)) drop-shadow(0 0 20px rgba(255, 255, 255, 0.6)) drop-shadow(0 0 40px rgba(255, 255, 255, 0.4));
-            }
-
-            /* --- 安定化 (92%-100%) --- */
-            92% { opacity: 0.9; }
-            100% {
-                opacity: 1;
-                filter: drop-shadow(0 0 8px rgba(255, 255, 255, 0.6));
-            }
+            0%, 70% { opacity: 1; filter: drop-shadow(0 0 8px rgba(255, 255, 255, 0.6)); }
+            70.1% { opacity: 0.3; } 70.3% { opacity: 0.8; filter: none; } 70.6% { opacity: 0.1; } 71% { opacity: 0.6; } 72% { opacity: 0.1; }
+            73% { opacity: 0.9; filter: drop-shadow(0 0 5px rgba(255, 255, 255, 0.4)); } 74% { opacity: 0.2; }
+            75%, 85% { opacity: 0; filter: none; }
+            85.1% { opacity: 0.5; } 85.3% { opacity: 0; } 86% { opacity: 0.8; filter: drop-shadow(0 0 5px rgba(255, 255, 255, 0.8)); } 86.2% { opacity: 0; }
+            90% { opacity: 1; filter: drop-shadow(0 0 10px rgba(255, 255, 255, 0.8)) drop-shadow(0 0 20px rgba(255, 255, 255, 0.6)) drop-shadow(0 0 40px rgba(255, 255, 255, 0.4)); }
+            92% { opacity: 0.9; } 100% { opacity: 1; filter: drop-shadow(0 0 8px rgba(255, 255, 255, 0.6)); }
         }
-
-        .oracle-aurora { 
-            background: linear-gradient(
-                90deg, 
-                #ff00cc 0%, 
-                #3333ff 14%, 
-                #00ccff 28%, 
-                #00ff00 42%, 
-                #ffff00 57%, 
-                #ff9900 71%, 
-                #ff0000 85%, 
-                #ff00cc 100%
-            );
-            background-size: 200% auto; 
-            -webkit-background-clip: text; 
-            background-clip: text; 
-            color: transparent; 
-            animation: aurora-flow 4s linear infinite; 
-            filter: drop-shadow(0 0 15px rgba(255, 255, 255, 0.4)); 
-        }
-
+        
         @keyframes aurora-flow {
             0% { background-position: 0% center; }
             100% { background-position: 200% center; }
+        }
+        
+        .variable-font-hero span {
+            display: inline-block;
+            transition: font-weight 0.1s linear, letter-spacing 0.2s ease;
         }
     </style>
 </head>
 <body class="selection:bg-kawaii_p selection:text-void">
 
-    <!-- Flash Overlay (New) -->
+    <!-- Flash Overlay -->
     <div id="flash-overlay"></div>
 
     <!-- Scanlines -->
     <div id="scanlines"></div>
+    
+    <!-- RGB Split / Distortion Layer for Charge -->
+    <div id="rgb-split-layer"></div>
 
-    <!-- Cursor -->
+    <!-- Cursor System -->
     <div id="cursor-core"></div>
     <div id="cursor-ring"></div>
+    
+    <!-- Circular Hint for Right Click -->
+    <svg id="cursor-hint" viewBox="0 0 100 100">
+        <path id="circlePath" d="M 50, 50 m -40, 0 a 40,40 0 1,1 80,0 a 40,40 0 1,1 -80,0" />
+        <text>
+            <textPath href="#circlePath" startOffset="0%">
+                HOLD TO DIVE DEEP • DANGER • DANGER • DO NOT HOLD •
+            </textPath>
+        </text>
+    </svg>
     
     <!-- Charge Indicator -->
     <svg id="cursor-charge" viewBox="0 0 100 100">
@@ -562,11 +500,11 @@
     </div>
 
     <!-- Loader -->
-    <div class="loader">
+    <div class="loader fixed inset-0 z-[100] flex flex-col items-center justify-center bg-void pointer-events-none transition-opacity duration-1000">
         <div class="font-display font-bold text-6xl tracking-tighter text-kawaii_c animate-pulse">
             CONNECTING...
         </div>
-        <div class="font-cute text-kawaii_p text-sm tracking-widest">
+        <div class="font-cute text-kawaii_p text-sm tracking-widest mt-4">
             Summoning Digital Spirits ✨
         </div>
     </div>
@@ -575,7 +513,7 @@
     <nav class="fixed top-0 w-full p-8 flex justify-between items-start z-50 mix-blend-screen text-white pointer-events-none">
         <div class="pointer-events-auto cursor-pointer group">
             <div class="font-display font-bold text-2xl tracking-tighter group-hover:text-kawaii_c transition-colors">DEEP DIGITAL</div>
-            <div class="text-[10px] font-mono opacity-80 tracking-[0.3em] text-kawaii_p">DEEP SEA LAB</div>
+            <div class="text-[10px] font-serif opacity-80 tracking-[0.3em] text-kawaii_p">DEEP SEA LAB</div>
         </div>
         <div class="flex flex-col items-end gap-2 font-mono text-xs pointer-events-auto">
             <a href="#works" class="hover:text-kawaii_c transition-colors link-hover">✦ production</a>
@@ -584,6 +522,18 @@
             <a href="#contact" class="hover:text-kawaii_c transition-colors link-hover">✦ CONTACT</a>
         </div>
     </nav>
+    
+    <!-- Depth HUD -->
+    <div id="depth-hud" class="fixed right-6 md:right-8 top-1/2 -translate-y-1/2 z-[60] font-mono text-[10px] flex flex-col items-end gap-2 pointer-events-none mix-blend-screen transition-opacity duration-500 hidden md:flex">
+        <div class="text-kawaii_c/60 tracking-widest font-serif">LOC: MARIANA TRENCH</div>
+        <div id="depth-counter" class="text-4xl font-display font-bold text-white tracking-tighter leading-none">
+            0<span class="text-xs ml-1 font-mono">m</span>
+        </div>
+        <div id="depth-zone" class="text-kawaii_p tracking-[0.3em] uppercase opacity-80 font-serif">Sunlight Zone</div>
+        <div class="w-[2px] h-32 bg-white/10 relative mt-4 overflow-hidden rounded-full">
+            <div id="depth-bar" class="absolute top-0 left-0 w-full bg-kawaii_c origin-top scale-y-0 h-full"></div>
+        </div>
+    </div>
 
     <!-- Chat Widget -->
     <div class="chat-widget">
@@ -642,12 +592,12 @@
         <section class="h-screen w-full flex items-center justify-center relative perspective-1000">
             <div class="relative z-10 text-center">
                 <h1 class="font-display font-black text-[13vw] text-white leading-none tracking-tighter">
-                    <div class="overflow-hidden"><span class="block reveal-hero translate-y-full digital-glow">DEEP</span></div>
-                    <div class="overflow-hidden"><span class="block reveal-hero translate-y-full digital-flicker">DIGITAL</span></div>
+                    <div class="overflow-hidden"><span class="block reveal-hero translate-y-full submarine-title">DEEP</span></div>
+                    <div class="overflow-hidden"><span class="block reveal-hero translate-y-full digital-flicker variable-font-hero">DIGITAL</span></div>
                 </h1>
-                <p class="mt-8 font-cute text-sm md:text-lg tracking-[0.2em] text-white/80 reveal-hero-sub opacity-0">Ask the jelly, color the sea.</p>
+                <p class="mt-8 font-serif text-sm md:text-lg tracking-[0.2em] text-white/80 reveal-hero-sub opacity-0">Ask the jelly, color the sea.</p>
             </div>
-            <div class="absolute bottom-10 left-1/2 -translate-x-1/2 text-kawaii_p/60 font-mono text-xs animate-bounce">CHAT TO CHANGE THE VIBE (OR HOLD RIGHT CLICK...)</div>
+            <div class="absolute bottom-10 left-1/2 -translate-x-1/2 text-kawaii_p/60 font-mono text-xs animate-bounce">SCROLL TO DIVE OR CHAT TO CHANGE VIBE</div>
         </section>
 
         <!-- Dummy Content -->
@@ -656,17 +606,21 @@
                 <p class="font-cute text-3xl md:text-6xl font-bold leading-tight text-white/90 fluid-text-block">
                     あなたの <span class="text-kawaii_p glow-effect">言葉</span>が、<br>深海の色を変える。<br>右下チャットボタンで、<br>
                     <span class="outline-text link-hover cursor-pointer italic text-kawaii_c">デジタルクラゲ</span>に話しかけてみて。<br>
-                    <span class="text-sm opacity-50 block mt-4">（深海には、絶対に起こしてはいけないモノも眠っています...）</span>
+                    <span class="text-sm opacity-60 block mt-8 tracking-widest leading-relaxed">
+                        深海には絶対に起こしてはいけないモノも眠っています⚠️<br>
+                        カーソルの周りの警告に従ってください。<br>
+                        <span class="text-kawaii_p">右クリック（モバイルは画面）を長押ししてはいけません。</span>
+                    </span>
                 </p>
             </div>
         </section>
         
         <div class="h-[400vh] relative" id="works-wrapper">
-            <div class="sticky top-0 h-screen overflow-hidden flex items-center bg-void/30 backdrop-blur-sm border-y border-white/5">
+            <div class="sticky top-0 h-screen overflow-hidden flex items-center bg-void/5 backdrop-blur-sm border-y border-white/5">
                 <div class="horizontal-scroll-container pl-20 flex gap-20 items-center" id="works-container">
                     <div class="w-[40vw] flex-shrink-0">
-                        <h2 class="font-display text-[8vw] font-bold outline-text opacity-50 text-kawaii_c">深海の世界</h2>
-                        <p class="font-cute text-sm tracking-widest text-kawaii_p">POWERED BYもりくろー</p>
+                        <h2 class="font-display text-[8vw] font-bold outline-text opacity-50 text-kawaii_c variable-section-title">深海の世界</h2>
+                        <p class="font-serif text-sm tracking-widest text-kawaii_p">POWERED BYもりくろー</p>
                     </div>
                     <div class="w-[60vw] md:w-[40vw] aspect-[3/4] md:aspect-video flex-shrink-0 glass-card relative group overflow-hidden link-hover cursor-none">
                         <div class="absolute inset-0 flex items-center justify-center">
@@ -682,14 +636,14 @@
         </div>
 
         <!-- YouTube Section -->
-        <section id="articles" class="py-32 px-6 md:px-20 relative z-10 bg-void/80 backdrop-blur-md border-t border-white/5">
+        <section id="articles" class="py-32 px-6 md:px-20 relative z-10 bg-void/30 backdrop-blur-md border-t border-white/5">
             <div class="max-w-7xl mx-auto">
                 <div class="flex flex-col md:flex-row justify-between items-end mb-16 gap-6">
                     <div>
-                        <h2 class="font-display text-4xl md:text-6xl font-bold text-white mb-2">
+                        <h2 class="font-display text-4xl md:text-6xl font-bold text-white mb-2 variable-section-title">
                             <span class="text-kawaii_c">DIVE</span> LOGS
                         </h2>
-                        <p class="font-cute text-sm tracking-widest text-kawaii_p">最新の深海探査記録</p>
+                        <p class="font-serif text-sm tracking-widest text-kawaii_p">最新の深海探査記録</p>
                     </div>
                     <a href="https://www.youtube.com/" target="_blank" class="group flex items-center gap-2 text-sm font-mono text-white/60 hover:text-kawaii_c transition-colors link-hover">
                         <span>VIEW ALL ARCHIVES</span>
@@ -701,8 +655,8 @@
                     <!-- Video Card 1 -->
                     <article class="glass-card p-4 group hover:bg-white/5 transition-all duration-500 hover:-translate-y-2">
                         <div class="aspect-video w-full bg-black/50 relative overflow-hidden rounded-xl mb-6 group-hover:shadow-[0_0_30px_rgba(76,201,240,0.3)] transition-shadow">
-                            <!-- Placeholder for YouTube Embed or Thumbnail -->
-                            <iframe class="w-full h-full absolute inset-0 pointer-events-auto" src="https://www.youtube.com/embed/jfKfPfyJRdk?controls=0" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+                            <!-- Placeholder -->
+                            <div class="w-full h-full absolute inset-0 bg-void flex items-center justify-center text-white/20">VIDEO 01</div>
                             <div class="absolute inset-0 bg-gradient-to-t from-black/80 to-transparent opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none"></div>
                         </div>
                         <div class="px-2">
@@ -722,7 +676,7 @@
                     <!-- Video Card 2 -->
                     <article class="glass-card p-4 group hover:bg-white/5 transition-all duration-500 hover:-translate-y-2">
                         <div class="aspect-video w-full bg-black/50 relative overflow-hidden rounded-xl mb-6 group-hover:shadow-[0_0_30px_rgba(255,153,200,0.3)] transition-shadow">
-                            <iframe class="w-full h-full absolute inset-0 pointer-events-auto" src="https://www.youtube.com/embed/5K7Frc25nIA?controls=0" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+                            <div class="w-full h-full absolute inset-0 bg-void flex items-center justify-center text-white/20">VIDEO 02</div>
                         </div>
                         <div class="px-2">
                             <div class="flex items-center gap-2 mb-3">
@@ -741,7 +695,7 @@
                     <!-- Video Card 3 -->
                     <article class="glass-card p-4 group hover:bg-white/5 transition-all duration-500 hover:-translate-y-2">
                         <div class="aspect-video w-full bg-black/50 relative overflow-hidden rounded-xl mb-6 group-hover:shadow-[0_0_30px_rgba(153,247,255,0.3)] transition-shadow">
-                            <iframe class="w-full h-full absolute inset-0 pointer-events-auto" src="https://www.youtube.com/embed/LXb3EKWsInQ?controls=0" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+                            <div class="w-full h-full absolute inset-0 bg-void flex items-center justify-center text-white/20">VIDEO 03</div>
                         </div>
                         <div class="px-2">
                             <div class="flex items-center gap-2 mb-3">
@@ -771,10 +725,179 @@
         let isTerrorMode = false;
         let isCharging = false;
         let chargeStartTime = 0;
-        const CHARGE_DURATION = 2000;
+        const CHARGE_DURATION = 3000; // Increased to 3s for more tension
+        // チャージ進捗をグローバルで共有（生物の色変化用）
+        window.chargeProgress = 0;
         
-        // --- Gemini API & Chat Logic ---
-        const apiKey = "AIzaSyBkxmon-EvaU6Ay7-jJ3VnVEmk1d8tSEsE"; 
+        // --- Audio System (Enhanced) ---
+        let audioCtx;
+        let alarmOsc, alarmGain, alarmFilter;
+        let heartbeatOsc, heartbeatGain;
+        let terrorNodes = []; 
+
+        function initAudio() {
+            if (!audioCtx) {
+                audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            }
+            if (audioCtx.state === 'suspended') {
+                audioCtx.resume();
+            }
+        }
+
+        // --- Heartbeat & Alarm System ---
+        function startAlarm() {
+            if (!audioCtx) initAudio();
+            const time = audioCtx.currentTime;
+
+            // 1. Alarm (Harsh Sawtooth)
+            if (!alarmOsc) {
+                alarmOsc = audioCtx.createOscillator();
+                alarmGain = audioCtx.createGain();
+                alarmFilter = audioCtx.createBiquadFilter();
+
+                alarmOsc.type = 'sawtooth';
+                alarmOsc.frequency.value = 100;
+                
+                // Lowpass filter to muffle initial sound (Under pressure)
+                alarmFilter.type = 'lowpass';
+                alarmFilter.frequency.value = 200; 
+
+                alarmOsc.connect(alarmFilter);
+                alarmFilter.connect(alarmGain);
+                alarmGain.connect(audioCtx.destination);
+                
+                alarmGain.gain.value = 0; 
+                alarmOsc.start();
+            }
+
+            // 2. Heartbeat (Sub-bass Sine)
+            if (!heartbeatOsc) {
+                heartbeatOsc = audioCtx.createOscillator();
+                heartbeatGain = audioCtx.createGain();
+                
+                heartbeatOsc.type = 'sine';
+                heartbeatOsc.frequency.value = 50; // Deep bass
+                
+                heartbeatOsc.connect(heartbeatGain);
+                heartbeatGain.connect(audioCtx.destination);
+                
+                heartbeatGain.gain.value = 0;
+                heartbeatOsc.start();
+            }
+        }
+
+        function updateAlarm(progress) {
+            if (!audioCtx) return;
+            const time = audioCtx.currentTime;
+            
+            // --- Alarm Pitch & Texture Logic ---
+            if(alarmOsc) {
+                // Pitch Rise: 100Hz -> 1200Hz (Dramatic)
+                const targetFreq = 100 + (progress * 1100);
+                alarmOsc.frequency.setTargetAtTime(targetFreq, time, 0.1);
+                
+                // Filter Opens: Muffled -> Clear & Sharp
+                // 200Hz -> 5000Hz
+                const filterFreq = 200 + (progress * 4800);
+                alarmFilter.frequency.setTargetAtTime(filterFreq, time, 0.1);
+
+                // Beep Speed Increase
+                const beepSpeed = 4 + (progress * 30);
+                const pulse = Math.sin(time * beepSpeed * Math.PI * 2);
+                const vol = pulse > 0 ? (0.2 + progress * 0.3) : 0.05; // Gets louder
+                alarmGain.gain.setTargetAtTime(vol, time, 0.05);
+            }
+
+            // --- Heartbeat Logic (Tension Builder) ---
+            if(heartbeatOsc) {
+                // Heartbeat rate increases: 1Hz -> 4Hz
+                const beatRate = 1 + (progress * 5); 
+                // Creating a double beat (Lub-Dub) approx logic using sine wave shaping
+                const beatPulse = Math.sin(time * beatRate * Math.PI * 2);
+                // Sharpen the pulse for impact
+                const beatVol = beatPulse > 0.5 ? 0.8 : 0.0; 
+                
+                heartbeatGain.gain.setTargetAtTime(beatVol * (0.5 + progress), time, 0.05);
+            }
+        }
+
+        function stopAlarm() {
+            const time = audioCtx ? audioCtx.currentTime : 0;
+            if (alarmOsc) {
+                try {
+                    alarmGain.gain.setTargetAtTime(0, time, 0.1);
+                    setTimeout(() => {
+                        if(alarmOsc) { alarmOsc.stop(); alarmOsc.disconnect(); }
+                        if(alarmGain) alarmGain.disconnect();
+                        if(alarmFilter) alarmFilter.disconnect();
+                        alarmOsc = null;
+                    }, 200);
+                } catch(e) {}
+            }
+            if (heartbeatOsc) {
+                try {
+                    heartbeatGain.gain.setTargetAtTime(0, time, 0.1);
+                    setTimeout(() => {
+                        if(heartbeatOsc) { heartbeatOsc.stop(); heartbeatOsc.disconnect(); }
+                        if(heartbeatGain) heartbeatGain.disconnect();
+                        heartbeatOsc = null;
+                    }, 200);
+                } catch(e) {}
+            }
+        }
+
+        // --- Terror BGM (Existing Logic Refined) ---
+        function startTerrorSound() {
+            if (!audioCtx) initAudio();
+            stopTerrorSound(); 
+
+            const t = audioCtx.currentTime;
+
+            // 1. Drone
+            const droneOsc = audioCtx.createOscillator();
+            const droneGain = audioCtx.createGain();
+            droneOsc.type = 'sawtooth';
+            droneOsc.frequency.value = 35;
+            droneGain.gain.setValueAtTime(0, t);
+            droneGain.gain.linearRampToValueAtTime(0.5, t + 2);
+            droneOsc.connect(droneGain);
+            droneGain.connect(audioCtx.destination);
+            droneOsc.start();
+            terrorNodes.push(droneOsc, droneGain);
+
+            // 2. Screech (FM)
+            const sOsc = audioCtx.createOscillator();
+            const sGain = audioCtx.createGain();
+            const mOsc = audioCtx.createOscillator();
+            const mGain = audioCtx.createGain();
+            
+            sOsc.frequency.value = 400;
+            mOsc.frequency.value = 5;
+            mGain.gain.value = 200;
+            
+            mOsc.connect(mGain);
+            mGain.connect(sOsc.frequency);
+            sOsc.connect(sGain);
+            sGain.connect(audioCtx.destination);
+            
+            sGain.gain.value = 0.05;
+            sOsc.start();
+            mOsc.start();
+            terrorNodes.push(sOsc, sGain, mOsc, mGain);
+        }
+
+        function stopTerrorSound() {
+            terrorNodes.forEach(node => {
+                try {
+                    if(node.stop) node.stop();
+                    node.disconnect();
+                } catch(e) {}
+            });
+            terrorNodes = [];
+        }
+        
+        // --- Gemini API & Chat Logic (Placeholder) ---
+        const apiKey = ""; 
 
         const chatToggle = document.getElementById('chat-toggle');
         const chatWindow = document.getElementById('chat-window');
@@ -813,74 +936,6 @@
             });
         });
 
-        // Send Message
-        const sendMessage = async () => {
-            const text = chatInput.value.trim();
-            if(!text) return;
-            appendMessage('user', text);
-            chatInput.value = '';
-            chatInput.disabled = true;
-            chatSend.disabled = true;
-            const loadingId = appendMessage('bot', '<span class="animate-pulse">thinking...</span>');
-            try {
-                const response = await callGemini(text);
-                const loadingEl = document.getElementById(loadingId);
-                if(loadingEl) loadingEl.remove();
-                const colorMatch = response.match(/\[COLOR:\s*(#[0-9A-Fa-f]{6})\]/);
-                let displayText = response.replace(/\[COLOR:\s*#[0-9A-Fa-f]{6}\]/g, '');
-                if (colorMatch) {
-                    const newColor = colorMatch[1];
-                    updateOceanColor(newColor);
-                    displayText += `<br><br><span class="text-xs text-kawaii_p">✨ Ocean color shifted to ${newColor}</span>`;
-                }
-                appendMessage('bot', marked.parse(displayText));
-            } catch (error) {
-                console.error(error);
-                const loadingEl = document.getElementById(loadingId);
-                if(loadingEl) loadingEl.remove();
-                appendMessage('bot', 'Oops! The digital waves are interfering... (No API Key set for preview)');
-            } finally {
-                chatInput.disabled = false;
-                chatSend.disabled = false;
-                chatInput.focus();
-            }
-        };
-
-        chatSend.addEventListener('click', sendMessage);
-        chatInput.addEventListener('keypress', (e) => { if(e.key === 'Enter') sendMessage(); });
-
-        let msgCount = 0;
-        function appendMessage(role, html) {
-            const div = document.createElement('div');
-            div.className = `message ${role}`;
-            div.id = `msg-${msgCount++}`;
-            div.innerHTML = html;
-            chatMessages.appendChild(div);
-            chatMessages.scrollTop = chatMessages.scrollHeight;
-            return div.id;
-        }
-
-        async function callGemini(userPrompt) {
-            const apiKey = ""; 
-            const systemPrompt = `
-            You are "Neon Jelly", a cute, digital jellyfish living in "PRISM FLUX" Deep Sea Lab.
-
-            Capabilities:
-            1. **Chat:** Be cute (◕‿◕), helpful, and slightly mysterious. Use Japanese mostly.
-            2. **Mood Sync:** If user expresses emotion or color, append [COLOR: #RRGGBB] to change background.
-
-            Response Guidelines:
-            - Do not use technical terms (jargon).
-            - Praise the user's taste/sense based on their input (especially color choices).
-            - Keep answers simple and concise.
-            `;
-            const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${apiKey}`;
-            const payload = { contents: [{ role: "user", parts: [{ text: userPrompt }] }], systemInstruction: { parts: [{ text: systemPrompt }] } };
-            const res = await fetch(url, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
-            const data = await res.json();
-            return data.candidates?.[0]?.content?.parts?.[0]?.text || "Sorry, I'm bubbling... (error)";
-        }
-
         // --- P5.js Updates ---
         function updateOceanColor(hex) {
             if(window.p5instance && !isTerrorMode) { window.p5instance.changeTheme(hex); }
@@ -891,6 +946,43 @@
         function raf(time) { lenis.raf(time); requestAnimationFrame(raf); }
         requestAnimationFrame(raf);
         gsap.registerPlugin(ScrollTrigger);
+
+        // --- Depth Mapping & HUD Update ---
+        const depthZones = [
+            { limit: 200, name: "Sunlight Zone" },
+            { limit: 1000, name: "Twilight Zone" },
+            { limit: 4000, name: "Midnight Zone" },
+            { limit: 6000, name: "Abyssal Zone" },
+            { limit: 11000, name: "Hadal Zone" }
+        ];
+        
+        window.globalScrollRatio = 0;
+        window.scrollVelocity = 0;
+
+        ScrollTrigger.create({
+            trigger: "body",
+            start: "top top",
+            end: "bottom bottom",
+            scrub: 0.5, 
+            onUpdate: (self) => {
+                window.globalScrollRatio = self.progress;
+                window.scrollVelocity = lenis.velocity; 
+
+                // 0m to 10935m mapping
+                const currentDepth = Math.floor(self.progress * 10935);
+                const counterEl = document.getElementById('depth-counter');
+                const zoneEl = document.getElementById('depth-zone');
+                
+                if(counterEl) counterEl.innerHTML = `${currentDepth.toLocaleString()}<span class="text-xs ml-1 font-mono">m</span>`;
+                gsap.set("#depth-bar", { scaleY: self.progress });
+
+                const zone = depthZones.find(z => currentDepth <= z.limit) || depthZones[depthZones.length - 1];
+                if (zoneEl && zoneEl.innerText !== zone.name) {
+                    gsap.fromTo(zoneEl, { opacity: 0, y: 5 }, { opacity: 0.8, y: 0, duration: 0.5 });
+                    zoneEl.innerText = zone.name;
+                }
+            }
+        });
 
         // --- Horizontal Scroll ---
         const worksSection = document.getElementById('works-wrapper');
@@ -918,28 +1010,85 @@
         // --- Custom Cursor & Charge Logic ---
         const cursorCore = document.getElementById('cursor-core');
         const cursorRing = document.getElementById('cursor-ring');
+        const cursorHint = document.getElementById('cursor-hint');
         const cursorCharge = document.getElementById('cursor-charge');
         const chargeCircle = cursorCharge.querySelector('circle');
+        const rgbLayer = document.getElementById('rgb-split-layer');
         const links = document.querySelectorAll('.link-hover');
         let cursorX = window.innerWidth / 2, cursorY = window.innerHeight / 2;
         let ringX = cursorX, ringY = cursorY, coreX = cursorX, coreY = cursorY;
         let isMouseDown = false;
+        let hintOpacity = 0;
 
-        document.addEventListener('mousemove', (e) => { cursorX = e.clientX; cursorY = e.clientY; });
+        document.addEventListener('mousemove', (e) => { 
+            cursorX = e.clientX; 
+            cursorY = e.clientY; 
+            // Show hint when moving but not hovering links
+            if(!isMouseDown && !document.body.classList.contains('hovering') && !isTerrorMode) {
+                hintOpacity = 0.3;
+            } else {
+                hintOpacity = 0;
+            }
+        });
+        
+        // --- Variable Font Scroll Interaction ---
+        ScrollTrigger.create({
+            trigger: "body",
+            start: "top top",
+            end: "bottom bottom",
+            scrub: true,
+            onUpdate: (self) => {
+                const sectionTitles = document.querySelectorAll('.variable-section-title');
+                sectionTitles.forEach(el => {
+                    const scrollWeight = 600 + Math.sin(self.progress * Math.PI * 4) * 200; 
+                    el.style.fontWeight = scrollWeight;
+                });
+            }
+        });
         
         // Right Click Charge Logic
+        const startCharge = () => {
+            if (isTerrorMode) {
+                deactivateTerrorMode();
+            } else {
+                initAudio();
+                
+                isCharging = true;
+                chargeStartTime = Date.now();
+                cursorCharge.style.opacity = 1;
+                cursorCharge.classList.add('shaking');
+                
+                // Show RGB Split Layer
+                rgbLayer.style.display = 'block';
+                rgbLayer.style.opacity = 0;
+                
+                startAlarm();
+                
+                // Flash Warning but don't show full overlay immediately to build tension
+                const warningEl = document.getElementById('warning-container');
+                // We will pulse it in the loop
+            }
+        };
+
+        const endCharge = () => {
+            if (isCharging && !isTerrorMode) {
+                 document.getElementById('warning-container').classList.remove('active');
+                 rgbLayer.style.display = 'none';
+                 document.getElementById('canvas-container').style.filter = 'none';
+            }
+            isCharging = false;
+            window.chargeProgress = 0; 
+            cursorCharge.style.opacity = 0;
+            chargeCircle.style.strokeDashoffset = 283;
+            cursorCharge.classList.remove('shaking');
+            
+            stopAlarm();
+        };
+
         document.addEventListener('mousedown', (e) => {
-            if (e.button === 2) { // Right click
-                if (isTerrorMode) {
-                    deactivateTerrorMode();
-                } else {
-                    isCharging = true;
-                    chargeStartTime = Date.now();
-                    cursorCharge.style.opacity = 1;
-                    cursorCharge.classList.add('shaking');
-                    
-                    document.getElementById('warning-container').classList.add('active');
-                }
+            initAudio(); 
+            if (e.button === 2) { 
+                startCharge();
             } else {
                 isMouseDown = true;
             }
@@ -947,48 +1096,112 @@
 
         document.addEventListener('mouseup', () => {
             isMouseDown = false;
-            
-            if (isCharging && !isTerrorMode) {
-                 document.getElementById('warning-container').classList.remove('active');
-            }
-
-            isCharging = false;
-            cursorCharge.style.opacity = 0;
-            chargeCircle.style.strokeDashoffset = 283;
-            cursorCharge.classList.remove('shaking');
+            endCharge();
         });
+        
+        // Touch Support
+        document.addEventListener('touchstart', (e) => {
+            initAudio(); 
+            if (!e.target.closest('a, button, input')) {
+                startCharge();
+            }
+        }, {passive: false});
+
+        document.addEventListener('touchend', () => {
+            endCharge();
+        });
+
+        document.addEventListener('touchmove', (e) => {
+             cursorX = e.touches[0].clientX;
+             cursorY = e.touches[0].clientY;
+        }, {passive: false});
         
         document.addEventListener('contextmenu', (e) => e.preventDefault());
 
         gsap.ticker.add(() => {
+            // Cursor Follow
             coreX += (cursorX - coreX) * 0.2; coreY += (cursorY - coreY) * 0.2;
             cursorCore.style.left = coreX + 'px'; cursorCore.style.top = coreY + 'px';
             ringX += (cursorX - ringX) * 0.1; ringY += (cursorY - ringY) * 0.1;
             cursorRing.style.left = ringX + 'px'; cursorRing.style.top = ringY + 'px';
             
             cursorCharge.style.left = cursorX + 'px'; cursorCharge.style.top = cursorY + 'px';
+            
+            // Hint Logic
+            cursorHint.style.left = cursorX + 'px'; cursorHint.style.top = cursorY + 'px';
+            if (isCharging) {
+                cursorHint.style.opacity = 1;
+                cursorHint.querySelector('text').style.fill = '#ff0000';
+            } else {
+                cursorHint.style.opacity = hintOpacity;
+                cursorHint.querySelector('text').style.fill = 'rgba(153, 247, 255, 0.6)';
+            }
 
+            // Charging Animation & Distortion
             if (isCharging && !isTerrorMode) {
                 const elapsed = Date.now() - chargeStartTime;
                 const progress = Math.min(elapsed / CHARGE_DURATION, 1);
+                
+                window.chargeProgress = progress;
+                
+                updateAlarm(progress);
+                
                 const offset = 283 - (283 * progress);
                 chargeCircle.style.strokeDashoffset = offset;
                 
-                const shakeIntensity = 3 + (progress * 15); 
+                const r = 255;
+                const g = Math.max(0, 255 - progress * 500); 
+                const b = Math.max(0, 255 - progress * 500);
+                chargeCircle.style.stroke = `rgb(${r},${g},${b})`;
+                
+                // --- Visual Distortion (Enhanced) ---
+                // 1. Shake
+                const shakeIntensity = 3 + (progress * 40); 
                 const shakeX = Math.random() * shakeIntensity - (shakeIntensity / 2);
                 const shakeY = Math.random() * shakeIntensity - (shakeIntensity / 2);
                 cursorCharge.style.transform = `translate(-50%, -50%) rotate(-90deg) translate(${shakeX}px, ${shakeY}px)`;
                 
+                // 2. Global Blur/Distortion
+                // Increasing blur and chromatic aberration effect via opacity of overlay
+                rgbLayer.style.opacity = progress * 0.8;
+                rgbLayer.style.background = `
+                    linear-gradient(90deg, 
+                        rgba(255,0,0,${progress * 0.5}), 
+                        rgba(0,255,0,${progress * 0.5}), 
+                        rgba(0,0,255,${progress * 0.5})
+                    )
+                `;
+                rgbLayer.style.transform = `translate(${Math.random()*10*progress}px, ${Math.random()*10*progress}px)`;
+                
+                // 3. Canvas CSS Filters (Heavy)
+                if (progress > 0.5) {
+                    const invertVal = (progress - 0.5) * 2 * 100;
+                    document.getElementById('canvas-container').style.filter = `invert(${invertVal}%) contrast(${1 + progress}) blur(${progress * 2}px)`;
+                }
+                
                 if(window.p5instance && window.p5instance.triggerShake) {
-                    window.p5instance.triggerShake(2 + progress * 5); 
+                    window.p5instance.triggerShake(2 + progress * 20); 
+                }
+                
+                // 4. Warning Flash
+                if (progress > 0.7) {
+                    const warningEl = document.getElementById('warning-container');
+                    if (Math.random() > 0.7) warningEl.classList.add('active');
+                    else warningEl.classList.remove('active');
                 }
 
                 if (progress >= 1) {
                     activateTerrorMode();
                     isCharging = false;
+                    window.chargeProgress = 0;
                     cursorCharge.style.opacity = 0;
                     cursorCharge.classList.remove('shaking');
+                    rgbLayer.style.display = 'none';
+                    document.getElementById('canvas-container').style.filter = 'none';
+                    stopAlarm(); 
                 }
+            } else {
+                window.chargeProgress = 0;
             }
 
             if(isMouseDown) { 
@@ -1015,6 +1228,7 @@
             if (window.p5instance && window.p5instance.activateGoblin) {
                 window.p5instance.activateGoblin();
             }
+            startTerrorSound(); // Start BGM
         }
 
         function deactivateTerrorMode() {
@@ -1028,6 +1242,7 @@
             if (window.p5instance && window.p5instance.deactivateGoblin) {
                 window.p5instance.deactivateGoblin();
             }
+            stopTerrorSound(); // Stop BGM
         }
 
         window.addEventListener('load', () => {
@@ -1037,18 +1252,20 @@
               .to('.reveal-hero-sub', { opacity: 1, duration: 1 }, "-=1");
         });
 
-        // --- p5.js Deep Sea (Enhanced for Award-Winning Quality) ---
+        // --- p5.js Deep Sea (Enhanced) ---
         let creatures = [];
         let gardenEels = []; 
         let foods = []; 
-        let particles = []; // Multi-layered Marine Snow
+        let particles = [];
         let bloodParticles = []; 
         let goblinShark; 
         let c_pink, c_cyan, c_blue, c_blood;
         let currentThemeColor;
         let spotlightX;
         let shakeAmount = 0;
-        let timeOffset = 0; // For global sway
+        let timeOffset = 0; 
+        
+        let scrollRatio = 0; 
 
         function setup() {
             let canvas = createCanvas(windowWidth, windowHeight);
@@ -1070,10 +1287,10 @@
             for(let i=0; i<centerCount; i++) gardenEels.push(new GardenEel(random(width * 0.4, width * 0.6), height));
             for(let i=0; i<rightCount; i++) gardenEels.push(new GardenEel(random(width * 0.75, width * 0.95), height));
 
-            // Layered Particles for Depth
-            for(let i=0; i<100; i++) particles.push(new AbyssParticle('back'));   // Slow, small, dark
-            for(let i=0; i<80; i++)  particles.push(new AbyssParticle('mid'));    // Normal
-            for(let i=0; i<30; i++)  particles.push(new AbyssParticle('front'));  // Fast, big, blurry
+            // Layered Particles
+            for(let i=0; i<100; i++) particles.push(new AbyssParticle('back'));   
+            for(let i=0; i<80; i++) particles.push(new AbyssParticle('mid'));    
+            for(let i=0; i<30; i++) particles.push(new AbyssParticle('front'));  
             
             goblinShark = new GoblinShark();
 
@@ -1101,18 +1318,25 @@
         function draw() {
             clear(); 
             
-            // Global Atmosphere Sway (Floating Sensation)
             timeOffset += 0.005;
+            scrollRatio = window.globalScrollRatio || 0;
+            
             let globalSwayX = map(noise(timeOffset), 0, 1, -15, 15);
-            let globalSwayY = map(noise(timeOffset + 100), 0, 1, -10, 10);
+            let globalSwayY = map(noise(timeOffset + 100), 0, 1, -10, 10) - (scrollRatio * 100); 
 
             push();
             translate(globalSwayX, globalSwayY);
 
-            // --- Camera Shake Logic ---
+            // --- Camera Shake & Glitch Logic ---
             if (isTerrorMode) {
                 let constantShake = 2; 
                 translate(random(-constantShake, constantShake), random(-constantShake, constantShake));
+                
+                if (frameCount % 10 === 0 && random() > 0.5) {
+                    translate(random(-20, 20), 0);
+                    fill(255, 0, 0, 50);
+                    rect(0, random(height), width, 10);
+                }
             }
             if (shakeAmount > 0.5) {
                 let shakeX = random(-shakeAmount, shakeAmount);
@@ -1125,25 +1349,23 @@
                 shakeAmount = 0;
             }
             
-            // Spotlight / Theme Update
             if (isTerrorMode) {
                 currentThemeColor = c_blood;
                 spotlightX = width/2;
             } else {
-                // Smooth spotlight movement
                 spotlightX = lerp(spotlightX, cursorX, 0.05);
             }
             
-            // 1. Draw Background & Volumetric Atmosphere
+            // 1. Draw Background & Atmosphere
             drawAtmosphere();
             
-            // 2. Background Particles (湧昇流: 下から上へ)
+            // 2. Background Particles
             for(let p of particles) { if(p.layer === 'back') { p.update(); p.display(); } }
 
-            // 3. Garden Eels (Background Elements)
+            // 3. Garden Eels
             for (let eel of gardenEels) { eel.update(); eel.display(); }
 
-            // 4. Midground Particles & Light Shafts
+            // 4. Midground Particles & Light
             if (!isTerrorMode) drawVolumetricLight();
             for(let p of particles) { if(p.layer === 'mid') { p.update(); p.display(); } }
 
@@ -1167,45 +1389,61 @@
                 c.behaviors(foods, createVector(cursorX - globalSwayX, cursorY - globalSwayY)); c.update(); c.display();
             }
             
-            // 7. Foreground Particles (Blurry, Fast)
+            // 7. Foreground Particles
             for(let p of particles) { if(p.layer === 'front') { p.update(); p.display(); } }
 
             // 8. Goblin Shark Overlay
             goblinShark.update();
             goblinShark.display();
             
-            // 9. Interaction Trigger
+            // 9. Charge Glitch Visuals on Canvas (Rects)
+            if (window.chargeProgress > 0) {
+                 drawChargeGlitch(window.chargeProgress);
+            }
+            
+            // 10. Interaction Trigger
             if (mouseIsPressed && !isTerrorMode && frameCount % 10 === 0) foods.push(new Food(cursorX + random(-20, 20), cursorY + random(-20, 20), currentThemeColor));
 
             pop();
         }
         
+        function drawChargeGlitch(progress) {
+             let intensity = progress * 10;
+             if (random() < progress * 0.5) {
+                 fill(random(255), 0, random(255), 100);
+                 let h = random(5, 50 * progress);
+                 rect(0, random(height), width, h);
+             }
+        }
+        
         function drawAtmosphere() {
-            // Abyss Gradient (Heavy Water Pressure)
             let ctx = drawingContext;
             let cx = spotlightX;
             let cy = isTerrorMode ? height/2 : cursorY;
-            
+            let sRatio = window.globalScrollRatio || 0;
+
             fill(0, 0, 5, 255); 
             rect(-100, -100, width + 200, height + 200);
 
             if (!isTerrorMode) {
-                 let radius = width * 1.0; 
-                 push();
-                 let bgGradient = ctx.createRadialGradient(cx, cy, 0, cx, cy, radius);
-                 let lightC = currentThemeColor ? currentThemeColor : c_cyan;
-                 let r = red(lightC), g = green(lightC), b = blue(lightC);
-                 
-                 bgGradient.addColorStop(0, `rgba(${r}, ${g}, ${b}, 0.12)`); 
-                 bgGradient.addColorStop(0.2, `rgba(5, 20, 40, 0.6)`);
-                 bgGradient.addColorStop(0.5, `rgba(2, 5, 10, 0.95)`);
-                 bgGradient.addColorStop(1, '#000000');
-                 
-                 ctx.fillStyle = bgGradient;
-                 blendMode(SCREEN); 
-                 rect(-100, -100, width + 200, height + 200);
-                 blendMode(BLEND); 
-                 pop();
+                let radius = width * map(sRatio, 0, 1, 1.2, 0.5); 
+                
+                push();
+                let bgGradient = ctx.createRadialGradient(cx, cy, 0, cx, cy, radius);
+                let lightC = currentThemeColor ? currentThemeColor : c_cyan;
+                let r = red(lightC), g = green(lightC), b = blue(lightC);
+                
+                let darkness = map(sRatio, 0, 1, 0, 0.5);
+                
+                bgGradient.addColorStop(0, `rgba(${r}, ${g}, ${b}, ${0.15 - sRatio * 0.1})`); 
+                bgGradient.addColorStop(0.5, `rgba(${2 + darkness*5}, ${5 + darkness*10}, ${15 + darkness*20}, ${0.8 + sRatio * 0.2})`);
+                bgGradient.addColorStop(1, '#000000');
+                
+                ctx.fillStyle = bgGradient;
+                blendMode(SCREEN); 
+                rect(-100, -100, width + 200, height + 200);
+                blendMode(BLEND); 
+                pop();
             } else {
                  let radius = width * 1.5;
                  let bgGradient = ctx.createRadialGradient(cx, cy, 0, cx, cy, radius);
@@ -1222,26 +1460,25 @@
             blendMode(ADD);
             let ctx = drawingContext;
             let lightColor = currentThemeColor ? currentThemeColor : c_cyan;
-            let time = frameCount * 0.005;
             
             noStroke();
-            
-            let grad = ctx.createRadialGradient(spotlightX, cursorY, 0, spotlightX, cursorY, 600);
+            let coneSize = map(scrollRatio, 0, 1, 600, 300);
+            let grad = ctx.createRadialGradient(spotlightX, cursorY, 0, spotlightX, cursorY, coneSize);
             let r = red(lightColor), g = green(lightColor), b = blue(lightColor);
-            
-            grad.addColorStop(0, `rgba(${r}, ${g}, ${b}, 0.08)`);
-            grad.addColorStop(0.5, `rgba(${r}, ${g}, ${b}, 0.02)`);
+            let intensity = map(scrollRatio, 0, 1, 1, 0.5);
+
+            grad.addColorStop(0, `rgba(${r}, ${g}, ${b}, ${0.08 * intensity})`);
+            grad.addColorStop(0.5, `rgba(${r}, ${g}, ${b}, ${0.02 * intensity})`);
             grad.addColorStop(1, `rgba(0,0,0,0)`);
             
             ctx.fillStyle = grad;
-            circle(spotlightX, cursorY, 1200);
+            circle(spotlightX, cursorY, coneSize * 2);
 
             let coreGrad = ctx.createRadialGradient(spotlightX, cursorY, 0, spotlightX, cursorY, 80);
-            coreGrad.addColorStop(0, `rgba(255, 255, 255, 0.2)`);
+            coreGrad.addColorStop(0, `rgba(255, 255, 255, ${0.2 * intensity})`);
             coreGrad.addColorStop(1, `rgba(255, 255, 255, 0)`);
             ctx.fillStyle = coreGrad;
             circle(spotlightX, cursorY, 160);
-
             pop();
         }
         
@@ -1249,54 +1486,43 @@
             constructor(layer) {
                 this.layer = layer;
                 this.reset();
-                this.y = random(height); // Initial scattering
+                this.y = random(height); 
             }
-            
             reset() {
                 this.x = random(width);
-                this.y = height + 20; // Start from bottom (湧昇流)
+                this.y = height + 20; 
                 this.noiseOffset = random(1000);
-                
                 if (this.layer === 'back') {
-                    this.size = random(1, 2);
-                    this.speed = random(0.2, 0.5);
-                    this.baseAlpha = random(20, 50);
+                    this.size = random(1, 2); this.speed = random(0.2, 0.5); this.baseAlpha = random(20, 50);
                 } else if (this.layer === 'mid') {
-                    this.size = random(2, 4);
-                    this.speed = random(0.5, 1.2);
-                    this.baseAlpha = random(50, 100);
+                    this.size = random(2, 4); this.speed = random(0.5, 1.2); this.baseAlpha = random(50, 100);
                 } else { // front
-                    this.size = random(4, 8);
-                    this.speed = random(1.5, 2.5);
-                    this.baseAlpha = random(20, 60); 
+                    this.size = random(4, 8); this.speed = random(1.5, 2.5); this.baseAlpha = random(20, 60); 
                 }
                 this.currentAlpha = this.baseAlpha;
             }
-
             update() {
-                // Parallax based on mouse
                 let parallax = (cursorX - width/2) * 0.0005;
                 if (this.layer === 'mid') parallax *= 2;
                 if (this.layer === 'front') parallax *= 4;
-                
                 this.x += map(noise(this.noiseOffset + frameCount * 0.01), 0, 1, -0.5, 0.5) - parallax;
                 
-                // Movement: Upward (湧昇流)
-                this.y -= this.speed;
+                let sVelocity = window.scrollVelocity || 0;
+                let sRatio = window.globalScrollRatio || 0;
+                let velocityImpact = map(Math.abs(sVelocity), 0, 5000, 0, 20);
+                let scrollFactor = (1 + sRatio * 2) + velocityImpact;
+                this.y -= this.speed * scrollFactor;
 
-                // Terror Mode behavior (Turbulent)
                 if (isTerrorMode) {
                     this.y -= this.speed * 4; 
                     this.x += random(-3, 3);
                 }
 
-                // Wrap around
                 if (this.y < -20) this.reset();
-                if (this.y > height + 20 && isTerrorMode) { this.reset(); } // Safety
+                if (this.y > height + 20 && isTerrorMode) { this.reset(); }
                 if (this.x > width + 50) this.x = -50;
                 if (this.x < -50) this.x = width + 50;
             }
-
             display() {
                 let col;
                 if (isTerrorMode) {
@@ -1305,35 +1531,26 @@
                     let r = red(currentThemeColor || color(255));
                     let g = green(currentThemeColor || color(255));
                     let b = blue(currentThemeColor || color(255));
-                    
-                    // Distance to light affects visibility (光に近いほど明るく見える)
-                    let d = dist(this.x, this.y, spotlightX, this.layer === 'front' ? cursorY : 0);
-                    // 上層からの光も考慮しつつ、マウス周辺も明るく
                     let lightInfluence = map(dist(this.x, this.y, spotlightX, cursorY), 0, 400, 1.5, 0.5);
                     lightInfluence = constrain(lightInfluence, 0.5, 2.0);
-                    
                     col = color(r, g, b, this.baseAlpha * lightInfluence);
                 }
-                
                 fill(col);
-                
-                // Fake Blur for Front Layer (Performance friendly bokeh)
                 if (this.layer === 'front' && !isTerrorMode) {
-                     drawingContext.shadowBlur = 10;
-                     drawingContext.shadowColor = col.toString();
+                      drawingContext.shadowBlur = 10;
+                      drawingContext.shadowColor = col.toString();
                 } else {
-                     drawingContext.shadowBlur = 0;
+                      drawingContext.shadowBlur = 0;
                 }
-                
                 circle(this.x, this.y, this.size);
-                drawingContext.shadowBlur = 0; // Reset
+                drawingContext.shadowBlur = 0; 
             }
         }
 
         class BloodParticle {
             constructor(x, y) {
                 this.pos = createVector(x, y);
-                this.vel = createVector(random(2, 8), random(-2, 2)); // Move right (trail)
+                this.vel = createVector(random(2, 8), random(-2, 2)); 
                 this.life = 255;
                 this.size = random(5, 15);
             }
@@ -1378,11 +1595,7 @@
             update() { 
                 this.vel.add(this.acc); this.vel.limit(this.maxSpeed); this.pos.add(this.vel); this.acc.mult(0); 
                 if (isTerrorMode) {
-                    if (this.pos.x < -200) {
-                        this.pos.x = width + 200;
-                        this.pos.y = random(height);
-                        this.vel.mult(0.5); 
-                    }
+                    if (this.pos.x < -200) { this.pos.x = width + 200; this.pos.y = random(height); this.vel.mult(0.5); }
                 } else {
                     if (this.pos.x < -50) this.pos.x = width + 50; if (this.pos.x > width + 50) this.pos.x = -50; if (this.pos.y < -50) this.pos.y = height + 50; if (this.pos.y > height + 50) this.pos.y = -50; 
                 }
@@ -1394,278 +1607,63 @@
         
         class GardenEel { 
             constructor(x, y) { 
-                this.x = x; 
-                this.y = y; 
-                this.maxH = random(120, 200); 
-                this.currentH = this.maxH; 
-                this.thickness = random(10, 14); 
-                this.noiseOffset = random(1000); 
-                this.bodyColor = color(153, 247, 255, 60); 
-                this.strokeColor = color(153, 247, 255, 150); 
-                this.spotColor = color(255, 255, 255, 100); 
-                this.eyeColor = color(255, 220, 50); 
-                this.lastScaredTime = 0; 
-                this.isPeeking = false; 
+                this.x = x; this.y = y; this.maxH = random(120, 200); this.currentH = this.maxH; 
+                this.thickness = random(10, 14); this.noiseOffset = random(1000); 
+                this.bodyColor = color(153, 247, 255, 60); this.strokeColor = color(153, 247, 255, 150); 
+                this.spotColor = color(255, 255, 255, 100); this.eyeColor = color(255, 220, 50); 
+                this.lastScaredTime = 0; this.isPeeking = false; 
             } 
             update() { 
-                // 修正: 自前のカーソル座標を使用
-                let d = dist(cursorX, cursorY, this.x, this.y - this.currentH); 
-                let rootD = dist(cursorX, cursorY, this.x, this.y); 
+                let d = dist(cursorX, cursorY, this.x, this.y - this.currentH); let rootD = dist(cursorX, cursorY, this.x, this.y); 
                 let isScared = (d < 200 || rootD < 200); 
-
-                // 追加: ラブカが近づいた場合も隠れる
-                for (let c of creatures) {
-                    if (c instanceof FrilledShark) {
-                        let sharkD = dist(c.pos.x, c.pos.y, this.x, this.y - this.currentH);
-                        let sharkRootD = dist(c.pos.x, c.pos.y, this.x, this.y);
-                        if (sharkD < 250 || sharkRootD < 250) { 
-                            isScared = true;
-                            break;
-                        }
-                    }
-                }
-
-                let targetH = this.maxH; 
-                let speed = 0.02; 
-                if (isTerrorMode) { 
-                    targetH = 0; 
-                    speed = 0.5; 
-                } else if (isScared) { 
-                    targetH = 0; 
-                    speed = 0.4; 
-                    this.lastScaredTime = millis(); 
-                    this.isPeeking = false; 
-                } else { 
-                    let safeTime = millis() - this.lastScaredTime; 
-                    if (safeTime < 1000) { targetH = 0; speed = 0.4; } 
-                    else if (safeTime < 3500) { targetH = 40; speed = 0.05; this.isPeeking = true; } 
-                    else { targetH = this.maxH; speed = 0.01; this.isPeeking = false; } 
-                } 
-                let sway = map(noise(frameCount * 0.01 + this.noiseOffset), 0, 1, 0.9, 1.1); 
-                if (targetH > 0 && !this.isPeeking) { targetH *= sway; } 
+                for (let c of creatures) { if (c instanceof FrilledShark) { let sharkD = dist(c.pos.x, c.pos.y, this.x, this.y - this.currentH); let sharkRootD = dist(c.pos.x, c.pos.y, this.x, this.y); if (sharkD < 250 || sharkRootD < 250) { isScared = true; break; } } } 
+                let targetH = this.maxH; let speed = 0.02; 
+                if (isTerrorMode) { targetH = 0; speed = 0.5; } else if (isScared) { targetH = 0; speed = 0.4; this.lastScaredTime = millis(); this.isPeeking = false; } else { let safeTime = millis() - this.lastScaredTime; if (safeTime < 1000) { targetH = 0; speed = 0.4; } else if (safeTime < 3500) { targetH = 40; speed = 0.05; this.isPeeking = true; } else { targetH = this.maxH; speed = 0.01; this.isPeeking = false; } } 
+                let sway = map(noise(frameCount * 0.01 + this.noiseOffset), 0, 1, 0.9, 1.1); if (targetH > 0 && !this.isPeeking) { targetH *= sway; } 
                 this.currentH = lerp(this.currentH, targetH, speed); 
             } 
             display() { 
                 if (this.currentH < 2) return; 
-                push(); 
-                translate(this.x, this.y); 
-                let points = []; 
-                let segments = 20; 
+                push(); translate(this.x, this.y); 
+                let points = []; let segments = 20; 
                 let swayAmt = map(noise(frameCount * 0.02 + this.noiseOffset), 0, 1, -40, 40); 
-                let swayFactor = this.currentH / this.maxH; 
-                swayAmt *= swayFactor; 
-                let peekAngle = 0; 
-                if (this.isPeeking) { peekAngle = sin(frameCount * 0.06 + this.noiseOffset) * 20; } 
-                for (let i = 0; i <= segments; i++) { 
-                    let t = i / segments; 
-                    let yPos = -this.currentH * t; 
-                    let xPos; 
-                    if (this.isPeeking) { xPos = peekAngle * (t * t); } 
-                    else { xPos = swayAmt * sin(t * PI * 0.5 + frameCount * 0.01) * t; } 
-                    points.push(createVector(xPos, yPos)); 
-                } 
-                fill(this.bodyColor); 
-                stroke(this.strokeColor); 
-                strokeWeight(1); 
-                beginShape(); 
-                for (let i = 0; i < points.length; i++) { 
-                    let p = points[i]; 
-                    let r = this.thickness / 2 * (1 - i/points.length * 0.1); 
-                    vertex(p.x - r, p.y); 
-                } 
-                let headP = points[points.length - 1]; 
-                let headR = this.thickness / 2 * 0.9; 
-                for (let a = PI; a <= TWO_PI; a += 0.2) { 
-                    vertex(headP.x + cos(a) * headR, headP.y + sin(a) * headR * 0.8); 
-                } 
-                for (let i = points.length - 1; i >= 0; i--) { 
-                    let p = points[i]; 
-                    let r = this.thickness / 2 * (1 - i/points.length * 0.1); 
-                    vertex(p.x + r, p.y); 
-                } 
-                endShape(CLOSE); 
-                noStroke(); 
-                fill(this.spotColor); 
-                for (let i = 3; i < points.length - 2; i += 2) { 
-                    let p = points[i]; 
-                    let offsetX = map(noise(i * 0.5 + this.noiseOffset), 0, 1, -2, 2); 
-                    ellipse(p.x + offsetX, p.y, this.thickness * 0.4, this.thickness * 0.25); 
-                } 
-                
-                // 変更点: 通常時は黄色(this.eyeColor)、恐怖モード時はテーマカラー(赤)に連動
-                let useEyeColor = isTerrorMode ? currentThemeColor : this.eyeColor;
-
-                fill(useEyeColor); 
-                drawingContext.shadowBlur = 8; 
-                drawingContext.shadowColor = useEyeColor.toString(); 
-                ellipse(headP.x - 3, headP.y, 3, 3); 
-                ellipse(headP.x + 3, headP.y, 3, 3); 
-                drawingContext.shadowBlur = 0; 
-                pop(); 
+                let swayFactor = this.currentH / this.maxH; swayAmt *= swayFactor; 
+                let peekAngle = 0; if (this.isPeeking) { peekAngle = sin(frameCount * 0.06 + this.noiseOffset) * 20; } 
+                for (let i = 0; i <= segments; i++) { let t = i / segments; let yPos = -this.currentH * t; let xPos; if (this.isPeeking) { xPos = peekAngle * (t * t); } else { xPos = swayAmt * sin(t * PI * 0.5 + frameCount * 0.01) * t; } points.push(createVector(xPos, yPos)); } 
+                fill(this.bodyColor); stroke(this.strokeColor); strokeWeight(1); 
+                beginShape(); for (let i = 0; i < points.length; i++) { let p = points[i]; let r = this.thickness / 2 * (1 - i/points.length * 0.1); vertex(p.x - r, p.y); } 
+                let headP = points[points.length - 1]; let headR = this.thickness / 2 * 0.9; 
+                for (let a = PI; a <= TWO_PI; a += 0.2) { vertex(headP.x + cos(a) * headR, headP.y + sin(a) * headR * 0.8); } 
+                for (let i = points.length - 1; i >= 0; i--) { let p = points[i]; let r = this.thickness / 2 * (1 - i/points.length * 0.1); vertex(p.x + r, p.y); } endShape(CLOSE); 
+                noStroke(); fill(this.spotColor); for (let i = 3; i < points.length - 2; i += 2) { let p = points[i]; let offsetX = map(noise(i * 0.5 + this.noiseOffset), 0, 1, -2, 2); ellipse(p.x + offsetX, p.y, this.thickness * 0.4, this.thickness * 0.25); } 
+                let useEyeColor = isTerrorMode ? currentThemeColor : this.eyeColor; fill(useEyeColor); drawingContext.shadowBlur = 8; drawingContext.shadowColor = useEyeColor.toString(); ellipse(headP.x - 3, headP.y, 3, 3); ellipse(headP.x + 3, headP.y, 3, 3); drawingContext.shadowBlur = 0; pop(); 
             } 
-        }
+        } 
         
-        // --- Goblin Shark (Terror: RIGHT to LEFT Invasion) ---
         class GoblinShark {
-            constructor() {
-                this.reset();
-            }
-            
-            reset() {
-                this.active = false;
-                this.x = width + 800; // Start far RIGHT
-                this.y = height / 2;
-                this.speed = 2.5; // Move LEFT speed
-                this.jawOffset = 0;
-                this.noiseOff = 0;
-            }
-            
-            activate() {
-                this.active = true;
-                this.x = width + 800; // Force start RIGHT
-                this.y = random(height * 0.4, height * 0.6);
-            }
-            
-            deactivate() {
-                this.reset();
-            }
-            
+            constructor() { this.reset(); }
+            reset() { this.active = false; this.x = width + 800; this.y = height / 2; this.speed = 2.5; this.jawOffset = 0; this.noiseOff = 0; }
+            activate() { this.active = true; this.x = width + 800; this.y = random(height * 0.4, height * 0.6); }
+            deactivate() { this.reset(); }
             update() {
                 if (!this.active) return;
-                this.x -= this.speed; // Move LEFT
-                this.noiseOff += 0.05;
-                
-                // Jaw snap logic (Periodic)
-                let snapCycle = (frameCount % 200) / 200; // Faster cycle
-                if (snapCycle > 0.4 && snapCycle < 0.6) {
-                    this.jawOffset = lerp(this.jawOffset, 60, 0.15); // Protrude fast
-                    shakeAmount = 20; // Impact shake
-                    
-                    // Blood Flash Effect on bite
-                    if (this.jawOffset > 30) {
-                        push();
-                        fill(255, 0, 0, 50); // Red flash overlay
-                        rect(0, 0, width, height);
-                        pop();
-                    }
-                } else {
-                    this.jawOffset = lerp(this.jawOffset, 0, 0.05);
-                }
-
-                if (this.x < -1000) { // Screen wrap left check
-                     deactivateTerrorMode();
-                }
+                this.x -= this.speed; this.noiseOff += 0.05;
+                let snapCycle = (frameCount % 200) / 200; 
+                if (snapCycle > 0.4 && snapCycle < 0.6) { this.jawOffset = lerp(this.jawOffset, 60, 0.15); shakeAmount = 20; if (this.jawOffset > 30) { push(); fill(255, 0, 0, 50); rect(0, 0, width, height); pop(); } } else { this.jawOffset = lerp(this.jawOffset, 0, 0.05); }
+                if (this.x < -1000) { deactivateTerrorMode(); }
             }
-            
             display() {
                 if (!this.active) return;
-                
-                push();
-                translate(this.x, this.y);
-                
-                // Ominous floating
-                translate(0, sin(frameCount * 0.03) * 30);
-                
-                // Facing LEFT: Default vertices are Left-facing, so scale(5) works.
-                // Note: Previous code had Left-to-Right logic with Right-facing vertices.
-                // We will use Left-facing logic here.
-                scale(5); 
-                
-                noStroke();
-                
-                // --- 1. Skin (Corpse Blue-Grey, Sharp) ---
-                let skinColor = color(180, 190, 200, 255); 
-                
-                // Sharp Highlight & Shadow for Visibility
-                drawingContext.shadowBlur = 30;
-                drawingContext.shadowColor = 'rgba(200, 240, 255, 0.6)'; 
-                
-                // Body
-                fill(skinColor);
-                beginShape();
-                // Snout (Pointing LEFT)
-                vertex(-180, -20); 
-                // Upper Body (Rough Skin)
-                for (let i = -180; i < 200; i += 20) {
-                    let yOff = map(noise(i * 0.01 + this.noiseOff), 0, 1, -4, 4);
-                    curveVertex(i, -40 + yOff);
-                }
-                vertex(250, 0); // Tail
-                // Lower Body
-                for (let i = 200; i > -100; i -= 20) {
-                    let yOff = map(noise(i * 0.01 + this.noiseOff + 100), 0, 1, -4, 4);
-                    curveVertex(i, 40 + yOff);
-                }
-                
-                // Jaw Base (Moving Left/Forward)
-                let jawX = -80 - (this.jawOffset * 0.8); 
-                let jawY = 20 + (this.jawOffset * 0.3);
-                
-                vertex(jawX + 40, jawY - 10); // Corner
-                vertex(jawX, jawY); // Lower Tip
-                vertex(-100, 10); // Upper connection
-                vertex(-180, -20); // Snout close
-                endShape(CLOSE);
-                
-                drawingContext.shadowBlur = 0; 
-
-                // --- 2. Details (Scars/Gills) ---
-                noFill();
-                stroke(100, 110, 120, 150); // Darker grey for details
-                strokeWeight(2);
-                // Spine
-                beginShape();
-                for(let i = -150; i < 200; i+=20) {
-                    vertex(i, sin(i*0.05 + frameCount*0.1)*5);
-                }
-                endShape();
-
-                // --- 3. Jaw & Teeth (Jagged) ---
-                noStroke();
-                fill(240, 240, 230); // Bone White (Sharp)
-                
-                if (this.jawOffset > 5) {
-                    // Upper Teeth
-                    for(let i=0; i<8; i++) {
-                        let tx = -110 + i * 12;
-                        triangle(tx, 10, tx+4, 10, tx+2, 35); // Long
-                    }
-                    // Lower Teeth
-                    for(let i=0; i<8; i++) {
-                        let tx = jawX + i * 10;
-                        let ty = jawY;
-                        triangle(tx, ty, tx+4, ty, tx+2, ty-15);
-                    }
-                }
-
-                // --- 4. Eye (Kawaii Gap!) ---
-                // 変更点:リアルで死んだ目から、アニメ調のつぶらな瞳へ
-                
-                // 白目 (White Sclera) - 大きく
-                fill(255); 
-                ellipse(-120, -18, 16, 16); // サイズアップ
-                
-                // 黒目 (Big Pupil) - つぶらな感じ
-                fill(20, 0, 50); // 漆黒ではなく少し紫がかった黒
-                ellipse(-120, -18, 12, 12); 
-                
-                // ハイライト (Sparkle) - 命を宿す
-                fill(255); 
-                ellipse(-117, -21, 5, 5); // Main highlight
-                ellipse(-123, -15, 2, 2); // Sub highlight
-
-                // --- 5. Gills (変更なし) ---
-                stroke(80, 90, 100);
-                strokeWeight(3);
-                for(let i=0; i<5; i++) {
-                    let gx = -20 + i * 15;
-                    line(gx, -10, gx - 5, 25);
-                }
-
-                pop();
+                push(); translate(this.x, this.y); translate(0, sin(frameCount * 0.03) * 30); scale(5); noStroke();
+                let skinColor = color(180, 190, 200, 255); drawingContext.shadowBlur = 30; drawingContext.shadowColor = 'rgba(200, 240, 255, 0.6)'; 
+                fill(skinColor); beginShape(); vertex(-180, -20); for (let i = -180; i < 200; i += 20) { let yOff = map(noise(i * 0.01 + this.noiseOff), 0, 1, -4, 4); curveVertex(i, -40 + yOff); } vertex(250, 0); for (let i = 200; i > -100; i -= 20) { let yOff = map(noise(i * 0.01 + this.noiseOff + 100), 0, 1, -4, 4); curveVertex(i, 40 + yOff); } 
+                let jawX = -80 - (this.jawOffset * 0.8); let jawY = 20 + (this.jawOffset * 0.3); vertex(jawX + 40, jawY - 10); vertex(jawX, jawY); vertex(-100, 10); vertex(-180, -20); endShape(CLOSE); drawingContext.shadowBlur = 0; 
+                noFill(); stroke(100, 110, 120, 150); strokeWeight(2); beginShape(); for(let i = -150; i < 200; i+=20) { vertex(i, sin(i*0.05 + frameCount*0.1)*5); } endShape();
+                noStroke(); fill(240, 240, 230); if (this.jawOffset > 5) { for(let i=0; i<8; i++) { let tx = -110 + i * 12; triangle(tx, 10, tx+4, 10, tx+2, 35); } for(let i=0; i<8; i++) { let tx = jawX + i * 10; let ty = jawY; triangle(tx, ty, tx+4, ty, tx+2, ty-15); } }
+                fill(255); ellipse(-120, -18, 16, 16); fill(20, 0, 50); ellipse(-120, -18, 12, 12); fill(255); ellipse(-117, -21, 5, 5); ellipse(-123, -15, 2, 2); 
+                stroke(80, 90, 100); strokeWeight(3); for(let i=0; i<5; i++) { let gx = -20 + i * 15; line(gx, -10, gx - 5, 25); } pop();
             }
         }
-
         function windowResized() { resizeCanvas(windowWidth, windowHeight); }
     </script>
 </body>
