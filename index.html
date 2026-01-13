@@ -754,6 +754,9 @@
         // チャージ進捗をグローバルで共有（生物の色変化用）
         window.chargeProgress = 0;
         
+        // 音声状態管理フラグ（ユーザーが明示的にONにするまでfalse）
+        let isSoundOn = false;
+        
         // --- Audio System (Enhanced) ---
         let audioCtx;
         let alarmOsc, alarmGain, alarmFilter;
@@ -761,21 +764,14 @@
         let terrorNodes = []; 
         let ambienceNodes = []; // Store deep sea ambience nodes
 
-        function initAudio() {
-            try {
-                if (!audioCtx) {
+        // AudioContextの初期化（ユーザーアクションが必要）
+        function ensureAudioContext() {
+            if (!audioCtx) {
+                try {
                     audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+                } catch (e) {
+                    console.warn("Audio Context init failed:", e);
                 }
-                if (audioCtx.state === 'suspended') {
-                    audioCtx.resume();
-                }
-                updateSoundIcon(true);
-                // Start Deep Sea Ambience if not terror mode
-                if (!isTerrorMode) {
-                    startDeepSeaAmbience();
-                }
-            } catch (e) {
-                console.warn("Audio Context init failed (User gesture needed?):", e);
             }
         }
 
@@ -798,23 +794,33 @@
             }
         }
 
-        soundToggle.addEventListener('click', () => {
-            if (!audioCtx) {
-                initAudio();
-                return;
-            }
-            if (audioCtx.state === 'running') {
-                audioCtx.suspend();
-                updateSoundIcon(false);
-            } else if (audioCtx.state === 'suspended') {
-                audioCtx.resume();
-                updateSoundIcon(true);
+        // スイッチクリック時の処理
+        soundToggle.addEventListener('click', (e) => {
+            // イベントの伝播を止めて、背面のキャンバス処理（Food生成など）と干渉しないようにする
+            e.stopPropagation();
+            
+            ensureAudioContext();
+            if (!audioCtx) return;
+
+            isSoundOn = !isSoundOn;
+
+            if (isSoundOn) {
+                audioCtx.resume().then(() => {
+                    updateSoundIcon(true);
+                    if (!isTerrorMode) startDeepSeaAmbience();
+                });
+            } else {
+                audioCtx.suspend().then(() => {
+                    updateSoundIcon(false);
+                    // ミュート時はアンビエンスも停止するが、suspendで止まるので明示的なstopDeepSeaAmbienceは不要
+                    // ただし、Terrorモードなどでノードを破棄したい場合は別途考慮
+                });
             }
         });
 
         // --- Deep Sea Ambience (Normal Mode) ---
         function startDeepSeaAmbience() {
-            if (!audioCtx) return;
+            if (!audioCtx || !isSoundOn) return; // 音声OFFなら鳴らさない
             if (ambienceNodes.length > 0) return; // Already playing
 
             try {
@@ -881,16 +887,18 @@
         }
 
         function stopDeepSeaAmbience() {
-            if (ambienceNodes.length === 0) return;
+            if (!audioCtx || ambienceNodes.length === 0) return;
             
             const t = audioCtx.currentTime;
             // The last node in array is Gain
             const gainNode = ambienceNodes[4]; 
             
             if (gainNode) {
-                gainNode.gain.cancelScheduledValues(t);
-                gainNode.gain.setValueAtTime(gainNode.gain.value, t);
-                gainNode.gain.linearRampToValueAtTime(0, t + 1); // Fade out quickly
+                try {
+                    gainNode.gain.cancelScheduledValues(t);
+                    gainNode.gain.setValueAtTime(gainNode.gain.value, t);
+                    gainNode.gain.linearRampToValueAtTime(0, t + 1); // Fade out quickly
+                } catch(e) {}
             }
 
             setTimeout(() => {
@@ -906,7 +914,9 @@
 
         // --- Heartbeat & Alarm System ---
         function startAlarm() {
-            if (!audioCtx) initAudio();
+            // 音声OFFなら処理しない
+            if (!isSoundOn || !audioCtx) return;
+            
             const time = audioCtx.currentTime;
 
             // 1. Alarm (Harsh Sawtooth)
@@ -947,7 +957,7 @@
         }
 
         function updateAlarm(progress) {
-            if (!audioCtx) return;
+            if (!audioCtx || !isSoundOn) return;
             const time = audioCtx.currentTime;
             
             // --- Alarm Pitch & Texture Logic ---
@@ -982,7 +992,8 @@
         }
 
         function stopAlarm() {
-            const time = audioCtx ? audioCtx.currentTime : 0;
+            if (!audioCtx) return;
+            const time = audioCtx.currentTime;
             if (alarmOsc) {
                 try {
                     alarmGain.gain.setTargetAtTime(0, time, 0.1);
@@ -1008,7 +1019,10 @@
 
         // --- Terror BGM (Existing Logic Refined) ---
         function startTerrorSound() {
-            if (!audioCtx) initAudio();
+            if (!isSoundOn) return; // 音声OFFなら鳴らさない
+            if (!audioCtx) { ensureAudioContext(); }
+            if (!audioCtx) return;
+
             stopTerrorSound(); 
             stopDeepSeaAmbience(); // Stop normal ambience
 
@@ -1329,18 +1343,21 @@
             if (isTerrorMode) {
                 deactivateTerrorMode();
             } else {
-                initAudio();
+                // ここにあった initAudio() を削除。
+                // isSoundOnがtrueのときだけ、後続処理で音が鳴るようにしている。
                 
                 isCharging = true;
                 chargeStartTime = Date.now();
                 cursorCharge.style.opacity = 1;
                 cursorCharge.classList.add('shaking');
                 
-                // Show RGB Split Layer
                 rgbLayer.style.display = 'block';
                 rgbLayer.style.opacity = 0;
                 
-                startAlarm();
+                // 音声ONのときだけアラーム開始
+                if (isSoundOn) {
+                    startAlarm();
+                }
                 
                 // Flash Warning but don't show full overlay immediately to build tension
                 const warningEl = document.getElementById('warning-container');
@@ -1364,12 +1381,6 @@
         };
 
         document.addEventListener('mousedown', (e) => {
-            // 修正: サウンドトグルボタン以外の場合のみグローバル初期化を行う
-            // これによりボタンクリック時のON/OFF切り替えとの干渉を防ぐ
-            if (!e.target.closest('#sound-toggle')) {
-                initAudio();
-            }
-
             if (e.button === 2) { 
                 startCharge();
             } else {
@@ -1384,11 +1395,6 @@
         
         // Touch Support
         document.addEventListener('touchstart', (e) => {
-            // 修正: サウンドトグルボタン以外の場合のみグローバル初期化を行う
-            if (!e.target.closest('#sound-toggle')) {
-                initAudio();
-            }
-
             if (!e.target.closest('a, button, input')) {
                 startCharge();
             }
