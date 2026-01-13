@@ -756,6 +756,8 @@
         
         // 音声状態管理フラグ（ユーザーが明示的にONにするまでfalse）
         let isSoundOn = false;
+        let bubbleTimer = null; // バブル音のタイマー管理用
+        let tinnitusTimer = null; // 耳鳴り音のタイマー管理用
         
         // --- Audio System (Enhanced) ---
         let audioCtx;
@@ -818,69 +820,233 @@
             }
         });
 
+        // --- Bubble Sound Logic (Revised for Reality) ---
+        function scheduleBubbles() {
+            if (!audioCtx || !isSoundOn || isTerrorMode) return;
+            
+            // ダイバーの呼吸リズム（さらに間隔を長く、不規則に）
+            const nextBubbleTime = 4000 + Math.random() * 8000;
+            
+            bubbleTimer = setTimeout(() => {
+                playBubbleCluster();
+                scheduleBubbles(); 
+            }, nextBubbleTime);
+        }
+
+        function playBubbleCluster() {
+            if (!audioCtx || !isSoundOn || isTerrorMode) return;
+            
+            // 塊感のある「ゴボゴボ」
+            const count = 4 + Math.floor(Math.random() * 5);
+            for (let i = 0; i < count; i++) {
+                const delay = i * (40 + Math.random() * 60); 
+                // 大きな気泡が混ざる
+                const isHuge = i === 0; 
+                setTimeout(() => playBubbleSound(isHuge), delay);
+            }
+        }
+
+        function playBubbleSound(isHuge) {
+            if (!audioCtx) return;
+            
+            const t = audioCtx.currentTime;
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            const filter = audioCtx.createBiquadFilter();
+
+            osc.type = 'sine';
+            
+            let startFreq, endFreq, duration, volume;
+
+            if (isHuge) {
+                startFreq = 60 + Math.random() * 40;
+                endFreq = startFreq + 150;
+                duration = 0.6;
+                volume = 0.8;
+                
+                filter.type = 'lowpass';
+                filter.frequency.value = 300;
+                filter.Q.value = 5;
+            } else {
+                startFreq = 150 + Math.random() * 100;
+                endFreq = startFreq + 300;
+                duration = 0.25;
+                volume = 0.4;
+
+                filter.type = 'bandpass';
+                filter.frequency.value = 400;
+                filter.Q.value = 2;
+            }
+            
+            osc.frequency.setValueAtTime(startFreq, t);
+            osc.frequency.exponentialRampToValueAtTime(endFreq, t + duration);
+            
+            gain.gain.setValueAtTime(0, t);
+            gain.gain.linearRampToValueAtTime(volume, t + 0.05); 
+            gain.gain.exponentialRampToValueAtTime(0.001, t + duration);
+            
+            osc.connect(filter);
+            filter.connect(gain);
+            gain.connect(audioCtx.destination);
+            
+            osc.start(t);
+            osc.stop(t + duration + 0.2);
+        }
+
+        // --- Tinnitus Sound Logic (Ear Ringing) ---
+        function scheduleTinnitus() {
+            if (!audioCtx || !isSoundOn || isTerrorMode) return;
+            
+            // 耳鳴りの発生間隔（長めに、予測できない感じで）
+            // 30秒〜60秒に1回
+            const nextTinnitusTime = 30000 + Math.random() * 30000;
+            
+            tinnitusTimer = setTimeout(() => {
+                playTinnitus();
+                scheduleTinnitus(); 
+            }, nextTinnitusTime);
+        }
+
+        function playTinnitus() {
+            if (!audioCtx) return;
+            
+            const t = audioCtx.currentTime;
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+
+            // 不快感の少ない、非常に高い周波数のサイン波
+            osc.type = 'sine';
+            // 12kHz〜14kHz付近で、わずかに揺らすとリアルになる
+            const freq = 12000 + Math.random() * 2000;
+            osc.frequency.setValueAtTime(freq, t);
+            // わずかな周波数の揺らぎを加える
+            osc.frequency.linearRampToValueAtTime(freq + (Math.random() * 100 - 50), t + 4);
+            
+            // 音量エンベロープ（非常に小さく、ゆっくりとフェードイン・アウト）
+            const duration = 3 + Math.random() * 2; // 3〜5秒持続
+            const peakVolume = 0.02 + Math.random() * 0.03; // 非常に小さい音量
+
+            gain.gain.setValueAtTime(0, t);
+            // 1秒かけてゆっくりフェードイン
+            gain.gain.linearRampToValueAtTime(peakVolume, t + 1); 
+            // 残りの時間でゆっくりフェードアウト
+            gain.gain.linearRampToValueAtTime(0, t + duration);
+            
+            osc.connect(gain);
+            gain.connect(audioCtx.destination);
+            
+            osc.start(t);
+            osc.stop(t + duration + 0.1);
+        }
+
         // --- Deep Sea Ambience (Normal Mode) ---
         function startDeepSeaAmbience() {
-            if (!audioCtx || !isSoundOn) return; // 音声OFFなら鳴らさない
-            if (ambienceNodes.length > 0) return; // Already playing
+            if (!audioCtx || !isSoundOn) return; 
+            if (ambienceNodes.length > 0) return; 
 
             try {
                 const t = audioCtx.currentTime;
 
-                // 1. Pink Noise Generator (for water rumble)
-                const bufferSize = 2 * audioCtx.sampleRate;
+                // --- 1. Brown Noise Generator (Heavier than Pink Noise) ---
+                // ブラウンノイズ：高域が大幅に減衰しており、滝壺や地鳴りに近い音
+                const bufferSize = 4 * audioCtx.sampleRate; // 長めのバッファ
                 const buffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate);
                 const data = buffer.getChannelData(0);
                 
-                // Simple Pink Noise algorithm
-                let b0, b1, b2, b3, b4, b5, b6;
-                b0 = b1 = b2 = b3 = b4 = b5 = b6 = 0.0;
+                let lastOut = 0;
                 for (let i = 0; i < bufferSize; i++) {
-                    let white = Math.random() * 2 - 1;
-                    b0 = 0.99886 * b0 + white * 0.0555179;
-                    b1 = 0.99332 * b1 + white * 0.0750759;
-                    b2 = 0.96900 * b2 + white * 0.1538520;
-                    b3 = 0.86650 * b3 + white * 0.3104856;
-                    b4 = 0.55000 * b4 + white * 0.5329522;
-                    b5 = -0.7616 * b5 - white * 0.0168980;
-                    data[i] = b0 + b1 + b2 + b3 + b4 + b5 + b6 + white * 0.5362;
-                    data[i] *= 0.11; 
-                    b6 = white * 0.115926;
+                    const white = Math.random() * 2 - 1;
+                    // 積分処理によるブラウンノイズ生成
+                    lastOut = (lastOut + (0.02 * white)) / 1.02;
+                    data[i] = lastOut * 3.5; // 音量補正
+                    // クリッピング防止
+                    if (data[i] > 1) data[i] = 1;
+                    if (data[i] < -1) data[i] = -1;
                 }
 
                 const noiseSrc = audioCtx.createBufferSource();
                 noiseSrc.buffer = buffer;
                 noiseSrc.loop = true;
 
-                // Filter for underwater effect (Lowpass) - Heavy muffle
-                const filter = audioCtx.createBiquadFilter();
-                filter.type = 'lowpass';
-                filter.frequency.value = 150; // Deep rumble
-                filter.Q.value = 1;
+                // Dual Lowpass Filter Strategy (徹底的に高域を削る)
+                // Filter 1: 全体的なこもり
+                const filter1 = audioCtx.createBiquadFilter();
+                filter1.type = 'lowpass';
+                filter1.frequency.value = 120; 
+                filter1.Q.value = 0;
 
-                // LFO to modulate filter (Ocean currents/Swell)
+                // Filter 2: 水圧による共鳴（LFOで揺らす）
+                const filter2 = audioCtx.createBiquadFilter();
+                filter2.type = 'lowpass';
+                filter2.frequency.value = 60; // かなり低い位置
+                filter2.Q.value = 5; // 共鳴させて「ゴォォ」という音圧を作る
+
+                // LFO for Filter 2 (Slow Ocean Swell)
                 const lfo = audioCtx.createOscillator();
                 lfo.type = 'sine';
-                lfo.frequency.value = 0.15; // Slow wave
+                lfo.frequency.value = 0.03; // 30秒周期の巨大なうねり
                 const lfoGain = audioCtx.createGain();
-                lfoGain.gain.value = 80; // Modulate frequency by +/- 80Hz
+                lfoGain.gain.value = 30; 
 
-                // Main Volume for Ambience
-                const gain = audioCtx.createGain();
-                gain.gain.value = 0; // Start silent
-                gain.gain.linearRampToValueAtTime(0.5, t + 4); // Fade in over 4s
+                // Noise Volume
+                const noiseGain = audioCtx.createGain();
+                noiseGain.gain.value = 0;
+                noiseGain.gain.linearRampToValueAtTime(0.6, t + 5);
 
-                // Connections
-                lfo.connect(lfoGain);
-                lfoGain.connect(filter.frequency);
+                // --- 2. Sub-bass Drone (The Pressure) ---
+                // 耳には聞こえにくいが体感する「圧」を作る超低周波
+                const subOsc1 = audioCtx.createOscillator();
+                subOsc1.type = 'sine';
+                subOsc1.frequency.value = 40; // 40Hz (重低音)
+
+                const subOsc2 = audioCtx.createOscillator();
+                subOsc2.type = 'triangle'; // 少し倍音を含ませて不気味さを出す
+                subOsc2.frequency.value = 43; // 3Hzのズレで「うなり」を生む
+
+                // Drone Volume
+                const droneGain = audioCtx.createGain();
+                droneGain.gain.value = 0;
+                droneGain.gain.linearRampToValueAtTime(0.2, t + 8); // ノイズより遅れて入る
+
+                // LFO for Drone Volume (Breathing of the abyss)
+                const droneLfo = audioCtx.createOscillator();
+                droneLfo.type = 'sine';
+                droneLfo.frequency.value = 0.1;
+                const droneLfoGain = audioCtx.createGain();
+                droneLfoGain.gain.value = 0.05; // 音量をわずかに揺らす
                 
-                noiseSrc.connect(filter);
-                filter.connect(gain);
-                gain.connect(audioCtx.destination);
+                // --- Connections ---
+                // Noise Flow
+                lfo.connect(lfoGain);
+                lfoGain.connect(filter2.frequency);
+                
+                noiseSrc.connect(filter1);
+                filter1.connect(filter2);
+                filter2.connect(noiseGain);
+                noiseGain.connect(audioCtx.destination);
 
+                // Drone Flow
+                droneLfo.connect(droneLfoGain);
+                droneLfoGain.connect(droneGain.gain);
+
+                subOsc1.connect(droneGain);
+                subOsc2.connect(droneGain);
+                droneGain.connect(audioCtx.destination);
+
+                // Start
                 noiseSrc.start();
                 lfo.start();
+                subOsc1.start();
+                subOsc2.start();
+                droneLfo.start();
 
-                ambienceNodes.push(noiseSrc, filter, lfo, lfoGain, gain);
+                ambienceNodes.push(noiseSrc, filter1, filter2, lfo, lfoGain, noiseGain, subOsc1, subOsc2, droneGain, droneLfo, droneLfoGain);
+                
+                // Start Bubbles
+                scheduleBubbles();
+                // Start Tinnitus
+                scheduleTinnitus();
+
             } catch (e) {
                 console.error("Deep Sea Ambience Error:", e);
             }
@@ -889,16 +1055,35 @@
         function stopDeepSeaAmbience() {
             if (!audioCtx || ambienceNodes.length === 0) return;
             
-            const t = audioCtx.currentTime;
-            // The last node in array is Gain
-            const gainNode = ambienceNodes[4]; 
+            if (bubbleTimer) {
+                clearTimeout(bubbleTimer);
+                bubbleTimer = null;
+            }
+            if (tinnitusTimer) {
+                clearTimeout(tinnitusTimer);
+                tinnitusTimer = null;
+            }
             
-            if (gainNode) {
+            const t = audioCtx.currentTime;
+            
+            // Gain Nodesを探してフェードアウト
+            // noiseGain is index 5, droneGain is index 8
+            const noiseGain = ambienceNodes[5];
+            const droneGain = ambienceNodes[8];
+            
+            if (noiseGain) {
                 try {
-                    gainNode.gain.cancelScheduledValues(t);
-                    gainNode.gain.setValueAtTime(gainNode.gain.value, t);
-                    gainNode.gain.linearRampToValueAtTime(0, t + 1); // Fade out quickly
-                } catch(e) {}
+                    noiseGain.gain.cancelScheduledValues(t);
+                    noiseGain.gain.setValueAtTime(noiseGain.gain.value, t);
+                    noiseGain.gain.linearRampToValueAtTime(0, t + 2);
+                } catch(e){}
+            }
+            if (droneGain) {
+                try {
+                    droneGain.gain.cancelScheduledValues(t);
+                    droneGain.gain.setValueAtTime(droneGain.gain.value, t);
+                    droneGain.gain.linearRampToValueAtTime(0, t + 2);
+                } catch(e){}
             }
 
             setTimeout(() => {
@@ -909,7 +1094,7 @@
                     } catch(e) {}
                 });
                 ambienceNodes = [];
-            }, 1100);
+            }, 2100);
         }
 
         // --- Heartbeat & Alarm System ---
@@ -1381,6 +1566,12 @@
         };
 
         document.addEventListener('mousedown', (e) => {
+            // 修正: サウンドトグルボタン以外の場合のみグローバル初期化を行う
+            // これによりボタンクリック時のON/OFF切り替えとの干渉を防ぐ
+            if (!e.target.closest('#sound-toggle')) {
+                // initAudio() は削除しました
+            }
+
             if (e.button === 2) { 
                 startCharge();
             } else {
@@ -1395,6 +1586,11 @@
         
         // Touch Support
         document.addEventListener('touchstart', (e) => {
+            // 修正: サウンドトグルボタン以外の場合のみグローバル初期化を行う
+            if (!e.target.closest('#sound-toggle')) {
+                // initAudio() は削除しました
+            }
+
             if (!e.target.closest('a, button, input')) {
                 startCharge();
             }
