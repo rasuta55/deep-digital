@@ -21,7 +21,7 @@
     
     <!-- Markdown Parser for Chat -->
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
-
+ 
     <script>
         // Error Handling for Libraries
         window.addEventListener('error', function(e) {
@@ -58,14 +58,14 @@
             }
         }
     </script>
-
+ 
     <style>
         /* --- Core & Reset --- */
         html.lenis { height: auto; }
         .lenis.lenis-smooth { scroll-behavior: auto; }
         .lenis.lenis-smooth [data-lenis-prevent] { overscroll-behavior: contain; }
         .lenis.lenis-stopped { overflow: hidden; }
-
+ 
         body {
             background: #020205; 
             color: #EAEAEA;
@@ -95,7 +95,7 @@
             90% { background-color: #330000; filter: invert(0); }
             100% { background-color: #000000; filter: invert(0); }
         }
-
+ 
         /* --- Terror Mode UI Control --- */
         body.terror-mode nav,
         body.terror-mode main,
@@ -109,7 +109,7 @@
             visibility: hidden; 
             transition: opacity 0.05s ease-out;
         }
-
+ 
         /* --- Vignette & Atmosphere --- */
         #vignette {
             position: fixed;
@@ -119,7 +119,8 @@
             height: 100vh;
             pointer-events: none;
             z-index: 50; 
-            background: radial-gradient(circle at center, transparent 30%, rgba(0,0,0,0.4) 100%);
+            /* フィルターを大幅に薄くして、生物を見えやすく調整 */
+            background: radial-gradient(circle at center, transparent 50%, rgba(0,0,0,0.1) 100%);
             transition: all 1s;
         }
         
@@ -153,7 +154,7 @@
             opacity: 0.6;
             animation: noise-twitch 0.05s infinite;
         }
-
+ 
         /* Chromatic Aberration for Charge Effect */
         #rgb-split-layer {
             position: fixed;
@@ -170,7 +171,7 @@
             50% { transform: translate(1px, -1px); }
             100% { transform: translate(-1px, 1px); }
         }
-
+ 
         /* --- Custom Cursor --- */
         #cursor-core {
             position: fixed;
@@ -201,7 +202,7 @@
             transform: translate(-50%, -50%);
             transition: width 0.4s, height 0.4s, border-color 0.4s, background 0.4s;
         }
-
+ 
         body.hovering #cursor-ring {
             width: 80px;
             height: 80px;
@@ -209,7 +210,7 @@
             border-color: #FF99C8;
             backdrop-filter: blur(2px);
         }
-
+ 
         /* Circular Hint Text */
         #cursor-hint {
             position: fixed;
@@ -232,12 +233,12 @@
             letter-spacing: 0.15em;
             text-transform: uppercase;
         }
-
+ 
         @keyframes spin-slow {
             from { transform: translate(-50%, -50%) rotate(0deg); }
             to { transform: translate(-50%, -50%) rotate(360deg); }
         }
-
+ 
         /* Charge Indicator */
         #cursor-charge {
             position: fixed;
@@ -271,7 +272,7 @@
             75% { transform: translate(-50%, -50%) rotate(-90deg) translate(2px, -2px); }
             100% { transform: translate(-50%, -50%) rotate(-90deg) translate(0, 0); }
         }
-
+ 
         /* --- WARNING Overlay (Instant & Persistent) --- */
         #warning-container {
             position: fixed;
@@ -292,7 +293,7 @@
             visibility: visible !important;
             opacity: 1 !important;
         }
-
+ 
         .warning-text {
             font-family: 'Syne', sans-serif;
             font-size: min(13vw, 15vh);
@@ -340,7 +341,7 @@
             -webkit-text-stroke: 4px #000000;
             animation: glitch-black 0.08s infinite;
         }
-
+ 
         @keyframes danger-max {
             0% { color: #ff0000; border-color: #ffff00; transform: scale(1) translate(0, 0); }
             25% { color: #ffff00; background: #2a0000; border-color: #ff0000; transform: scale(1.05) translate(-2px, 2px) skewX(5deg); }
@@ -366,7 +367,7 @@
             80% { transform: translate(-5px, -10px); clip-path: inset(10% 0 60% 0); }
             100% { transform: translate(0, 0); clip-path: inset(0 0 0 0); }
         }
-
+ 
         /* --- Background Canvas --- */
         #canvas-container {
             position: fixed;
@@ -381,7 +382,7 @@
         body.terror-mode #canvas-container {
             filter: grayscale(0.5) contrast(1.8) brightness(1.3) sepia(0.2); 
         }
-
+ 
         /* --- Chat & UI --- */
         .chat-widget { position: fixed; bottom: 30px; right: 30px; z-index: 9000; display: flex; flex-direction: column; align-items: flex-end; }
         .chat-toggle { width: 80px; height: 80px; border-radius: 50%; background: rgba(255, 255, 255, 0.05); backdrop-filter: blur(5px); cursor: pointer; display: flex; justify-content: center; align-items: center; transition: transform 0.3s ease; transform-style: preserve-3d; }
@@ -413,7 +414,7 @@
             background-image: 
                 linear-gradient(180deg, rgba(255,255,255,0.9) 0%, rgba(255,255,255,0) 15%, rgba(0,0,0,0.1) 45%, rgba(0,0,0,0.5) 50%, rgba(255,255,255,0) 55%, rgba(255,255,255,0.7) 100%),
                 radial-gradient(rgba(0, 0, 0, 0.5) 1.5px, transparent 2px),
-                repeating-linear-gradient(90deg, transparent 0px, transparent 24px, rgba(0, 0, 0, 0.6) 25px, rgba(255, 255, 255, 0.2) 26px),
+               repeating-linear-gradient(90deg, transparent 0px, transparent 24px, rgba(0, 0, 0, 0.6) 25px, rgba(255, 255, 255, 0.2) 26px),
                 linear-gradient(to bottom, #94a3b8 0%, #475569 30%, #1e293b 50%, #334155 70%, #64748b 100%);
             background-size: 100% 250%, 6px 6px, 26px 100%, 100% 100%;
             background-position: 50% 0%, 0 0, 0 0, 0 0;
@@ -423,12 +424,12 @@
             -webkit-text-stroke: 1.5px rgba(226, 232, 240, 0.5);
             animation: metal-shine 8s ease-in-out infinite alternate, deep-pressure 12s cubic-bezier(0.4, 0, 0.2, 1) infinite alternate;
         }
-
+ 
         @keyframes metal-shine {
             0% { background-position: 50% 0%, 0 0, 0 0, 0 0; }
             100% { background-position: 50% 100%, 0 0, 0 0, 0 0; }
         }
-
+ 
         @keyframes deep-pressure {
             0% { filter: brightness(1.3) contrast(1.1) drop-shadow(0 0 15px rgba(200, 240, 255, 0.6)); transform: scale(1); }
             40% { filter: brightness(0.8) contrast(1.2) drop-shadow(0 0 5px rgba(100, 200, 255, 0.3)); }
@@ -444,7 +445,7 @@
             animation: aurora-flow 4s linear infinite, flicker-15s-rainbow 15s infinite linear;
             filter: drop-shadow(0 0 8px rgba(255, 255, 255, 0.6));
         }
-
+ 
         @keyframes flicker-15s-rainbow {
             0%, 70% { opacity: 1; filter: drop-shadow(0 0 8px rgba(255, 255, 255, 0.6)); }
             70.1% { opacity: 0.3; } 70.3% { opacity: 0.8; filter: none; } 70.6% { opacity: 0.1; } 71% { opacity: 0.6; } 72% { opacity: 0.1; }
@@ -472,16 +473,16 @@
     </style>
 </head>
 <body class="selection:bg-kawaii_p selection:text-void">
-
+ 
     <!-- Flash Overlay -->
     <div id="flash-overlay"></div>
-
+ 
     <!-- Scanlines -->
     <div id="scanlines"></div>
     
     <!-- RGB Split / Distortion Layer for Charge -->
     <div id="rgb-split-layer"></div>
-
+ 
     <!-- Cursor System -->
     <div id="cursor-core"></div>
     <div id="cursor-ring"></div>
@@ -500,17 +501,20 @@
     <svg id="cursor-charge" viewBox="0 0 100 100">
         <circle cx="50" cy="50" r="45"></circle>
     </svg>
-
+ 
     <!-- Background Art -->
     <div id="canvas-container"></div>
     <!-- Vignette Effect -->
     <div id="vignette"></div>
     
+    <!-- Foreground Canvas for Garden Eels (New Layer: 最前面) -->
+    <div id="foreground-canvas" class="fixed inset-0 z-[60] pointer-events-none"></div>
+
     <!-- Warning Overlay -->
     <div id="warning-container">
         <div class="warning-text">WARNING</div>
     </div>
-
+ 
     <!-- Loader -->
     <div class="loader fixed inset-0 z-[100] flex flex-col items-center justify-center bg-void pointer-events-none transition-opacity duration-1000">
         <div class="font-display font-bold text-6xl tracking-tighter text-kawaii_c animate-pulse">
@@ -520,7 +524,7 @@
             Summoning Digital Spirits ✨
         </div>
     </div>
-
+ 
     <!-- UI Overlay -->
     <nav class="fixed top-0 w-full p-8 flex justify-between items-start z-50 mix-blend-screen text-white pointer-events-none">
         <div class="pointer-events-auto cursor-pointer group">
@@ -546,7 +550,7 @@
             <div id="depth-bar" class="absolute top-0 left-0 w-full bg-kawaii_c origin-top scale-y-0 h-full"></div>
         </div>
     </div>
-
+ 
     <!-- Chat Widget -->
     <div class="chat-widget">
         <div class="chat-window" id="chat-window">
@@ -603,7 +607,7 @@
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2" />
         </svg>
     </button>
-
+ 
     <!-- Sound Visualizer -->
     <div class="sound-visualizer fixed bottom-10 left-24 z-50 flex gap-1 h-8 items-end mix-blend-screen pointer-events-none opacity-50">
         <div class="w-1.5 rounded-full bg-kawaii_p animate-[bounce_1s_infinite] h-4"></div>
@@ -611,7 +615,7 @@
         <div class="w-1.5 rounded-full bg-kawaii_p animate-[bounce_0.8s_infinite] h-6"></div>
         <div class="w-1.5 rounded-full bg-kawaii_c animate-[bounce_1.5s_infinite] h-3"></div>
     </div>
-
+ 
     <main>
         <!-- Content Sections -->
         <section class="h-screen w-full flex items-center justify-center relative perspective-1000">
@@ -622,9 +626,14 @@
                 </h1>
                 <p class="mt-8 font-serif text-sm md:text-lg tracking-[0.2em] text-white/80 reveal-hero-sub opacity-0">Ask the jelly, color the sea.</p>
             </div>
-            <div class="absolute bottom-10 left-1/2 -translate-x-1/2 text-kawaii_p/60 font-mono text-xs animate-bounce">SCROLL TO DIVE OR CHAT TO CHANGE VIBE</div>
+            <div class="absolute bottom-10 left-1/2 -translate-x-1/2 flex flex-col items-center gap-3 text-center w-full pointer-events-none">
+                <div class="text-kawaii_p/60 font-mono text-xs animate-bounce">SCROLL TO DIVE</div>
+                <div class="text-white/30 font-tech text-[10px] tracking-[0.3em] uppercase opacity-70">
+                    AUDIO PRESSURE ADAPTS TO DEPTH
+                </div>
+            </div>
         </section>
-
+ 
         <!-- Dummy Content -->
         <section class="py-40 px-6 md:px-20 relative z-10">
             <div class="max-w-7xl mx-auto">
@@ -659,7 +668,7 @@
                 </div>
             </div>
         </div>
-
+ 
         <!-- YouTube Section -->
         <section id="articles" class="py-32 px-6 md:px-20 relative z-10 bg-void/30 backdrop-blur-md border-t border-white/5">
             <div class="max-w-7xl mx-auto">
@@ -675,7 +684,7 @@
                         <svg class="w-4 h-4 transform group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"></path></svg>
                     </a>
                 </div>
-
+ 
                 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
                     <!-- Video Card 1 -->
                     <article class="glass-card p-4 group hover:bg-white/5 transition-all duration-500 hover:-translate-y-2">
@@ -697,7 +706,7 @@
                             </p>
                         </div>
                     </article>
-
+ 
                     <!-- Video Card 2 -->
                     <article class="glass-card p-4 group hover:bg-white/5 transition-all duration-500 hover:-translate-y-2">
                         <div class="aspect-video w-full bg-black/50 relative overflow-hidden rounded-xl mb-6 group-hover:shadow-[0_0_30px_rgba(255,153,200,0.3)] transition-shadow">
@@ -716,7 +725,7 @@
                             </p>
                         </div>
                     </article>
-
+ 
                     <!-- Video Card 3 -->
                     <article class="glass-card p-4 group hover:bg-white/5 transition-all duration-500 hover:-translate-y-2">
                         <div class="aspect-video w-full bg-black/50 relative overflow-hidden rounded-xl mb-6 group-hover:shadow-[0_0_30px_rgba(153,247,255,0.3)] transition-shadow">
@@ -744,29 +753,30 @@
             <div><h2 class="font-display text-3xl font-bold mb-6 text-kawaii_c">DEEP DIGITAL</h2></div>
         </footer>
     </main>
-
+ 
     <script>
         // --- 0. Shared State & Config ---
         let isTerrorMode = false;
         let isCharging = false;
         let chargeStartTime = 0;
-        const CHARGE_DURATION = 3000; // Increased to 3s for more tension
-        // チャージ進捗をグローバルで共有（生物の色変化用）
+        const CHARGE_DURATION = 3000;
         window.chargeProgress = 0;
         
-        // 音声状態管理フラグ（ユーザーが明示的にONにするまでfalse）
+        // 音声状態管理フラグ
         let isSoundOn = false;
-        let bubbleTimer = null; // バブル音のタイマー管理用
-        let tinnitusTimer = null; // 耳鳴り音のタイマー管理用
         
-        // --- Audio System (Enhanced) ---
+        // --- Audio System Core ---
         let audioCtx;
         let alarmOsc, alarmGain, alarmFilter;
         let heartbeatOsc, heartbeatGain;
         let terrorNodes = []; 
-        let ambienceNodes = []; // Store deep sea ambience nodes
-
-        // AudioContextの初期化（ユーザーアクションが必要）
+        let ambienceNodes = []; 
+        // 深度連動用のフィルタノード参照
+        let ambienceFilterNode = null;
+        // 呼吸サイクルタイマー
+        let breathingTimer = null;
+        let bioSonarTimer = null;
+ 
         function ensureAudioContext() {
             if (!audioCtx) {
                 try {
@@ -776,12 +786,70 @@
                 }
             }
         }
-
+ 
+        // --- Helper: Create Noise Buffer ---
+        // type: 'white', 'pink', 'brown'
+        function createNoiseBuffer(type = 'white', duration = 2.0) {
+            if (!audioCtx) return null;
+            const bufferSize = audioCtx.sampleRate * duration;
+            const buffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate);
+            const data = buffer.getChannelData(0);
+            
+            if (type === 'white') {
+                for (let i = 0; i < bufferSize; i++) {
+                    data[i] = Math.random() * 2 - 1;
+                }
+            } else if (type === 'pink') {
+                let b0, b1, b2, b3, b4, b5, b6;
+                b0 = b1 = b2 = b3 = b4 = b5 = b6 = 0.0;
+                for (let i = 0; i < bufferSize; i++) {
+                    const white = Math.random() * 2 - 1;
+                    b0 = 0.99886 * b0 + white * 0.0555179;
+                    b1 = 0.99332 * b1 + white * 0.0750759;
+                    b2 = 0.96900 * b2 + white * 0.1538520;
+                    b3 = 0.86650 * b3 + white * 0.3104856;
+                    b4 = 0.55000 * b4 + white * 0.5329522;
+                    b5 = -0.7616 * b5 - white * 0.0168980;
+                    data[i] = b0 + b1 + b2 + b3 + b4 + b5 + b6 + white * 0.5362;
+                    data[i] *= 0.11; 
+                    b6 = white * 0.115926;
+                }
+            } else { // brown
+                let lastOut = 0;
+                for (let i = 0; i < bufferSize; i++) {
+                    const white = Math.random() * 2 - 1;
+                    lastOut = (lastOut + (0.02 * white)) / 1.02;
+                    data[i] = lastOut * 3.5;
+                    if (data[i] > 1) data[i] = 1;
+                    if (data[i] < -1) data[i] = -1;
+                }
+            }
+            return buffer;
+        }
+ 
+        // --- Helper: Create Reverb Buffer (Impulse Response) ---
+        function createReverbBuffer(duration = 2.0, decay = 2.0) {
+            if (!audioCtx) return null;
+            const sampleRate = audioCtx.sampleRate;
+            const length = sampleRate * duration;
+            const impulse = audioCtx.createBuffer(2, length, sampleRate);
+            const left = impulse.getChannelData(0);
+            const right = impulse.getChannelData(1);
+            for (let i = 0; i < length; i++) {
+                const n = i / length;
+                // 指数減衰させるノイズ
+                const vol = Math.pow(1 - n, decay); 
+                left[i] = (Math.random() * 2 - 1) * vol;
+                right[i] = (Math.random() * 2 - 1) * vol;
+            }
+            return impulse;
+        }
+ 
         // --- Sound Toggle Logic ---
         const soundToggle = document.getElementById('sound-toggle');
         const iconOn = document.getElementById('icon-sound-on');
         const iconOff = document.getElementById('icon-sound-off');
-
+ 
         function updateSoundIcon(isPlaying) {
             if (isPlaying) {
                 iconOn.classList.remove('hidden');
@@ -795,393 +863,427 @@
                 soundToggle.classList.remove('bg-glass');
             }
         }
-
-        // スイッチクリック時の処理
+ 
         soundToggle.addEventListener('click', (e) => {
-            // イベントの伝播を止めて、背面のキャンバス処理（Food生成など）と干渉しないようにする
             e.stopPropagation();
-            
             ensureAudioContext();
             if (!audioCtx) return;
-
             isSoundOn = !isSoundOn;
-
+ 
             if (isSoundOn) {
                 audioCtx.resume().then(() => {
                     updateSoundIcon(true);
-                    if (!isTerrorMode) startDeepSeaAmbience();
+                    if (!isTerrorMode) {
+                        startDeepSeaAmbience();
+                    }
                 });
             } else {
                 audioCtx.suspend().then(() => {
                     updateSoundIcon(false);
-                    // ミュート時はアンビエンスも停止するが、suspendで止まるので明示的なstopDeepSeaAmbienceは不要
-                    // ただし、Terrorモードなどでノードを破棄したい場合は別途考慮
                 });
             }
         });
-
-        // --- Bubble Sound Logic (Revised for Reality) ---
-        function scheduleBubbles() {
-            if (!audioCtx || !isSoundOn || isTerrorMode) return;
+ 
+        // --- 1. Diver Breathing System ---
+        // 「吸気(Inhale)」→「間(Hold)」→「排気(Exhale/Bubbles)」のサイクル
+        const DiverBreathing = {
+            inhaleBuffer: null,
             
-            // ダイバーの呼吸リズム（さらに間隔を長く、不規則に）
-            const nextBubbleTime = 4000 + Math.random() * 8000;
-            
-            bubbleTimer = setTimeout(() => {
-                playBubbleCluster();
-                scheduleBubbles(); 
-            }, nextBubbleTime);
-        }
-
-        function playBubbleCluster() {
-            if (!audioCtx || !isSoundOn || isTerrorMode) return;
-            
-            // 塊感のある「ゴボゴボ」
-            const count = 4 + Math.floor(Math.random() * 5);
-            for (let i = 0; i < count; i++) {
-                const delay = i * (40 + Math.random() * 60); 
-                // 大きな気泡が混ざる
-                const isHuge = i === 0; 
-                setTimeout(() => playBubbleSound(isHuge), delay);
-            }
-        }
-
-        function playBubbleSound(isHuge) {
-            if (!audioCtx) return;
-            
-            const t = audioCtx.currentTime;
-            const osc = audioCtx.createOscillator();
-            const gain = audioCtx.createGain();
-            const filter = audioCtx.createBiquadFilter();
-
-            osc.type = 'sine';
-            
-            let startFreq, endFreq, duration, volume;
-
-            if (isHuge) {
-                startFreq = 60 + Math.random() * 40;
-                endFreq = startFreq + 150;
-                duration = 0.6;
-                volume = 0.8;
+            init() {
+                if (!this.inhaleBuffer) this.inhaleBuffer = createNoiseBuffer('pink', 1.5);
+            },
+ 
+            playInhale() {
+                if (!audioCtx || isTerrorMode || !isSoundOn) return;
+                const t = audioCtx.currentTime;
                 
-                filter.type = 'lowpass';
-                filter.frequency.value = 300;
-                filter.Q.value = 5;
-            } else {
-                startFreq = 150 + Math.random() * 100;
-                endFreq = startFreq + 300;
-                duration = 0.25;
-                volume = 0.4;
-
+                const src = audioCtx.createBufferSource();
+                src.buffer = this.inhaleBuffer;
+                
+                // レギュレーターを通した音にするためのフィルタ
+                const filter = audioCtx.createBiquadFilter();
                 filter.type = 'bandpass';
-                filter.frequency.value = 400;
-                filter.Q.value = 2;
+                // 変更: 1200Hz -> 600Hz。より低く、太い音にして耳障りな高域をカット
+                filter.frequency.value = 600;
+                filter.Q.value = 1.0;
+ 
+                const gain = audioCtx.createGain();
+                // 変更: 吸気音のゲインをさらに半分に (0.08 -> 0.04)
+                gain.gain.setValueAtTime(0, t);
+                gain.gain.linearRampToValueAtTime(0.04, t + 0.2); // 吸い始め
+                gain.gain.linearRampToValueAtTime(0, t + 1.2);   // 吸い終わり
+ 
+                src.connect(filter);
+                filter.connect(gain);
+                gain.connect(audioCtx.destination);
+ 
+                src.start(t);
+                src.stop(t + 1.3);
+            },
+ 
+            playExhale() {
+                if (!audioCtx || isTerrorMode || !isSoundOn) return;
+                
+                // ゴボゴボ音の連打をやめ、重い排気音を少数鳴らす
+                const t = audioCtx.currentTime;
+ 
+                // 排気初期の衝撃音（Low kick的な音）をさらに重く、低く
+                const osc = audioCtx.createOscillator();
+                const g = audioCtx.createGain();
+                // 150Hz -> 80Hz
+                osc.frequency.setValueAtTime(80, t);
+                osc.frequency.exponentialRampToValueAtTime(30, t + 0.4);
+                // 音量も控えめに (0.08 -> 0.04)
+                g.gain.setValueAtTime(0.04, t);
+                g.gain.exponentialRampToValueAtTime(0.01, t + 0.4);
+                osc.connect(g);
+                g.connect(audioCtx.destination);
+                osc.start(t);
+                osc.stop(t + 0.4);
+ 
+                // 重いボコ音を少しだけ混ぜる (5回 -> 2-3回)
+                const count = 2 + Math.floor(Math.random() * 2);
+                for (let i = 0; i < count; i++) {
+                    const delay = i * 0.15 + Math.random() * 0.1;
+                    this.createBubble(t + delay);
+                }
+            },
+ 
+            createBubble(startTime) {
+                const osc = audioCtx.createOscillator();
+                const gain = audioCtx.createGain();
+                const filter = audioCtx.createBiquadFilter();
+ 
+                osc.type = 'sine';
+                // 周波数を大幅に下げて「重い泡」にする
+                // 200~500Hz -> 60~150Hz
+                const startFreq = 60 + Math.random() * 90;
+                const endFreq = startFreq + 50; 
+ 
+                osc.frequency.setValueAtTime(startFreq, startTime);
+                osc.frequency.linearRampToValueAtTime(endFreq, startTime + 0.2);
+ 
+                // フィルタも強く閉じる
+                filter.type = 'lowpass';
+                filter.frequency.value = 200; // 600 -> 200
+ 
+                gain.gain.setValueAtTime(0, startTime);
+                // 音量さらに控えめ (0.1 -> 0.05)
+                gain.gain.linearRampToValueAtTime(0.05, startTime + 0.05);
+                gain.gain.exponentialRampToValueAtTime(0.01, startTime + 0.3);
+ 
+                osc.connect(filter);
+                filter.connect(gain);
+                gain.connect(audioCtx.destination);
+ 
+                osc.start(startTime);
+                osc.stop(startTime + 0.35);
+            },
+ 
+            startCycle() {
+                if (breathingTimer) clearTimeout(breathingTimer);
+                if (!audioCtx || isTerrorMode || !isSoundOn) return;
+                
+                // 1. 吸気
+                this.playInhale();
+ 
+                // 2. ホールド (1.5秒後)
+                // 3. 排気
+                const holdDuration = 1500 + Math.random() * 1000;
+                
+                setTimeout(() => {
+                    this.playExhale();
+                }, holdDuration);
+ 
+                // 次のサイクル予約 (間隔をさらに広げて「静寂」を作る 8-12s -> 10-15s)
+                const nextCycle = 10000 + Math.random() * 5000;
+                breathingTimer = setTimeout(() => {
+                    this.startCycle();
+                }, nextCycle);
+            },
+ 
+            stop() {
+                if (breathingTimer) clearTimeout(breathingTimer);
+            }
+        };
+ 
+        // --- 2. Depth Sensitive Filter ---
+        function updateAudioDepth() {
+            if (!ambienceFilterNode || !audioCtx || isTerrorMode) return;
+            
+            // スクロール深度 (0.0 - 1.0)
+            const depth = window.globalScrollRatio || 0;
+            
+            // 変更: 閾値を2500m(0.23)から1200m(約0.11)へ変更
+            // これにより、比較的浅い段階から音の変化（閉塞感・水圧感）に気づきやすくなる
+            const threshold = 0.11;
+            
+            // 周波数計算ロジック
+            // 初期状態(0m)でもかなり籠もらせる (600Hz)
+            // 1200mまでは緩やかに低下
+            // 1200mを超えると急激に「圧」がかかり、ほぼ重低音のみ(80Hz)になる
+            
+            let targetFreq;
+            let droneVol;
+            
+            if (depth < threshold) {
+                // 0m - 1200m: 600Hz -> 300Hz
+                const ratio = depth / threshold;
+                targetFreq = 600 - (ratio * 300);
+                // ドローン音量は控えめ (0.05 -> 0.1) => 音量半減調整: (0.025 -> 0.05)
+                droneVol = 0.025 + (ratio * 0.025);
+            } else {
+                // 1200m - 10000m: 300Hz -> 80Hz (急激に閉塞感)
+                const ratio = (depth - threshold) / (1 - threshold);
+                // 指数的に落とすイメージで
+                targetFreq = 300 - (Math.pow(ratio, 0.5) * 220); 
+                // ドローン音量が上がり、圧迫感が増す (0.1 -> 0.25) => 音量半減調整: (0.05 -> 0.125)
+                droneVol = 0.05 + (ratio * 0.075);
             }
             
-            osc.frequency.setValueAtTime(startFreq, t);
-            osc.frequency.exponentialRampToValueAtTime(endFreq, t + duration);
+            // 安全策
+            if (targetFreq < 50) targetFreq = 50;
             
-            gain.gain.setValueAtTime(0, t);
-            gain.gain.linearRampToValueAtTime(volume, t + 0.05); 
-            gain.gain.exponentialRampToValueAtTime(0.001, t + duration);
-            
-            osc.connect(filter);
-            filter.connect(gain);
-            gain.connect(audioCtx.destination);
-            
-            osc.start(t);
-            osc.stop(t + duration + 0.2);
+            // 滑らかに変化させる
+            ambienceFilterNode.frequency.setTargetAtTime(targetFreq, audioCtx.currentTime, 0.5);
+ 
+            // 重低音(Drone)の音圧制御
+            // ambienceNodes[8] is droneGain
+            if (ambienceNodes[8]) {
+                const droneGainNode = ambienceNodes[8];
+                droneGainNode.gain.setTargetAtTime(droneVol, audioCtx.currentTime, 0.5);
+            }
         }
-
-        // --- Tinnitus Sound Logic (Ear Ringing) ---
-        function scheduleTinnitus() {
-            if (!audioCtx || !isSoundOn || isTerrorMode) return;
-            
-            // 耳鳴りの発生間隔（長めに、予測できない感じで）
-            // 30秒〜60秒に1回
-            const nextTinnitusTime = 30000 + Math.random() * 30000;
-            
-            tinnitusTimer = setTimeout(() => {
-                playTinnitus();
-                scheduleTinnitus(); 
-            }, nextTinnitusTime);
+ 
+        // --- 3. Bioacoustics (Sonar Clicks) ---
+        function scheduleBioSonar() {
+            if (bioSonarTimer) clearTimeout(bioSonarTimer);
+            if (!audioCtx || isTerrorMode || !isSoundOn) return;
+ 
+            // 15秒〜40秒に1回
+            const nextTime = 15000 + Math.random() * 25000;
+            bioSonarTimer = setTimeout(() => {
+                playBioSonar();
+                scheduleBioSonar();
+            }, nextTime);
         }
-
-        function playTinnitus() {
-            if (!audioCtx) return;
-            
+ 
+        function playBioSonar() {
+            if (!audioCtx || isTerrorMode) return;
             const t = audioCtx.currentTime;
+ 
             const osc = audioCtx.createOscillator();
             const gain = audioCtx.createGain();
-
-            // 不快感の少ない、非常に高い周波数のサイン波
-            osc.type = 'sine';
-            // 12kHz〜14kHz付近で、わずかに揺らすとリアルになる
-            const freq = 12000 + Math.random() * 2000;
-            osc.frequency.setValueAtTime(freq, t);
-            // わずかな周波数の揺らぎを加える
-            osc.frequency.linearRampToValueAtTime(freq + (Math.random() * 100 - 50), t + 4);
-            
-            // 音量エンベロープ（非常に小さく、ゆっくりとフェードイン・アウト）
-            const duration = 3 + Math.random() * 2; // 3〜5秒持続
-            const peakVolume = 0.02 + Math.random() * 0.03; // 非常に小さい音量
-
+            osc.type = 'triangle'; 
+            osc.frequency.setValueAtTime(3000, t); 
+            osc.frequency.exponentialRampToValueAtTime(500, t + 0.05); 
+ 
+            // 音量を下げる (0.08 -> 0.04)
             gain.gain.setValueAtTime(0, t);
-            // 1秒かけてゆっくりフェードイン
-            gain.gain.linearRampToValueAtTime(peakVolume, t + 1); 
-            // 残りの時間でゆっくりフェードアウト
-            gain.gain.linearRampToValueAtTime(0, t + duration);
+            gain.gain.linearRampToValueAtTime(0.04, t + 0.005);
+            gain.gain.exponentialRampToValueAtTime(0.001, t + 0.05);
+ 
+            const delay = audioCtx.createDelay();
+            delay.delayTime.value = 0.2 + Math.random() * 0.1; 
             
+            const delayGain = audioCtx.createGain();
+            delayGain.gain.value = 0.1; // Feedbackも半分に (0.2 -> 0.1)
+ 
+            const filter = audioCtx.createBiquadFilter();
+            filter.type = 'highpass';
+            filter.frequency.value = 1000; 
+ 
             osc.connect(gain);
-            gain.connect(audioCtx.destination);
+            gain.connect(filter);
+            filter.connect(audioCtx.destination);
             
+            filter.connect(delay);
+            delay.connect(delayGain);
+            delayGain.connect(delay); 
+            delayGain.connect(audioCtx.destination);
+            
+            delayGain.gain.setTargetAtTime(0, t + 2.0, 0.5);
+ 
             osc.start(t);
-            osc.stop(t + duration + 0.1);
+            osc.stop(t + 0.1);
         }
-
-        // --- Deep Sea Ambience (Normal Mode) ---
+ 
+        // --- 4. Deep Sea Ambience (Main) ---
         function startDeepSeaAmbience() {
             if (!audioCtx || !isSoundOn) return; 
             if (ambienceNodes.length > 0) return; 
-
+ 
             try {
                 const t = audioCtx.currentTime;
-
-                // --- 1. Brown Noise Generator (Heavier than Pink Noise) ---
-                // ブラウンノイズ：高域が大幅に減衰しており、滝壺や地鳴りに近い音
-                const bufferSize = 4 * audioCtx.sampleRate; // 長めのバッファ
-                const buffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate);
-                const data = buffer.getChannelData(0);
-                
-                let lastOut = 0;
-                for (let i = 0; i < bufferSize; i++) {
-                    const white = Math.random() * 2 - 1;
-                    // 積分処理によるブラウンノイズ生成
-                    lastOut = (lastOut + (0.02 * white)) / 1.02;
-                    data[i] = lastOut * 3.5; // 音量補正
-                    // クリッピング防止
-                    if (data[i] > 1) data[i] = 1;
-                    if (data[i] < -1) data[i] = -1;
-                }
-
+                // ノイズバッファ生成 (Brown for low rumble)
+                const buffer = createNoiseBuffer('brown', 5.0);
                 const noiseSrc = audioCtx.createBufferSource();
                 noiseSrc.buffer = buffer;
                 noiseSrc.loop = true;
-
-                // Dual Lowpass Filter Strategy (徹底的に高域を削る)
-                // Filter 1: 全体的なこもり
-                const filter1 = audioCtx.createBiquadFilter();
-                filter1.type = 'lowpass';
-                filter1.frequency.value = 120; 
-                filter1.Q.value = 0;
-
-                // Filter 2: 水圧による共鳴（LFOで揺らす）
-                const filter2 = audioCtx.createBiquadFilter();
-                filter2.type = 'lowpass';
-                filter2.frequency.value = 60; // かなり低い位置
-                filter2.Q.value = 5; // 共鳴させて「ゴォォ」という音圧を作る
-
-                // LFO for Filter 2 (Slow Ocean Swell)
-                const lfo = audioCtx.createOscillator();
-                lfo.type = 'sine';
-                lfo.frequency.value = 0.03; // 30秒周期の巨大なうねり
-                const lfoGain = audioCtx.createGain();
-                lfoGain.gain.value = 30; 
-
-                // Noise Volume
+ 
+                // 深度連動用フィルタ
+                ambienceFilterNode = audioCtx.createBiquadFilter();
+                ambienceFilterNode.type = 'lowpass';
+                // 初期値: 600Hz (以前の2000Hzから大幅ダウン、最初から水中の音)
+                ambienceFilterNode.frequency.value = 600; 
+                ambienceFilterNode.Q.value = 0.5;
+ 
+                // 音量
                 const noiseGain = audioCtx.createGain();
-                noiseGain.gain.value = 0;
-                noiseGain.gain.linearRampToValueAtTime(0.6, t + 5);
-
+                noiseGain.gain.setValueAtTime(0, t);
+                // 全体ボリューム: 0.08 -> 0.04 (本当にかすか)
+                noiseGain.gain.linearRampToValueAtTime(0.04, t + 3);
+ 
+                // 接続
+                noiseSrc.connect(ambienceFilterNode);
+                ambienceFilterNode.connect(noiseGain);
+                noiseGain.connect(audioCtx.destination);
+                noiseSrc.start(t);
+ 
                 // --- 2. Sub-bass Drone (The Pressure) ---
-                // 耳には聞こえにくいが体感する「圧」を作る超低周波
                 const subOsc1 = audioCtx.createOscillator();
                 subOsc1.type = 'sine';
-                subOsc1.frequency.value = 40; // 40Hz (重低音)
-
+                subOsc1.frequency.value = 40; 
+ 
                 const subOsc2 = audioCtx.createOscillator();
-                subOsc2.type = 'triangle'; // 少し倍音を含ませて不気味さを出す
-                subOsc2.frequency.value = 43; // 3Hzのズレで「うなり」を生む
-
+                subOsc2.type = 'triangle'; 
+                subOsc2.frequency.value = 43; 
+ 
                 // Drone Volume
                 const droneGain = audioCtx.createGain();
                 droneGain.gain.value = 0;
-                droneGain.gain.linearRampToValueAtTime(0.2, t + 8); // ノイズより遅れて入る
-
-                // LFO for Drone Volume (Breathing of the abyss)
+                // 初期音量: 0.05 -> 0.025
+                // 深度に応じて updateAudioDepth で上がっていく仕組みに変更
+                droneGain.gain.linearRampToValueAtTime(0.025, t + 8); 
+ 
+                // LFO
                 const droneLfo = audioCtx.createOscillator();
                 droneLfo.type = 'sine';
                 droneLfo.frequency.value = 0.1;
                 const droneLfoGain = audioCtx.createGain();
-                droneLfoGain.gain.value = 0.05; // 音量をわずかに揺らす
+                droneLfoGain.gain.value = 0.05; 
                 
                 // --- Connections ---
-                // Noise Flow
-                lfo.connect(lfoGain);
-                lfoGain.connect(filter2.frequency);
-                
-                noiseSrc.connect(filter1);
-                filter1.connect(filter2);
-                filter2.connect(noiseGain);
-                noiseGain.connect(audioCtx.destination);
-
-                // Drone Flow
                 droneLfo.connect(droneLfoGain);
                 droneLfoGain.connect(droneGain.gain);
-
+ 
                 subOsc1.connect(droneGain);
                 subOsc2.connect(droneGain);
                 droneGain.connect(audioCtx.destination);
-
-                // Start
-                noiseSrc.start();
-                lfo.start();
+ 
+                // Start Drone
                 subOsc1.start();
                 subOsc2.start();
                 droneLfo.start();
-
-                ambienceNodes.push(noiseSrc, filter1, filter2, lfo, lfoGain, noiseGain, subOsc1, subOsc2, droneGain, droneLfo, droneLfoGain);
-                
-                // Start Bubbles
-                scheduleBubbles();
-                // Start Tinnitus
-                scheduleTinnitus();
-
+ 
+                // ノード管理 (Index 8 is droneGain)
+                ambienceNodes = [
+                    noiseSrc, 
+                    ambienceFilterNode, 
+                    noiseGain, 
+                    subOsc1, 
+                    subOsc2, 
+                    droneLfo, 
+                    droneLfoGain, 
+                    null, 
+                    droneGain 
+                ];
+ 
+                // ダイバー呼吸開始
+                DiverBreathing.init();
+                DiverBreathing.startCycle();
+ 
+                // バイオアコースティクス開始
+                scheduleBioSonar();
+ 
             } catch (e) {
                 console.error("Deep Sea Ambience Error:", e);
             }
         }
-
+ 
         function stopDeepSeaAmbience() {
-            if (!audioCtx || ambienceNodes.length === 0) return;
-            
-            if (bubbleTimer) {
-                clearTimeout(bubbleTimer);
-                bubbleTimer = null;
-            }
-            if (tinnitusTimer) {
-                clearTimeout(tinnitusTimer);
-                tinnitusTimer = null;
-            }
-            
+            if (!audioCtx) return;
             const t = audioCtx.currentTime;
             
-            // Gain Nodesを探してフェードアウト
-            // noiseGain is index 5, droneGain is index 8
-            const noiseGain = ambienceNodes[5];
-            const droneGain = ambienceNodes[8];
+            // Stop timers
+            DiverBreathing.stop();
+            if (bioSonarTimer) clearTimeout(bioSonarTimer);
+ 
+            // Fade out nodes
+            ambienceNodes.forEach(node => {
+                if (node && node.gain) {
+                    node.gain.cancelScheduledValues(t);
+                    node.gain.setTargetAtTime(0, t, 0.5);
+                }
+                if (node && node.stop) {
+                    node.stop(t + 1.0);
+                }
+            });
             
-            if (noiseGain) {
-                try {
-                    noiseGain.gain.cancelScheduledValues(t);
-                    noiseGain.gain.setValueAtTime(noiseGain.gain.value, t);
-                    noiseGain.gain.linearRampToValueAtTime(0, t + 2);
-                } catch(e){}
-            }
-            if (droneGain) {
-                try {
-                    droneGain.gain.cancelScheduledValues(t);
-                    droneGain.gain.setValueAtTime(droneGain.gain.value, t);
-                    droneGain.gain.linearRampToValueAtTime(0, t + 2);
-                } catch(e){}
-            }
-
             setTimeout(() => {
-                ambienceNodes.forEach(node => {
-                    try {
-                        if (node.stop) node.stop();
-                        node.disconnect();
-                    } catch(e) {}
-                });
+                ambienceNodes.forEach(node => { if(node) node.disconnect(); });
                 ambienceNodes = [];
-            }, 2100);
+                ambienceFilterNode = null;
+            }, 1100);
         }
-
-        // --- Heartbeat & Alarm System ---
+ 
+        // --- Heartbeat & Alarm (Existing) ---
         function startAlarm() {
-            // 音声OFFなら処理しない
             if (!isSoundOn || !audioCtx) return;
-            
             const time = audioCtx.currentTime;
-
-            // 1. Alarm (Harsh Sawtooth)
             if (!alarmOsc) {
                 alarmOsc = audioCtx.createOscillator();
                 alarmGain = audioCtx.createGain();
                 alarmFilter = audioCtx.createBiquadFilter();
-
                 alarmOsc.type = 'sawtooth';
                 alarmOsc.frequency.value = 100;
-                
-                // Lowpass filter to muffle initial sound (Under pressure)
                 alarmFilter.type = 'lowpass';
                 alarmFilter.frequency.value = 200; 
-
                 alarmOsc.connect(alarmFilter);
                 alarmFilter.connect(alarmGain);
-                alarmGain.connect(audioCtx.destination);
-                
+               alarmGain.connect(audioCtx.destination);
                 alarmGain.gain.value = 0; 
                 alarmOsc.start();
             }
-
-            // 2. Heartbeat (Sub-bass Sine)
             if (!heartbeatOsc) {
                 heartbeatOsc = audioCtx.createOscillator();
                 heartbeatGain = audioCtx.createGain();
-                
                 heartbeatOsc.type = 'sine';
-                heartbeatOsc.frequency.value = 50; // Deep bass
-                
-                heartbeatOsc.connect(heartbeatGain);
-                heartbeatGain.connect(audioCtx.destination);
-                
+                heartbeatOsc.frequency.value = 50; 
+               heartbeatOsc.connect(heartbeatGain);
+               heartbeatGain.connect(audioCtx.destination);
                 heartbeatGain.gain.value = 0;
                 heartbeatOsc.start();
             }
         }
-
         function updateAlarm(progress) {
             if (!audioCtx || !isSoundOn) return;
             const time = audioCtx.currentTime;
-            
-            // --- Alarm Pitch & Texture Logic ---
             if(alarmOsc) {
-                // Pitch Rise: 100Hz -> 1200Hz (Dramatic)
                 const targetFreq = 100 + (progress * 1100);
-                alarmOsc.frequency.setTargetAtTime(targetFreq, time, 0.1);
-                
-                // Filter Opens: Muffled -> Clear & Sharp
-                // 200Hz -> 5000Hz
+               alarmOsc.frequency.setTargetAtTime(targetFreq, time, 0.1);
                 const filterFreq = 200 + (progress * 4800);
-                alarmFilter.frequency.setTargetAtTime(filterFreq, time, 0.1);
-
-                // Beep Speed Increase
+               alarmFilter.frequency.setTargetAtTime(filterFreq, time, 0.1);
                 const beepSpeed = 4 + (progress * 30);
                 const pulse = Math.sin(time * beepSpeed * Math.PI * 2);
-                const vol = pulse > 0 ? (0.2 + progress * 0.3) : 0.05; // Gets louder
-                alarmGain.gain.setTargetAtTime(vol, time, 0.05);
+                // Alarm Volume: 0.1 -> 0.05
+                const vol = pulse > 0 ? (0.05 + progress * 0.075) : 0.0125; 
+               alarmGain.gain.setTargetAtTime(vol, time, 0.05);
             }
-
-            // --- Heartbeat Logic (Tension Builder) ---
             if(heartbeatOsc) {
-                // Heartbeat rate increases: 1Hz -> 4Hz
                 const beatRate = 1 + (progress * 5); 
-                // Creating a double beat (Lub-Dub) approx logic using sine wave shaping
                 const beatPulse = Math.sin(time * beatRate * Math.PI * 2);
-                // Sharpen the pulse for impact
-                const beatVol = beatPulse > 0.5 ? 0.8 : 0.0; 
-                
-                heartbeatGain.gain.setTargetAtTime(beatVol * (0.5 + progress), time, 0.05);
+                // Heartbeat Volume: 0.4 -> 0.2
+                const beatVol = beatPulse > 0.5 ? 0.2 : 0.0; 
+               heartbeatGain.gain.setTargetAtTime(beatVol * (0.5 + progress), time, 0.05);
             }
         }
-
         function stopAlarm() {
             if (!audioCtx) return;
             const time = audioCtx.currentTime;
             if (alarmOsc) {
                 try {
-                    alarmGain.gain.setTargetAtTime(0, time, 0.1);
+                   alarmGain.gain.setTargetAtTime(0, time, 0.1);
                     setTimeout(() => {
                         if(alarmOsc) { alarmOsc.stop(); alarmOsc.disconnect(); }
                         if(alarmGain) alarmGain.disconnect();
@@ -1192,7 +1294,7 @@
             }
             if (heartbeatOsc) {
                 try {
-                    heartbeatGain.gain.setTargetAtTime(0, time, 0.1);
+                   heartbeatGain.gain.setTargetAtTime(0, time, 0.1);
                     setTimeout(() => {
                         if(heartbeatOsc) { heartbeatOsc.stop(); heartbeatOsc.disconnect(); }
                         if(heartbeatGain) heartbeatGain.disconnect();
@@ -1201,51 +1303,85 @@
                 } catch(e) {}
             }
         }
-
-        // --- Terror BGM (Existing Logic Refined) ---
+ 
+        // --- 5. Terror BGM (Free Flow & Drone) ---
         function startTerrorSound() {
-            if (!isSoundOn) return; // 音声OFFなら鳴らさない
-            if (!audioCtx) { ensureAudioContext(); }
+            if (!isSoundOn) return;
+            ensureAudioContext();
             if (!audioCtx) return;
-
+ 
             stopTerrorSound(); 
-            stopDeepSeaAmbience(); // Stop normal ambience
-
+            stopDeepSeaAmbience(); 
+ 
             const t = audioCtx.currentTime;
-
-            // 1. Drone
+ 
+            // 1. Drone (Base Terror)
             const droneOsc = audioCtx.createOscillator();
             const droneGain = audioCtx.createGain();
             droneOsc.type = 'sawtooth';
             droneOsc.frequency.value = 35;
             droneGain.gain.setValueAtTime(0, t);
-            droneGain.gain.linearRampToValueAtTime(0.5, t + 2);
+            // Terror Drone Volume: 0.25 -> 0.125
+            droneGain.gain.linearRampToValueAtTime(0.125, t + 2);
             droneOsc.connect(droneGain);
             droneGain.connect(audioCtx.destination);
             droneOsc.start();
             terrorNodes.push(droneOsc, droneGain);
-
+ 
             // 2. Screech (FM)
             const sOsc = audioCtx.createOscillator();
             const sGain = audioCtx.createGain();
             const mOsc = audioCtx.createOscillator();
             const mGain = audioCtx.createGain();
-            
             sOsc.frequency.value = 400;
             mOsc.frequency.value = 5;
             mGain.gain.value = 200;
-            
             mOsc.connect(mGain);
             mGain.connect(sOsc.frequency);
             sOsc.connect(sGain);
             sGain.connect(audioCtx.destination);
-            
-            sGain.gain.value = 0.05;
+            // Screech Volume: 0.025 -> 0.0125
+            sGain.gain.value = 0.0125;
             sOsc.start();
             mOsc.start();
             terrorNodes.push(sOsc, sGain, mOsc, mGain);
+ 
+            // 3. Free Flow Noise (Jet Sound - 機材故障)
+            // 高圧で空気が漏れる激しい音
+            const flowBuffer = createNoiseBuffer('pink', 2.0);
+            const flowSrc = audioCtx.createBufferSource();
+            flowSrc.buffer = flowBuffer;
+            flowSrc.loop = true;
+ 
+            const flowFilter = audioCtx.createBiquadFilter();
+            flowFilter.type = 'highpass';
+            flowFilter.frequency.value = 800; // 低域を削って「シューッ」という音にする
+            
+            const flowGain = audioCtx.createGain();
+            flowGain.gain.setValueAtTime(0, t);
+            // Terror Flow Volume: 0.4 -> 0.2
+            flowGain.gain.exponentialRampToValueAtTime(0.2, t + 0.5);
+            
+            // 不規則な変動を加える (LFO)
+            const flowLFO = audioCtx.createOscillator();
+            flowLFO.type = 'sawtooth';
+            flowLFO.frequency.value = 15; // 速い振動
+            const lfoGain = audioCtx.createGain();
+            lfoGain.gain.value = 0.05; // Modulation depth also halved
+            
+            flowLFO.connect(lfoGain);
+            lfoGain.connect(flowGain.gain);
+ 
+            flowSrc.connect(flowFilter);
+            flowFilter.connect(flowGain);
+            flowGain.connect(audioCtx.destination);
+ 
+            flowSrc.start(t);
+            flowLFO.start(t);
+            
+            terrorNodes.push(flowSrc, flowFilter, flowGain, flowLFO, lfoGain);
         }
-
+ 
         function stopTerrorSound() {
             terrorNodes.forEach(node => {
                 try {
@@ -1257,21 +1393,21 @@
         }
         
         // --- Gemini API & Chat Logic ---
-        const apiKey = "AIzaSyBkxmon-EvaU6Ay7-jJ3VnVEmk1d8tSEsE"; // User provided key
-
+        const apiKey = ""; // API Key reset due to Referer blocking. Please use a key without referrer restrictions or use the demo environment.
+ 
         const chatToggle = document.getElementById('chat-toggle');
         const chatWindow = document.getElementById('chat-window');
         const chatClose = document.getElementById('chat-close');
         const chatInput = document.getElementById('chat-input');
         const chatSend = document.getElementById('chat-send');
         const chatMessages = document.getElementById('chat-messages');
-
+ 
         chatToggle.addEventListener('click', () => {
             chatWindow.classList.toggle('active');
             if(chatWindow.classList.contains('active')) chatInput.focus();
         });
         chatClose.addEventListener('click', () => chatWindow.classList.remove('active'));
-
+ 
         // --- 3D Jelly Interactive Logic ---
         document.addEventListener('mousemove', (e) => {
             const jelly = document.getElementById('jelly-3d');
@@ -1295,7 +1431,7 @@
                 eye.style.setProperty('--eye-y', `${eyeY}px`);
             });
         });
-
+ 
         // Send Message
         const sendMessage = async () => {
             const text = chatInput.value.trim();
@@ -1319,7 +1455,6 @@
                     displayText += `<br><br><span class="text-xs text-kawaii_p">✨ Ocean color shifted to ${newColor}</span>`;
                 }
                 
-                // Safer Markdown parsing
                 let htmlContent;
                 try {
                     htmlContent = (typeof marked !== 'undefined' && marked.parse) ? marked.parse(displayText) : displayText;
@@ -1327,7 +1462,7 @@
                     htmlContent = displayText;
                 }
                 appendMessage('bot', htmlContent);
-
+ 
             } catch (error) {
                 console.error("Gemini API Error:", error);
                 const loadingEl = document.getElementById(loadingId);
@@ -1339,10 +1474,10 @@
                 chatInput.focus();
             }
         };
-
+ 
         chatSend.addEventListener('click', sendMessage);
         chatInput.addEventListener('keypress', (e) => { if(e.key === 'Enter') sendMessage(); });
-
+ 
         let msgCount = 0;
         function appendMessage(role, html) {
             const div = document.createElement('div');
@@ -1353,9 +1488,8 @@
             chatMessages.scrollTop = chatMessages.scrollHeight;
             return div.id;
         }
-
+ 
         async function callGemini(userPrompt) {
-            // ... (Prompt definitions) ...
             const systemPrompt = `
             You are "Neon Jelly", a cute, digital jellyfish living in "PRISM FLUX" Deep Sea Lab.
             Capabilities:
@@ -1373,57 +1507,37 @@
             const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${apiKey}`;
             const payload = { contents: [{ role: "user", parts: [{ text: userPrompt }] }], systemInstruction: { parts: [{ text: systemPrompt }] } };
             
-            // Retry logic with exponential backoff
-            async function fetchWithRetry(retries = 3, delay = 1000) {
-                try {
-                    const res = await fetch(url, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
-                    if (!res.ok) {
-                        const errData = await res.json().catch(() => ({}));
-                        // Detailed error handling
-                        let errorMessage = `Status ${res.status}: ${res.statusText}`;
-                        
-                        if (res.status === 403) {
-                            errorMessage += " (APIキーの制限/リファラーエラーの可能性があります)";
-                        } else if (errData.error && errData.error.message) {
-                            errorMessage += ` - ${errData.error.message}`;
-                        }
-                        
-                        if (retries > 0 && (res.status === 429 || res.status >= 500)) {
-                            await new Promise(r => setTimeout(r, delay));
-                            return fetchWithRetry(retries - 1, delay * 2);
-                        }
-                        throw new Error(errorMessage);
-                    }
-                    return await res.json();
-                } catch (e) {
-                    if (retries > 0) {
-                        await new Promise(r => setTimeout(r, delay));
-                        return fetchWithRetry(retries - 1, delay * 2);
-                    }
-                    throw e;
-                }
-            }
-
             try {
-                const data = await fetchWithRetry();
+                const res = await fetch(url, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
+                if (!res.ok) {
+                    const errData = await res.json();
+                    throw new Error(errData.error?.message || res.statusText);
+                }
+                const data = await res.json();
                 return data.candidates?.[0]?.content?.parts?.[0]?.text || "Sorry, I'm bubbling... (empty response)";
             } catch (e) {
                 console.error("Fetch failed:", e);
                 throw e;
             }
         }
-
+ 
         // --- P5.js Updates ---
         function updateOceanColor(hex) {
             if(window.p5instance && !isTerrorMode) { window.p5instance.changeTheme(hex); }
         }
-
+ 
         // --- Init Smooth Scroll (Lenis) ---
-        const lenis = new Lenis({ duration: 1.5, easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)), smooth: true });
+        // wheelMultiplier: 0.5 を追加し、スクロール感度を下げてゆっくりダイブするように調整
+        const lenis = new Lenis({ 
+            duration: 1.5, 
+            easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)), 
+            smooth: true,
+            wheelMultiplier: 0.25 
+        });
         function raf(time) { lenis.raf(time); requestAnimationFrame(raf); }
         requestAnimationFrame(raf);
         gsap.registerPlugin(ScrollTrigger);
-
+ 
         // --- Depth Mapping & HUD Update ---
         const depthZones = [
             { limit: 200, name: "Sunlight Zone" },
@@ -1435,7 +1549,7 @@
         
         window.globalScrollRatio = 0;
         window.scrollVelocity = 0;
-
+ 
         ScrollTrigger.create({
             trigger: "body",
             start: "top top",
@@ -1444,15 +1558,18 @@
             onUpdate: (self) => {
                 window.globalScrollRatio = self.progress;
                 window.scrollVelocity = lenis.velocity; 
-
+                
+                // Update Audio Filter based on depth
+                updateAudioDepth();
+ 
                 // 0m to 10935m mapping
                 const currentDepth = Math.floor(self.progress * 10935);
                 const counterEl = document.getElementById('depth-counter');
                 const zoneEl = document.getElementById('depth-zone');
                 
                 if(counterEl) counterEl.innerHTML = `${currentDepth.toLocaleString()}<span class="text-xs ml-1 font-mono">m</span>`;
-                gsap.set("#depth-bar", { scaleY: self.progress });
-
+               gsap.set("#depth-bar", { scaleY: self.progress });
+ 
                 const zone = depthZones.find(z => currentDepth <= z.limit) || depthZones[depthZones.length - 1];
                 if (zoneEl && zoneEl.innerText !== zone.name) {
                     gsap.fromTo(zoneEl, { opacity: 0, y: 5 }, { opacity: 0.8, y: 0, duration: 0.5 });
@@ -1460,7 +1577,7 @@
                 }
             }
         });
-
+ 
         // --- Horizontal Scroll ---
         const worksSection = document.getElementById('works-wrapper');
         const worksContainer = document.getElementById('works-container');
@@ -1471,7 +1588,7 @@
                 scrollTrigger: { trigger: worksSection, start: "top top", end: "bottom bottom", scrub: 1, invalidateOnRefresh: true }
             });
         }
-
+ 
         // --- Fluid Text ---
         let proxy = { skew: 0 }, skewSetter = gsap.quickSetter(".fluid-text-block", "skewY", "deg"), clamp = gsap.utils.clamp(-5, 5);
         ScrollTrigger.create({
@@ -1483,7 +1600,7 @@
             }
         });
         gsap.ticker.add(() => { if(proxy.skew !== 0) { gsap.to(proxy, { skew: 0, duration: 0.5, ease: "power3", overwrite: true, onUpdate: () => skewSetter(proxy.skew) }); } });
-
+ 
         // --- Custom Cursor & Charge Logic ---
         const cursorCore = document.getElementById('cursor-core');
         const cursorRing = document.getElementById('cursor-ring');
@@ -1496,7 +1613,7 @@
         let ringX = cursorX, ringY = cursorY, coreX = cursorX, coreY = cursorY;
         let isMouseDown = false;
         let hintOpacity = 0;
-
+ 
         document.addEventListener('mousemove', (e) => { 
             cursorX = e.clientX; 
             cursorY = e.clientY; 
@@ -1528,13 +1645,10 @@
             if (isTerrorMode) {
                 deactivateTerrorMode();
             } else {
-                // ここにあった initAudio() を削除。
-                // isSoundOnがtrueのときだけ、後続処理で音が鳴るようにしている。
-                
                 isCharging = true;
                 chargeStartTime = Date.now();
                 cursorCharge.style.opacity = 1;
-                cursorCharge.classList.add('shaking');
+               cursorCharge.classList.add('shaking');
                 
                 rgbLayer.style.display = 'block';
                 rgbLayer.style.opacity = 0;
@@ -1544,17 +1658,15 @@
                     startAlarm();
                 }
                 
-                // Flash Warning but don't show full overlay immediately to build tension
                 const warningEl = document.getElementById('warning-container');
-                // We will pulse it in the loop
             }
         };
-
+ 
         const endCharge = () => {
             if (isCharging && !isTerrorMode) {
                  document.getElementById('warning-container').classList.remove('active');
                  rgbLayer.style.display = 'none';
-                 document.getElementById('canvas-container').style.filter = 'none';
+                document.getElementById('canvas-container').style.filter = 'none';
             }
             isCharging = false;
             window.chargeProgress = 0; 
@@ -1564,21 +1676,18 @@
             
             stopAlarm();
         };
-
+ 
         document.addEventListener('mousedown', (e) => {
-            // 修正: サウンドトグルボタン以外の場合のみグローバル初期化を行う
-            // これによりボタンクリック時のON/OFF切り替えとの干渉を防ぐ
             if (!e.target.closest('#sound-toggle')) {
-                // initAudio() は削除しました
+                // ...
             }
-
             if (e.button === 2) { 
                 startCharge();
             } else {
                 isMouseDown = true;
             }
         });
-
+ 
         document.addEventListener('mouseup', () => {
             isMouseDown = false;
             endCharge();
@@ -1586,46 +1695,61 @@
         
         // Touch Support
         document.addEventListener('touchstart', (e) => {
-            // 修正: サウンドトグルボタン以外の場合のみグローバル初期化を行う
             if (!e.target.closest('#sound-toggle')) {
-                // initAudio() は削除しました
+                // ...
             }
-
             if (!e.target.closest('a, button, input')) {
                 startCharge();
             }
         }, {passive: false});
-
+ 
         document.addEventListener('touchend', () => {
             endCharge();
         });
-
+ 
         document.addEventListener('touchmove', (e) => {
              cursorX = e.touches[0].clientX;
              cursorY = e.touches[0].clientY;
         }, {passive: false});
         
         document.addEventListener('contextmenu', (e) => e.preventDefault());
-
+ 
         gsap.ticker.add(() => {
+            // --- Depth Resistance Logic (水圧によるカーソル抵抗) ---
+            let depth = window.globalScrollRatio || 0;
+            // 抵抗係数: 深度に応じて指数関数的に増加
+            let resistance = Math.pow(depth, 1.2); 
+            
+            // 追従速度 (Lag): 深海(10000m)に行くほど遅れてついてくる
+            let coreLag = 0.3 - (resistance * 0.27);
+            let ringLag = 0.15 - (resistance * 0.13);
+            
+            // 最低速度リミット
+            if (coreLag < 0.03) coreLag = 0.03;
+            if (ringLag < 0.02) ringLag = 0.02;
+
             // Cursor Follow
-            coreX += (cursorX - coreX) * 0.2; coreY += (cursorY - coreY) * 0.2;
+            coreX += (cursorX - coreX) * coreLag; 
+            coreY += (cursorY - coreY) * coreLag;
             cursorCore.style.left = coreX + 'px'; cursorCore.style.top = coreY + 'px';
-            ringX += (cursorX - ringX) * 0.1; ringY += (cursorY - ringY) * 0.1;
+            
+            ringX += (cursorX - ringX) * ringLag; 
+            ringY += (cursorY - ringY) * ringLag;
             cursorRing.style.left = ringX + 'px'; cursorRing.style.top = ringY + 'px';
             
-            cursorCharge.style.left = cursorX + 'px'; cursorCharge.style.top = cursorY + 'px';
+            // 全てのUI要素を「重いカーソル(Core)」に追従させる
+            cursorCharge.style.left = coreX + 'px'; cursorCharge.style.top = coreY + 'px';
             
             // Hint Logic
-            cursorHint.style.left = cursorX + 'px'; cursorHint.style.top = cursorY + 'px';
+            cursorHint.style.left = coreX + 'px'; cursorHint.style.top = coreY + 'px';
             if (isCharging) {
                 cursorHint.style.opacity = 1;
-                cursorHint.querySelector('text').style.fill = '#ff0000';
+               cursorHint.querySelector('text').style.fill = '#ff0000';
             } else {
                 cursorHint.style.opacity = hintOpacity;
-                cursorHint.querySelector('text').style.fill = 'rgba(153, 247, 255, 0.6)';
+               cursorHint.querySelector('text').style.fill = 'rgba(153, 247, 255, 0.6)';
             }
-
+ 
             // Charging Animation & Distortion
             if (isCharging && !isTerrorMode) {
                 const elapsed = Date.now() - chargeStartTime;
@@ -1636,7 +1760,7 @@
                 updateAlarm(progress);
                 
                 const offset = 283 - (283 * progress);
-                chargeCircle.style.strokeDashoffset = offset;
+               chargeCircle.style.strokeDashoffset = offset;
                 
                 const r = 255;
                 const g = Math.max(0, 255 - progress * 500); 
@@ -1651,7 +1775,6 @@
                 cursorCharge.style.transform = `translate(-50%, -50%) rotate(-90deg) translate(${shakeX}px, ${shakeY}px)`;
                 
                 // 2. Global Blur/Distortion
-                // Increasing blur and chromatic aberration effect via opacity of overlay
                 rgbLayer.style.opacity = progress * 0.8;
                 rgbLayer.style.background = `
                     linear-gradient(90deg, 
@@ -1662,14 +1785,14 @@
                 `;
                 rgbLayer.style.transform = `translate(${Math.random()*10*progress}px, ${Math.random()*10*progress}px)`;
                 
-                // 3. Canvas CSS Filters (Heavy)
+                // 3. Canvas CSS Filters
                 if (progress > 0.5) {
                     const invertVal = (progress - 0.5) * 2 * 100;
-                    document.getElementById('canvas-container').style.filter = `invert(${invertVal}%) contrast(${1 + progress}) blur(${progress * 2}px)`;
+                   document.getElementById('canvas-container').style.filter = `invert(${invertVal}%) contrast(${1 + progress}) blur(${progress * 2}px)`;
                 }
                 
                 if(window.p5instance && window.p5instance.triggerShake) {
-                    window.p5instance.triggerShake(2 + progress * 20); 
+                   window.p5instance.triggerShake(2 + progress * 20); 
                 }
                 
                 // 4. Warning Flash
@@ -1678,21 +1801,21 @@
                     if (Math.random() > 0.7) warningEl.classList.add('active');
                     else warningEl.classList.remove('active');
                 }
-
+ 
                 if (progress >= 1) {
                     activateTerrorMode();
                     isCharging = false;
                     window.chargeProgress = 0; 
                     cursorCharge.style.opacity = 0;
-                    cursorCharge.classList.remove('shaking');
+                   cursorCharge.classList.remove('shaking');
                     rgbLayer.style.display = 'none';
-                    document.getElementById('canvas-container').style.filter = 'none';
+                   document.getElementById('canvas-container').style.filter = 'none';
                     stopAlarm(); 
                 }
             } else {
                 window.chargeProgress = 0;
             }
-
+ 
             if(isMouseDown) { 
                 cursorRing.style.transform = `translate(-50%, -50%) scale(0.5)`; 
                 cursorRing.style.borderColor = isTerrorMode ? '#ff0000' : '#99F7FF'; 
@@ -1701,21 +1824,21 @@
                 cursorRing.style.borderColor = isTerrorMode ? '#ff0000' : (document.body.classList.contains('hovering') ? '#FF99C8' : 'rgba(255, 153, 200, 0.4)'); 
             }
             
-            // --- Title Water Distortion Logic (SUBTLE FIX) ---
+            // --- Title Water Distortion Logic ---
             const distortionTargets = document.querySelectorAll('.distortion-target');
             if (distortionTargets.length > 0 && !isTerrorMode) {
-                // Get one of them for position check
                 const rect = distortionTargets[0].getBoundingClientRect();
                 const titleX = rect.left + rect.width / 2;
                 const titleY = rect.top + rect.height / 2;
                 
-                const distToTitle = Math.hypot(cursorX - titleX, cursorY - titleY);
-                const threshold = 180; // Decreased range (was 300)
+                // 修正: カーソル判定も遅延した coreX/Y を使用して、歪みエフェクトも重くする
+                const distToTitle = Math.hypot(coreX - titleX, coreY - titleY);
+                const threshold = 180; 
                 
                 let scaleVal = 0;
                 if (distToTitle < threshold) {
                     // Closer = stronger distortion
-                    scaleVal = (1 - distToTitle / threshold) * 20; // Reduced intensity (was 50)
+                    scaleVal = (1 - distToTitle / threshold) * 20; 
                 }
                 
                 // Apply to SVG filter
@@ -1724,51 +1847,51 @@
                     // Lerp for smooth transition
                     const currentScale = parseFloat(displacementMap.getAttribute('scale')) || 0;
                     const newScale = currentScale + (scaleVal - currentScale) * 0.1;
-                    displacementMap.setAttribute('scale', newScale);
+                   displacementMap.setAttribute('scale', newScale);
                 }
             }
         });
         
         links.forEach(link => { link.addEventListener('mouseenter', () => document.body.classList.add('hovering')); link.addEventListener('mouseleave', () => document.body.classList.remove('hovering')); });
-
+ 
         // --- Terror Mode Functions ---
         function activateTerrorMode() {
             isTerrorMode = true;
             document.body.classList.add('terror-mode');
             
             if(lenis) lenis.stop(); 
-
+ 
             const warningEl = document.getElementById('warning-container');
             warningEl.classList.add('active');
             
             if (window.p5instance && window.p5instance.activateGoblin) {
-                window.p5instance.activateGoblin();
+               window.p5instance.activateGoblin();
             }
-            startTerrorSound(); // Start BGM
+            startTerrorSound(); 
         }
-
+ 
         function deactivateTerrorMode() {
             isTerrorMode = false;
             document.body.classList.remove('terror-mode');
             
             if(lenis) lenis.start();
-
+ 
             document.getElementById('warning-container').classList.remove('active');
             
             if (window.p5instance && window.p5instance.deactivateGoblin) {
-                window.p5instance.deactivateGoblin();
+               window.p5instance.deactivateGoblin();
             }
-            stopTerrorSound(); // Stop Terror BGM
-            startDeepSeaAmbience(); // Resume Ambience
+            stopTerrorSound(); 
+            if(isSoundOn) startDeepSeaAmbience(); // Resume Ambience if sound was on
         }
-
+ 
         window.addEventListener('load', () => {
             const tl = gsap.timeline();
             tl.to('.loader', { opacity: 0, duration: 1, delay: 0.5, pointerEvents: 'none' })
               .to('.reveal-hero', { y: '0%', stagger: 0.1, duration: 1.5, ease: 'power4.out' }, "-=0.5")
               .to('.reveal-hero-sub', { opacity: 1, duration: 1 }, "-=1");
         });
-
+ 
         // --- p5.js Deep Sea (Enhanced) ---
         let creatures = [];
         let gardenEels = []; 
@@ -1784,6 +1907,9 @@
         
         let scrollRatio = 0; 
 
+        // 前景描画用のp5インスタンス
+        let foregroundP5;
+ 
         function setup() {
             let canvas = createCanvas(windowWidth, windowHeight);
             canvas.parent('canvas-container');
@@ -1794,24 +1920,23 @@
             c_blood = color('#8a0303');
             currentThemeColor = c_cyan;
             spotlightX = width / 2;
-
+ 
             for(let i=0; i<8; i++) creatures.push(new Jellyfish(random(width), random(height)));
             for(let i=0; i<15; i++) creatures.push(new Clione(random(width), random(height)));
-            for(let i=0; i<5; i++) creatures.push(new SamehadaSquid(random(width), random(height))); // Add Samehada Squid
+            for(let i=0; i<5; i++) creatures.push(new SamehadaSquid(random(width), random(height)));
             creatures.push(new FrilledShark(random(width), random(height)));
-
+ 
             let leftCount = 5; let centerCount = 4; let rightCount = 5;
             for(let i=0; i<leftCount; i++) gardenEels.push(new GardenEel(random(width * 0.05, width * 0.25), height));
             for(let i=0; i<centerCount; i++) gardenEels.push(new GardenEel(random(width * 0.4, width * 0.6), height));
             for(let i=0; i<rightCount; i++) gardenEels.push(new GardenEel(random(width * 0.75, width * 0.95), height));
-
-            // Layered Particles
+ 
             for(let i=0; i<100; i++) particles.push(new AbyssParticle('back'));   
             for(let i=0; i<80; i++) particles.push(new AbyssParticle('mid'));    
-            for(let i=0; i<30; i++) particles.push(new AbyssParticle('front'));   
+            for(let i=0; i<30; i++) particles.push(new AbyssParticle('front'));  
             
             goblinShark = new GoblinShark();
-
+ 
             window.p5instance = {
                 changeTheme: (hex) => {
                     let target = color(hex);
@@ -1831,24 +1956,71 @@
                     shakeAmount = amount;
                 }
             };
-        }
 
+            // --- 前景用p5インスタンスの作成 ---
+            // チンアナゴをフィルターの影響を受けない最前面に描画するための別インスタンス
+            const foregroundSketch = (p) => {
+                p.setup = () => {
+                    let c = p.createCanvas(windowWidth, windowHeight);
+                    c.parent('foreground-canvas');
+                    p.clear(); // 背景透明
+                    p.noStroke();
+                };
+
+                p.draw = () => {
+                    p.clear();
+                    
+                    // 修正: 画面全体の常時揺れ（globalSway）を削除し、背景を固定する
+                    // これにより「画面ずれバグ」のように見える現象を解消
+                    
+                    p.push();
+                    // p.translate(globalSwayX, globalSwayY); // 削除
+
+                    // 恐怖モードやチャージ時の揺れは演出として残す
+                    if (isTerrorMode) {
+                        let constantShake = 2; 
+                        p.translate(p.random(-constantShake, constantShake), p.random(-constantShake, constantShake));
+                    }
+                    if (shakeAmount > 0.5) {
+                        let sX = p.random(-shakeAmount, shakeAmount);
+                        let sY = p.random(-shakeAmount, shakeAmount);
+                        p.translate(sX, sY);
+                    }
+
+                    // チンアナゴの描画 (コンテキスト p を渡す)
+                    // gardenEels変数はsetup内で初期化されているため、ここではグローバルのgardenEelsを参照する
+                    if (gardenEels) {
+                        for (let eel of gardenEels) {
+                            eel.display(p);
+                        }
+                    }
+                    p.pop();
+                };
+
+                p.windowResized = () => {
+                    p.resizeCanvas(windowWidth, windowHeight);
+                };
+            };
+            foregroundP5 = new p5(foregroundSketch);
+        }
+ 
         function draw() {
             clear(); 
             
             timeOffset += 0.005;
             scrollRatio = window.globalScrollRatio || 0;
             
-            let globalSwayX = map(noise(timeOffset), 0, 1, -15, 15);
-            let globalSwayY = map(noise(timeOffset + 100), 0, 1, -10, 10) - (scrollRatio * 100); 
-
+            // 修正: 画面全体の常時揺れ（globalSway）を削除
+            // let globalSwayX = map(noise(timeOffset), 0, 1, -15, 15);
+            // let globalSwayY = map(noise(timeOffset + 100), 0, 1, -10, 10) - (scrollRatio * 100); 
+ 
             push();
-            translate(globalSwayX, globalSwayY);
-
+            // translate(globalSwayX, globalSwayY); // 削除
+ 
             // --- Camera Shake & Glitch Logic ---
             if (isTerrorMode) {
                 let constantShake = 2; 
-                translate(random(-constantShake, constantShake), random(-constantShake, constantShake));
+               translate(random(-constantShake, constantShake), random(-constantShake, constantShake));
                 
                 if (frameCount % 10 === 0 && random() > 0.5) {
                     translate(random(-20, 20), 0);
@@ -1871,7 +2043,9 @@
                 currentThemeColor = c_blood;
                 spotlightX = width/2;
             } else {
-                spotlightX = lerp(spotlightX, cursorX, 0.05);
+                // 生物が見ているカーソル座標は coreX (遅延) にすべきだが、spotlightは追従してほしいので
+                // ここではあえて coreX を使うとより「重い」感じが出る
+                spotlightX = lerp(spotlightX, coreX, 0.05); 
             }
             
             // 1. Draw Background & Atmosphere
@@ -1879,16 +2053,16 @@
             
             // 2. Background Particles
             for(let p of particles) { if(p.layer === 'back') { p.update(); p.display(); } }
-
-            // 3. Garden Eels
-            for (let eel of gardenEels) { eel.update(); eel.display(); }
-
+ 
+            // 3. Garden Eels Update Only
+            for (let eel of gardenEels) { eel.update(); }
+ 
             // 4. Midground Particles & Light
             if (!isTerrorMode) drawVolumetricLight();
             for(let p of particles) { if(p.layer === 'mid') { p.update(); p.display(); } }
-
+ 
             // 5. Interactive Elements
-            if (dist(cursorX, cursorY, pmouseX, pmouseY) > 5 && !isTerrorMode) foods.push(new Food(cursorX, cursorY, currentThemeColor));
+            if (dist(coreX, coreY, pmouseX, pmouseY) > 5 && !isTerrorMode) foods.push(new Food(coreX, coreY, currentThemeColor));
             for (let i = foods.length - 1; i >= 0; i--) {
                 foods[i].update(); foods[i].display(); if (foods[i].isDead()) foods.splice(i, 1);
             }
@@ -1901,30 +2075,34 @@
             for (let i = bloodParticles.length - 1; i >= 0; i--) {
                 bloodParticles[i].update(); bloodParticles[i].display(); if (bloodParticles[i].isDead()) bloodParticles.splice(i, 1);
             }
-
+ 
             // 6. Creatures
+            // 修正: 揺れ補正(globalSway)を削除し、直接 coreX, coreY をターゲットにする
             for (let c of creatures) {
-                c.behaviors(foods, createVector(cursorX - globalSwayX, cursorY - globalSwayY)); c.update(); c.display();
+                c.behaviors(foods, createVector(coreX, coreY)); c.update(); c.display();
             }
             
             // 7. Foreground Particles
             for(let p of particles) { if(p.layer === 'front') { p.update(); p.display(); } }
-
+ 
             // 8. Goblin Shark Overlay
             goblinShark.update();
             goblinShark.display();
+
+            // 9. Garden Eels -> Foreground P5 Instance
             
-            // 9. Charge Glitch Visuals on Canvas (Rects)
+            // 10. Charge Glitch Visuals on Canvas (Rects)
             if (window.chargeProgress > 0) {
                  drawChargeGlitch(window.chargeProgress);
             }
             
-            // 10. Interaction Trigger
-            if (mouseIsPressed && !isTerrorMode && frameCount % 10 === 0) foods.push(new Food(cursorX + random(-20, 20), cursorY + random(-20, 20), currentThemeColor));
-
+            // 11. Interaction Trigger
+            if (mouseIsPressed && !isTerrorMode && frameCount % 10 === 0) foods.push(new Food(coreX + random(-20, 20), coreY + random(-20, 20), currentThemeColor));
+ 
             pop();
         }
         
+        // ... (Helper functions unchanged)
         function drawChargeGlitch(progress) {
              let intensity = progress * 10;
              if (random() < progress * 0.5) {
@@ -1937,66 +2115,147 @@
         function drawAtmosphere() {
             let ctx = drawingContext;
             let cx = spotlightX;
-            let cy = isTerrorMode ? height/2 : cursorY;
+            let cy = isTerrorMode ? height/2 : coreY; // Use coreY for delayed spotlight vertical
             let sRatio = window.globalScrollRatio || 0;
-
+            // 深度(m)換算
+            let depth = sRatio * 10935;
+ 
+            // ベース: 深海の黒
             fill(0, 0, 5, 255); 
             rect(-100, -100, width + 200, height + 200);
-
+ 
             if (!isTerrorMode) {
-                let radius = width * map(sRatio, 0, 1, 1.2, 0.5); 
+                // --- 1. スポットライト（カーソル追従） ---
+                let lightRadius, centerColor, edgeColor;
                 
+                if (depth < 760) {
+                    // 0m〜760m: 急激に暗くなっていく区間 (トワイライトゾーンへの移行)
+                    // 0m: 明るい / 760m: かなり暗い
+                    let p = depth / 760; // 0.0 -> 1.0
+                    
+                    // 半径: 画面全体(1.25倍) -> スポットライト(0.4倍)
+                    // 以前より照射範囲を半分に狭める
+                    lightRadius = width * map(p, 0, 1, 1.25, 0.4);
+                    
+                    // 色味: 水色 -> 濃紺
+                    let alpha = map(p, 0, 1, 0.4, 0.15);
+                    let r = map(p, 0, 1, 50, 0);
+                    let g = map(p, 0, 1, 200, 30);
+                    let b = map(p, 0, 1, 255, 60);
+                    
+                    centerColor = `rgba(${r}, ${g}, ${b}, ${alpha})`;
+                    
+                    // 外縁: 浅瀬は青みがかる、深くなると完全な黒
+                    let edgeAlpha = map(p, 0, 1, 0.0, 1.0);
+                    edgeColor = `rgba(0, 2, 10, ${edgeAlpha})`; 
+
+                } else {
+                    // 760m以深: 深海モード（カーソルのテーマカラーのみが頼り）
+                    // 半径をさらに狭める (0.7 -> 0.35)
+                    lightRadius = width * 0.35;
+                    let lightC = currentThemeColor ? currentThemeColor : c_cyan;
+                    let r = red(lightC), g = green(lightC), b = blue(lightC);
+                    
+                    // 深度が増すほどさらに暗く、孤独に
+                    let deepP = constrain((depth - 760) / 5000, 0, 1);
+                    let alpha = map(deepP, 0, 1, 0.12, 0.04);
+                    
+                    centerColor = `rgba(${r}, ${g}, ${b}, ${alpha})`;
+                    edgeColor = '#000000';
+                }
+
                 push();
-                let bgGradient = ctx.createRadialGradient(cx, cy, 0, cx, cy, radius);
-                let lightC = currentThemeColor ? currentThemeColor : c_cyan;
-                let r = red(lightC), g = green(lightC), b = blue(lightC);
-                
-                let darkness = map(sRatio, 0, 1, 0, 0.5);
-                
-                bgGradient.addColorStop(0, `rgba(${r}, ${g}, ${b}, ${0.15 - sRatio * 0.1})`); 
-                bgGradient.addColorStop(0.5, `rgba(${2 + darkness*5}, ${5 + darkness*10}, ${15 + darkness*20}, ${0.8 + sRatio * 0.2})`);
-                bgGradient.addColorStop(1, '#000000');
+                let bgGradient = ctx.createRadialGradient(cx, cy, 0, cx, cy, lightRadius);
+                bgGradient.addColorStop(0, centerColor);
+                bgGradient.addColorStop(1, edgeColor);
                 
                 ctx.fillStyle = bgGradient;
                 blendMode(SCREEN); 
                 rect(-100, -100, width + 200, height + 200);
                 blendMode(BLEND); 
                 pop();
+                
+                // --- 2. 地上の光（水面からの透過光） ---
+                // 浅瀬(0-500m)限定で上部から「地上の光」を落とす
+                if (depth < 500) {
+                    push();
+                    let surfaceP = constrain(depth / 500, 0, 1);
+                    // 浅いほど強い光
+                    let surfaceAlpha = (1 - surfaceP) * 0.5; 
+                    
+                    // 上から下へのグラデーション
+                    let surfaceGrad = ctx.createLinearGradient(0, 0, 0, height * 0.7);
+                    // 水面の色: 明るいシアンホワイト
+                    surfaceGrad.addColorStop(0, `rgba(200, 255, 255, ${surfaceAlpha})`); 
+                    surfaceGrad.addColorStop(1, `rgba(0, 50, 100, 0)`); // 消える
+                    
+                    ctx.fillStyle = surfaceGrad;
+                    blendMode(ADD); // 加算合成で神々しく
+                    rect(0, 0, width, height);
+                    blendMode(BLEND);
+                    pop();
+                }
+
             } else {
-                 let radius = width * 1.5;
-                 let bgGradient = ctx.createRadialGradient(cx, cy, 0, cx, cy, radius);
-                 bgGradient.addColorStop(0, '#2a0000');
-                 bgGradient.addColorStop(0.4, '#1a0000');
-                 bgGradient.addColorStop(1, '#000000');
-                 ctx.fillStyle = bgGradient;
-                 rect(-100, -100, width + 200, height + 200);
+                // Terror Mode
+                let radius = width * 1.5;
+                let bgGradient = ctx.createRadialGradient(cx, cy, 0, cx, cy, radius);
+                bgGradient.addColorStop(0, '#2a0000');
+                bgGradient.addColorStop(0.4, '#1a0000');
+                bgGradient.addColorStop(1, '#000000');
+                ctx.fillStyle = bgGradient;
+                rect(-100, -100, width + 200, height + 200);
             }
         }
-
+ 
         function drawVolumetricLight() {
             push();
             blendMode(ADD);
             let ctx = drawingContext;
             let lightColor = currentThemeColor ? currentThemeColor : c_cyan;
+            let sRatio = window.globalScrollRatio || 0;
+            let depth = sRatio * 10935;
             
             noStroke();
-            let coneSize = map(scrollRatio, 0, 1, 600, 300);
-            let grad = ctx.createRadialGradient(spotlightX, cursorY, 0, spotlightX, cursorY, coneSize);
-            let r = red(lightColor), g = green(lightColor), b = blue(lightColor);
-            let intensity = map(scrollRatio, 0, 1, 1, 0.5);
+            
+            // 浅瀬(0-760m)では光の筋（God Rays）を強調
+            let coneSizeBase = 150; // 300 -> 150 (半分に)
+            let intensityBase = 0.5;
+            let r, g, b;
 
-            grad.addColorStop(0, `rgba(${r}, ${g}, ${b}, ${0.08 * intensity})`);
-            grad.addColorStop(0.5, `rgba(${r}, ${g}, ${b}, ${0.02 * intensity})`);
+            if (depth < 760) {
+                let p = depth / 760;
+                coneSizeBase = map(p, 0, 1, 600, 200); // 浅瀬も半分に (1200->600, 400->200)
+                intensityBase = map(p, 0, 1, 1.2, 0.3); // 浅瀬は強い
+                
+                // 浅瀬は太陽光に近い色
+                if (depth < 200) {
+                    r = 220; g = 245; b = 255;
+                } else {
+                    r = red(lightColor); g = green(lightColor); b = blue(lightColor);
+                }
+            } else {
+                // 深海は控えめ
+                coneSizeBase = 150; // 300 -> 150
+                intensityBase = 0.2;
+                r = red(lightColor); g = green(lightColor); b = blue(lightColor);
+            }
+
+            let grad = ctx.createRadialGradient(spotlightX, coreY, 0, spotlightX, coreY, coneSizeBase);
+ 
+            grad.addColorStop(0, `rgba(${r}, ${g}, ${b}, ${0.08 * intensityBase})`);
+            grad.addColorStop(0.5, `rgba(${r}, ${g}, ${b}, ${0.02 * intensityBase})`);
             grad.addColorStop(1, `rgba(0,0,0,0)`);
             
             ctx.fillStyle = grad;
-            circle(spotlightX, cursorY, coneSize * 2);
-
-            let coreGrad = ctx.createRadialGradient(spotlightX, cursorY, 0, spotlightX, cursorY, 80);
-            coreGrad.addColorStop(0, `rgba(255, 255, 255, ${0.2 * intensity})`);
+            circle(spotlightX, coreY, coneSizeBase * 2);
+ 
+            // コア部分も少し小さくしてバランスを取る
+            let coreGrad = ctx.createRadialGradient(spotlightX, coreY, 0, spotlightX, coreY, 40); // 80 -> 40
+            coreGrad.addColorStop(0, `rgba(255, 255, 255, ${0.2 * intensityBase})`);
             coreGrad.addColorStop(1, `rgba(255, 255, 255, 0)`);
             ctx.fillStyle = coreGrad;
-            circle(spotlightX, cursorY, 160);
+            circle(spotlightX, coreY, 80); // 160 -> 80
             pop();
         }
         
@@ -2014,13 +2273,13 @@
                     this.size = random(1, 2); this.speed = random(0.2, 0.5); this.baseAlpha = random(20, 50);
                 } else if (this.layer === 'mid') {
                     this.size = random(2, 4); this.speed = random(0.5, 1.2); this.baseAlpha = random(50, 100);
-                } else { // front
+                } else { 
                     this.size = random(4, 8); this.speed = random(1.5, 2.5); this.baseAlpha = random(20, 60); 
                 }
                 this.currentAlpha = this.baseAlpha;
             }
             update() {
-                let parallax = (cursorX - width/2) * 0.0005;
+                let parallax = (coreX - width/2) * 0.0005; // Use coreX
                 if (this.layer === 'mid') parallax *= 2;
                 if (this.layer === 'front') parallax *= 4;
                 this.x += map(noise(this.noiseOffset + frameCount * 0.01), 0, 1, -0.5, 0.5) - parallax;
@@ -2030,12 +2289,12 @@
                 let velocityImpact = map(Math.abs(sVelocity), 0, 5000, 0, 20);
                 let scrollFactor = (1 + sRatio * 2) + velocityImpact;
                 this.y -= this.speed * scrollFactor;
-
+ 
                 if (isTerrorMode) {
                     this.y -= this.speed * 4; 
                     this.x += random(-3, 3);
                 }
-
+ 
                 if (this.y < -20) this.reset();
                 if (this.y > height + 20 && isTerrorMode) { this.reset(); }
                 if (this.x > width + 50) this.x = -50;
@@ -2049,14 +2308,14 @@
                     let r = red(currentThemeColor || color(255));
                     let g = green(currentThemeColor || color(255));
                     let b = blue(currentThemeColor || color(255));
-                    let lightInfluence = map(dist(this.x, this.y, spotlightX, cursorY), 0, 400, 1.5, 0.5);
+                    let lightInfluence = map(dist(this.x, this.y, spotlightX, coreY), 0, 400, 1.5, 0.5);
                     lightInfluence = constrain(lightInfluence, 0.5, 2.0);
                     col = color(r, g, b, this.baseAlpha * lightInfluence);
                 }
                 fill(col);
                 if (this.layer === 'front' && !isTerrorMode) {
                       drawingContext.shadowBlur = 10;
-                      drawingContext.shadowColor = col.toString();
+                     drawingContext.shadowColor = col.toString();
                 } else {
                       drawingContext.shadowBlur = 0;
                 }
@@ -2064,7 +2323,7 @@
                 drawingContext.shadowBlur = 0; 
             }
         }
-
+ 
         class BloodParticle {
             constructor(x, y) {
                 this.pos = createVector(x, y);
@@ -2076,11 +2335,11 @@
             display() { noStroke(); fill(180, 0, 50, this.life); ellipse(this.pos.x, this.pos.y, this.size); }
             isDead() { return this.life < 0; }
         }
-
+ 
         class Food { constructor(x, y, col) { this.pos = createVector(x, y); this.vel = p5.Vector.random2D().mult(0.5); this.life = 255; this.size = random(2, 5); this.col = col || color(255); } update() { this.pos.add(this.vel); this.life -= 4; } display() { fill(red(this.col), green(this.col), blue(this.col), this.life); ellipse(this.pos.x, this.pos.y, this.size); } isDead() { return this.life < 0; } }
         
         class Creature {
-            constructor(x, y) { 
+            constructor(x, y, minD = 0, maxD = 11000) { 
                 this.pos = createVector(x, y); 
                 this.vel = p5.Vector.random2D(); 
                 this.acc = createVector(0, 0); 
@@ -2089,7 +2348,9 @@
                 this.size = random(20, 40); 
                 this.originalMaxSpeed = 2;
                 this.panicFactor = random(0.8, 1.5);
-                this.panicYNoise = random(1000); 
+                this.panicYNoise = random(1000);
+                this.minDepth = minD;
+                this.maxDepth = maxD; 
             }
             behaviors(foods, mousePos) {
                 if (isTerrorMode) {
@@ -2097,7 +2358,7 @@
                     let yNoise = map(noise(this.panicYNoise), 0, 1, -1, 1);
                     this.panicYNoise += 0.1;
                     let fleeForce = createVector(-1, yNoise * 0.8); 
-                    fleeForce.setMag(this.maxForce * 15);
+                   fleeForce.setMag(this.maxForce * 15);
                     this.applyForce(fleeForce);
                 } else {
                     this.maxSpeed = this.originalMaxSpeed; 
@@ -2118,49 +2379,127 @@
                     if (this.pos.x < -50) this.pos.x = width + 50; if (this.pos.x > width + 50) this.pos.x = -50; if (this.pos.y < -50) this.pos.y = height + 50; if (this.pos.y > height + 50) this.pos.y = -50; 
                 }
             }
+            
+            getAlphaFactor() {
+                const currentDepth = Math.floor((window.globalScrollRatio || 0) * 10935);
+                const fadeRange = 200; 
+                
+                if (currentDepth < this.minDepth - fadeRange || currentDepth > this.maxDepth + fadeRange) {
+                    return 0;
+                }
+                
+                let factor = 1;
+                if (currentDepth < this.minDepth) {
+                    factor = map(currentDepth, this.minDepth - fadeRange, this.minDepth, 0, 1);
+                } else if (currentDepth > this.maxDepth) {
+                    factor = map(currentDepth, this.maxDepth, this.maxDepth + fadeRange, 1, 0);
+                }
+                return constrain(factor, 0, 1);
+            }
         }
-        class Jellyfish extends Creature { constructor(x, y) { super(x, y); this.maxSpeed = 1.5; this.originalMaxSpeed = 1.5; this.col = lerpColor(c_pink, c_cyan, random(1)); this.tentacleOffset = random(100); } display() { push(); translate(this.pos.x, this.pos.y); rotate(this.vel.heading() + PI/2); let pulse = sin(frameCount * 0.05 + this.tentacleOffset) * 5; if(isTerrorMode) this.col = color(50, 0, 0, 50); else if(currentThemeColor) this.col = lerpColor(this.col, currentThemeColor, 0.01); noStroke(); fill(red(this.col), green(this.col), blue(this.col), 30); arc(0, 0, this.size + 10 + pulse, this.size + pulse, PI, 0); fill(red(this.col), green(this.col), blue(this.col), 100); arc(0, 0, this.size, this.size * 0.8, PI, 0); fill(255); ellipse(-this.size*0.2, -this.size*0.1, 4, 4); ellipse(this.size*0.2, -this.size*0.1, 4, 4); stroke(red(this.col), green(this.col), blue(this.col), 80); strokeWeight(2); noFill(); for(let i=-2; i<=2; i++) { let xOff = i * 6; beginShape(); for(let y=0; y<40; y+=5) { let wave = sin(y * 0.1 - frameCount * 0.1 + this.tentacleOffset) * 5; vertex(xOff + wave, y); } endShape(); } pop(); } }
-        class Clione extends Creature { constructor(x, y) { super(x, y); this.maxSpeed = 2.5; this.originalMaxSpeed = 2.5; this.size = random(10, 15); this.col = c_cyan; this.flapSpeed = random(0.1, 0.3); } display() { push(); translate(this.pos.x, this.pos.y); rotate(this.vel.heading() + PI/2); noStroke(); fill(200, 255, 255, 150); ellipse(0, 0, this.size, this.size * 2.5); let heartColor = currentThemeColor ? currentThemeColor : color(255, 100, 100, 180); if (isTerrorMode) heartColor = color(0); fill(heartColor); ellipse(0, -this.size*0.3, this.size*0.4, this.size*0.4); let flap = sin(frameCount * this.flapSpeed * 2) * 10; fill(200, 255, 255, 100); beginShape(); vertex(this.size*0.3, -this.size*0.5); vertex(this.size*1.5, -this.size*0.5 + flap); vertex(this.size*0.5, 0); endShape(CLOSE); beginShape(); vertex(-this.size*0.3, -this.size*0.5); vertex(-this.size*1.5, -this.size*0.5 + flap); vertex(-this.size*0.5, 0); endShape(CLOSE); pop(); } }
-        class FrilledShark extends Creature { constructor(x, y) { super(x, y); this.maxSpeed = 4.5; this.originalMaxSpeed = 4.5; this.maxForce = 0.25; this.bodyLength = 25; this.history = []; for(let i=0; i<this.bodyLength * 3; i++){ this.history.push(this.pos.copy()); } this.angle = random(TWO_PI); } update() { super.update(); this.history.unshift(this.pos.copy()); if (this.history.length > this.bodyLength * 4) { this.history.pop(); } } behaviors(foods, mousePos) { if (isTerrorMode) { this.maxSpeed = 25; let fleeForce = createVector(-1, random(-0.2, 0.2)); fleeForce.setMag(this.maxForce * 10); this.applyForce(fleeForce); } else { this.maxSpeed = this.originalMaxSpeed; this.angle += 0.04; let radius = 180 + sin(frameCount * 0.05) * 50; let target = createVector(mousePos.x + cos(this.angle) * radius, mousePos.y + sin(this.angle) * radius); let steer = this.seek(target); this.applyForce(steer); } } display() { let bodyColor = color(40, 40, 60, 200); let glowColor = currentThemeColor ? currentThemeColor : color(100, 255, 200); if (isTerrorMode) { glowColor = color(255,0,0); } noStroke(); push(); translate(this.pos.x, this.pos.y); rotate(this.vel.heading()); fill(bodyColor); ellipse(10, 10, 15, 8); ellipse(10, -10, 15, 8); pop(); for (let i = 0; i < this.bodyLength; i++) { let index = i * 3; if (index >= this.history.length) break; let pos = this.history[index]; let size = map(i, 0, this.bodyLength, 25, 2); if (i > 1 && i < 5) { fill(red(glowColor), green(glowColor), blue(glowColor), 100); ellipse(pos.x, pos.y, size + 10, size + 5); } fill(bodyColor); ellipse(pos.x, pos.y, size, size); } push(); translate(this.pos.x, this.pos.y); rotate(this.vel.heading()); fill(bodyColor); ellipse(5, 0, 30, 20); fill(0, 255, 150); if(isTerrorMode) fill(255,0,0); ellipse(10, 5, 4, 4); ellipse(10, -5, 4, 4); noFill(); stroke(255, 50); strokeWeight(1); arc(15, 0, 10, 10, PI - 0.5, PI + 0.5); pop(); } }
+        
+        class Jellyfish extends Creature { 
+            constructor(x, y) { 
+                super(x, y, 0, 1500); 
+                this.maxSpeed = 1.5; this.originalMaxSpeed = 1.5; this.col = lerpColor(c_pink, c_cyan, random(1)); this.tentacleOffset = random(100); 
+            } 
+            display() { 
+                let alphaFactor = this.getAlphaFactor();
+                if (alphaFactor <= 0) return;
+ 
+                push(); translate(this.pos.x, this.pos.y); rotate(this.vel.heading() + PI/2); let pulse = sin(frameCount * 0.05 + this.tentacleOffset) * 5; if(isTerrorMode) this.col = color(50, 0, 0, 50); else if(currentThemeColor) this.col = lerpColor(this.col, currentThemeColor, 0.01); noStroke(); 
+                
+                let r = red(this.col), g = green(this.col), b = blue(this.col);
+                
+                fill(r, g, b, 30 * alphaFactor); 
+                arc(0, 0, this.size + 10 + pulse, this.size + pulse, PI, 0); 
+                fill(r, g, b, 100 * alphaFactor); 
+                arc(0, 0, this.size, this.size * 0.8, PI, 0); 
+                fill(255, 255 * alphaFactor); 
+                ellipse(-this.size*0.2, -this.size*0.1, 4, 4); ellipse(this.size*0.2, -this.size*0.1, 4, 4); 
+                stroke(r, g, b, 80 * alphaFactor); 
+                strokeWeight(2); noFill(); for(let i=-2; i<=2; i++) { let xOff = i * 6; beginShape(); for(let y=0; y<40; y+=5) { let wave = sin(y * 0.1 - frameCount * 0.1 + this.tentacleOffset) * 5; vertex(xOff + wave, y); } endShape(); } pop(); 
+            } 
+        }
+        
+        class Clione extends Creature { 
+            constructor(x, y) { 
+                super(x, y, 0, 1200); 
+                this.maxSpeed = 2.5; this.originalMaxSpeed = 2.5; this.size = random(10, 15); this.col = c_cyan; this.flapSpeed = random(0.1, 0.3); 
+            } 
+            display() { 
+                let alphaFactor = this.getAlphaFactor();
+                if (alphaFactor <= 0) return;
+ 
+                push(); translate(this.pos.x, this.pos.y); rotate(this.vel.heading() + PI/2); noStroke(); 
+                fill(200, 255, 255, 150 * alphaFactor); 
+                ellipse(0, 0, this.size, this.size * 2.5); 
+                let heartColor = currentThemeColor ? currentThemeColor : color(255, 100, 100, 180); if (isTerrorMode) heartColor = color(0); 
+                fill(red(heartColor), green(heartColor), blue(heartColor), alpha(heartColor) * alphaFactor); 
+                ellipse(0, -this.size*0.3, this.size*0.4, this.size*0.4); let flap = sin(frameCount * this.flapSpeed * 2) * 10; 
+                fill(200, 255, 255, 100 * alphaFactor); 
+                beginShape(); vertex(this.size*0.3, -this.size*0.5); vertex(this.size*1.5, -this.size*0.5 + flap); vertex(this.size*0.5, 0); endShape(CLOSE); beginShape(); vertex(-this.size*0.3, -this.size*0.5); vertex(-this.size*1.5, -this.size*0.5 + flap); vertex(-this.size*0.5, 0); endShape(CLOSE); pop(); 
+            } 
+        }
+        
+        class FrilledShark extends Creature { 
+            constructor(x, y) { 
+                super(x, y, 0, 1000); 
+                this.maxSpeed = 4.5; this.originalMaxSpeed = 4.5; this.maxForce = 0.25; this.bodyLength = 25; this.history = []; for(let i=0; i<this.bodyLength * 3; i++){ this.history.push(this.pos.copy()); } this.angle = random(TWO_PI); 
+            } 
+            update() { super.update(); this.history.unshift(this.pos.copy()); if (this.history.length > this.bodyLength * 4) { this.history.pop(); } } behaviors(foods, mousePos) { if (isTerrorMode) { this.maxSpeed = 25; let fleeForce = createVector(-1, random(-0.2, 0.2)); fleeForce.setMag(this.maxForce * 10); this.applyForce(fleeForce); } else { this.maxSpeed = this.originalMaxSpeed; this.angle += 0.04; let radius = 180 + sin(frameCount * 0.05) * 50; let target = createVector(mousePos.x + cos(this.angle) * radius, mousePos.y + sin(this.angle) * radius); let steer = this.seek(target); this.applyForce(steer); } } 
+            display() { 
+                let alphaFactor = this.getAlphaFactor();
+                if (alphaFactor <= 0) return;
+ 
+                let bodyColor = color(40, 40, 60, 200 * alphaFactor); 
+                let glowColor = currentThemeColor ? currentThemeColor : color(100, 255, 200); if (isTerrorMode) { glowColor = color(255,0,0); } 
+                noStroke(); push(); translate(this.pos.x, this.pos.y); rotate(this.vel.heading()); fill(bodyColor); ellipse(10, 10, 15, 8); ellipse(10, -10, 15, 8); pop(); for (let i = 0; i < this.bodyLength; i++) { let index = i * 3; if (index >= this.history.length) break; let pos = this.history[index]; let size = map(i, 0, this.bodyLength, 25, 2); if (i > 1 && i < 5) { fill(red(glowColor), green(glowColor), blue(glowColor), 100 * alphaFactor); ellipse(pos.x, pos.y, size + 10, size + 5); } fill(bodyColor); ellipse(pos.x, pos.y, size, size); } push(); translate(this.pos.x, this.pos.y); rotate(this.vel.heading()); fill(bodyColor); ellipse(5, 0, 30, 20); fill(0, 255, 150, 255 * alphaFactor); if(isTerrorMode) fill(255,0,0, 255 * alphaFactor); ellipse(10, 5, 4, 4); ellipse(10, -5, 4, 4); noFill(); stroke(255, 50 * alphaFactor); strokeWeight(1); arc(15, 0, 10, 10, PI - 0.5, PI + 0.5); pop(); 
+            } 
+        }
+        
         class SamehadaSquid extends Creature {
             constructor(x, y) {
-                super(x, y);
+                super(x, y, 1000, 3800);
                 this.maxSpeed = 1.0; 
                 this.originalMaxSpeed = 1.0;
                 this.size = random(25, 35);
                 this.tentacleAngle = 0;
             }
-
+ 
             display() {
+                let alphaFactor = this.getAlphaFactor();
+                if (alphaFactor <= 0) return;
+ 
                 push();
                 translate(this.pos.x, this.pos.y);
                 
                 rotate(this.vel.heading() + PI / 2);
-
+ 
                 let glowColor = currentThemeColor ? currentThemeColor : color(255, 100, 255);
                 if (isTerrorMode) glowColor = color(100, 0, 0);
-
+ 
                 noStroke();
-                fill(red(glowColor), green(glowColor), blue(glowColor), 40);
+                fill(red(glowColor), green(glowColor), blue(glowColor), 40 * alphaFactor);
                 
                 ellipse(0, 0, this.size * 1.2, this.size * 1.5);
                 
-                fill(255, 150);
+                fill(255, 150 * alphaFactor);
                 for(let i=0; i<5; i++) {
                     let dx = map(noise(i, frameCount*0.01), 0, 1, -this.size*0.4, this.size*0.4);
                     let dy = map(noise(i+10, frameCount*0.01), 0, 1, -this.size*0.5, this.size*0.5);
                     ellipse(dx, dy, 3, 3);
                 }
-
-                fill(255);
+ 
+                fill(255, 255 * alphaFactor);
                 ellipse(-this.size * 0.25, -this.size * 0.1, this.size * 0.35, this.size * 0.35);
                 ellipse(this.size * 0.25, -this.size * 0.1, this.size * 0.35, this.size * 0.35);
-                fill(0);
+                fill(0, 255 * alphaFactor);
                 ellipse(-this.size * 0.25, -this.size * 0.1, this.size * 0.15, this.size * 0.15);
                 ellipse(this.size * 0.25, -this.size * 0.1, this.size * 0.15, this.size * 0.15);
-
+ 
                 noFill();
-                stroke(red(glowColor), green(glowColor), blue(glowColor), 80);
+                stroke(red(glowColor), green(glowColor), blue(glowColor), 80 * alphaFactor);
                 strokeWeight(2);
                 this.tentacleAngle += 0.1;
                 for (let i = -2; i <= 2; i++) {
@@ -2169,7 +2508,7 @@
                     let wave = sin(this.tentacleAngle + i) * 3;
                     line(xBase, yBase, xBase + wave, yBase + 10);
                 }
-
+ 
                 pop();
             }
         }
@@ -2183,29 +2522,80 @@
                 this.lastScaredTime = 0; this.isPeeking = false; 
             } 
             update() { 
-                let d = dist(cursorX, cursorY, this.x, this.y - this.currentH); let rootD = dist(cursorX, cursorY, this.x, this.y); 
-                let isScared = (d < 200 || rootD < 200); 
-                for (let c of creatures) { if (c instanceof FrilledShark) { let sharkD = dist(c.pos.x, c.pos.y, this.x, this.y - this.currentH); let sharkRootD = dist(c.pos.x, c.pos.y, this.x, this.y); if (sharkD < 250 || sharkRootD < 250) { isScared = true; break; } } } 
+                // Use coreX/coreY for delayed reaction (水圧を感じる)
+                let d = dist(coreX, coreY, this.x, this.y - this.currentH); 
+                let rootD = dist(coreX, coreY, this.x, this.y); 
+                // 修正: 反応距離を200から75に縮小
+                let isScared = (d < 75 || rootD < 75); 
+                
+                // ラブカへの反応ロジック修正
+                for (let c of creatures) { 
+                    if (c instanceof FrilledShark) { 
+                        // ラブカが表示されている（深度範囲内にいて、ある程度見えている）場合のみ反応する
+                        if (c.getAlphaFactor() <= 0.1) continue;
+
+                        let sharkD = dist(c.pos.x, c.pos.y, this.x, this.y - this.currentH); 
+                        let sharkRootD = dist(c.pos.x, c.pos.y, this.x, this.y); 
+                        // 修正: 反応距離を250から120に緩和
+                        if (sharkD < 120 || sharkRootD < 120) { 
+                            isScared = true; 
+                            break; 
+                        } 
+                    } 
+                } 
+                
                 let targetH = this.maxH; let speed = 0.02; 
                 if (isTerrorMode) { targetH = 0; speed = 0.5; } else if (isScared) { targetH = 0; speed = 0.4; this.lastScaredTime = millis(); this.isPeeking = false; } else { let safeTime = millis() - this.lastScaredTime; if (safeTime < 1000) { targetH = 0; speed = 0.4; } else if (safeTime < 3500) { targetH = 40; speed = 0.05; this.isPeeking = true; } else { targetH = this.maxH; speed = 0.01; this.isPeeking = false; } } 
                 let sway = map(noise(frameCount * 0.01 + this.noiseOffset), 0, 1, 0.9, 1.1); if (targetH > 0 && !this.isPeeking) { targetH *= sway; } 
                 this.currentH = lerp(this.currentH, targetH, speed); 
             } 
-            display() { 
+            // 修正: 描画コンテキスト(p)を受け取るように変更
+            // デフォルトは window (グローバルモード) だが、前景レイヤーのインスタンスが渡される想定
+            display(p = window) { 
                 if (this.currentH < 2) return; 
-                push(); translate(this.x, this.y); 
+                
+                // p.push() のようにインスタンスメソッドとして呼ぶ
+                p.push(); 
+                p.translate(this.x, this.y); 
+                
                 let points = []; let segments = 20; 
+                // noise関数はグローバルのままでOK
                 let swayAmt = map(noise(frameCount * 0.02 + this.noiseOffset), 0, 1, -40, 40); 
                 let swayFactor = this.currentH / this.maxH; swayAmt *= swayFactor; 
                 let peekAngle = 0; if (this.isPeeking) { peekAngle = sin(frameCount * 0.06 + this.noiseOffset) * 20; } 
+                
                 for (let i = 0; i <= segments; i++) { let t = i / segments; let yPos = -this.currentH * t; let xPos; if (this.isPeeking) { xPos = peekAngle * (t * t); } else { xPos = swayAmt * sin(t * PI * 0.5 + frameCount * 0.01) * t; } points.push(createVector(xPos, yPos)); } 
-                fill(this.bodyColor); stroke(this.strokeColor); strokeWeight(1); 
-                beginShape(); for (let i = 0; i < points.length; i++) { let p = points[i]; let r = this.thickness / 2 * (1 - i/points.length * 0.1); vertex(p.x - r, p.y); } 
+                
+                // 色情報の互換性を保つため、RGB成分を展開して渡す
+                let bc = this.bodyColor;
+                p.fill(red(bc), green(bc), blue(bc), alpha(bc));
+                let sc = this.strokeColor;
+                p.stroke(red(sc), green(sc), blue(sc), alpha(sc));
+                p.strokeWeight(1); 
+                
+                p.beginShape(); 
+                for (let i = 0; i < points.length; i++) { let pt = points[i]; let r = this.thickness / 2 * (1 - i/points.length * 0.1); p.vertex(pt.x - r, pt.y); } 
+                
                 let headP = points[points.length - 1]; let headR = this.thickness / 2 * 0.9; 
-                for (let a = PI; a <= TWO_PI; a += 0.2) { vertex(headP.x + cos(a) * headR, headP.y + sin(a) * headR * 0.8); } 
-                for (let i = points.length - 1; i >= 0; i--) { let p = points[i]; let r = this.thickness / 2 * (1 - i/points.length * 0.1); vertex(p.x + r, p.y); } endShape(CLOSE); 
-                noStroke(); fill(this.spotColor); for (let i = 3; i < points.length - 2; i += 2) { let p = points[i]; let offsetX = map(noise(i * 0.5 + this.noiseOffset), 0, 1, -2, 2); ellipse(p.x + offsetX, p.y, this.thickness * 0.4, this.thickness * 0.25); } 
-                let useEyeColor = isTerrorMode ? currentThemeColor : this.eyeColor; fill(useEyeColor); drawingContext.shadowBlur = 8; drawingContext.shadowColor = useEyeColor.toString(); ellipse(headP.x - 3, headP.y, 3, 3); ellipse(headP.x + 3, headP.y, 3, 3); drawingContext.shadowBlur = 0; pop(); 
+                for (let a = PI; a <= TWO_PI; a += 0.2) { p.vertex(headP.x + cos(a) * headR, headP.y + sin(a) * headR * 0.8); } 
+                for (let i = points.length - 1; i >= 0; i--) { let pt = points[i]; let r = this.thickness / 2 * (1 - i/points.length * 0.1); p.vertex(pt.x + r, pt.y); } 
+                p.endShape(CLOSE); 
+                
+                p.noStroke(); 
+                let spc = this.spotColor;
+                p.fill(red(spc), green(spc), blue(spc), alpha(spc));
+                for (let i = 3; i < points.length - 2; i += 2) { let pt = points[i]; let offsetX = map(noise(i * 0.5 + this.noiseOffset), 0, 1, -2, 2); p.ellipse(pt.x + offsetX, pt.y, this.thickness * 0.4, this.thickness * 0.25); } 
+                
+                let useEyeColor = isTerrorMode ? currentThemeColor : this.eyeColor; 
+                p.fill(red(useEyeColor), green(useEyeColor), blue(useEyeColor));
+                
+                // drawingContextもインスタンスのものを使う
+                p.drawingContext.shadowBlur = 8; 
+                p.drawingContext.shadowColor = useEyeColor.toString(); 
+                p.ellipse(headP.x - 3, headP.y, 3, 3); 
+                p.ellipse(headP.x + 3, headP.y, 3, 3); 
+                p.drawingContext.shadowBlur = 0; 
+                p.pop(); 
             } 
         } 
         
